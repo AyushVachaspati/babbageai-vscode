@@ -10,17 +10,24 @@ function showInformation () {
 
 
 // const object Provider which implements the Interface InlinCompletionItemProvider
+// Need to debounce the function call somehow so that there are not too many API Calls when the user is typing.
 const provider: vscode.InlineCompletionItemProvider = {
 	async provideInlineCompletionItems(document, position, context, token) {
-		console.log(context.selectedCompletionInfo); // This has the information about the current selection in the popup menu
-		console.log(token);
-		console.log(document.getText);
-		console.log(position);
+		console.log("Function Called");
+		let prefix = document.getText().slice(0,document.offsetAt(position));
+		let postfix = document.getText().slice(document.offsetAt(position));
+		console.log(prefix+"<FIM_TOKEN>"+postfix)
+		
 		// wait for 1 second
 		// await new Promise(resolve => setTimeout(resolve, 1000));
 		let result :vscode.InlineCompletionList = {
 			items: []
 		};
+
+		// Multiline suggestions are good to go! Nice.
+		result.items.push({
+			insertText: "This is a new test \nHow does Multiline suggestions work? \nNice!!! \n"
+		});
 
 
 		// pushing a completion Item. this can have a filter, range and command to help with improving user experience.
@@ -33,7 +40,7 @@ const provider: vscode.InlineCompletionItemProvider = {
 		});
 	
 
-		
+		console.log("Function Finished");
 		return result;
 	},
 
