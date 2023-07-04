@@ -4,8 +4,7 @@ import * as vscode from 'vscode';
 // const object Provider which implements the Interface InlinCompletionItemProvider
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	async provideInlineCompletionItems(document, position, context, token) {
-		console.log('Function Called');
-
+		console.log('Inline Completion Triggered');
 		// If lookAheadSuggestion is active (The popup suggestions which VsCode gives)
 		if(context.selectedCompletionInfo) {
 			return getLookAheadInlineCompletion(document, position, context, token);
@@ -32,10 +31,6 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	
 	let prediction = await debounceCompletions(prefix);
 
-	if(token.isCancellationRequested){
-		return undefined;
-	}
-
 	if(prediction){
 		let inlineCompletion = (context.selectedCompletionInfo.text + prediction.result.slice(prefix.length)).slice(currentCompletion.length);
 		let completionItem :vscode.InlineCompletionItem = {
@@ -45,7 +40,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 														// console.log(12 |_| ))) when the cursor is at |_| and the range is (positon to positon.translate(0,5)), completion is 3);, so completion is adding 2 chars and the things has to replace 3 chhars to they add up to 5.
 			// command: {
 			// 	command: 'babbageai-vscode.log',
-			// 	title: 'Log when Completion Accepted'
+			// 	title: 'Log when Completion Accepted',
 			// }
 		};
 		return new vscode.InlineCompletionList([completionItem]);
@@ -59,11 +54,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	// console.log(prefix+"<FIM_TOKEN>"+postfix);
 	
 	let prediction = await debounceCompletions(prefix);
-		
-	if(token.isCancellationRequested){
-		return undefined;
-	}
-
+	
 	if(prediction){
 		let inlineCompletion = prediction.result.slice(prefix.length);
 		let completionItem :vscode.InlineCompletionItem = {

@@ -4,32 +4,29 @@ import * as vscode from 'vscode';
 import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
 
 // Function to show Information to the user in a Information Box on the bottom right corner of the screen. 
-async function showInformation() {	
+function showInformation() {	
 	vscode.window.showInformationMessage('Welcome to Babbage AI');
 };
 
-async function printLog(){
+function printLog(){
+	console.log("Triggering Inline Suggestion")
+    void vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");
 	console.log("Completion Accepted");
 }
 
 // This method is called when your extension is activated
 // Use this to register all the commands and CompletionProviders + Handlers for other stuff.
 export function activate(context: vscode.ExtensionContext) {		
-	
-	console.log('inline-completions demo started');
 	context.subscriptions.push(
 		vscode.commands.registerCommand('babbageai-vscode.showInfo', showInformation)
 	);
-
-
+	context.subscriptions.push(
+		vscode.commands.registerCommand('babbageai-vscode.log', printLog)
+	);
 	context.subscriptions.push(
 		vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineCompletionProvider)
 	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('babbageai-vscode.log', printLog)
-	);	
-
-	console.log('Congratulations, your extension "babbageai-vscode" is now active!');
+	console.log('Babbage AI is now active!');
 }
 
 // This method is called when your extension is deactivated
