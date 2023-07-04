@@ -9,9 +9,10 @@ function showInformation() {
 };
 
 function printLog(){
-	console.log("Triggering Inline Suggestion")
-    void vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");
 	console.log("Completion Accepted");
+	// The inlineSuggest command only triggers if we give some delay.. even 1ms delay seems to make it work
+    setTimeout(()=>{vscode.commands.executeCommand("editor.action.inlineSuggest.trigger")}, 10);  
+	// vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");
 }
 
 // This method is called when your extension is activated

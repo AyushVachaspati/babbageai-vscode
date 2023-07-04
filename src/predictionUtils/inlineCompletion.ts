@@ -38,10 +38,10 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 			insertText: new vscode.SnippetString(inlineCompletion), //learn the intricasies of SnippetString (looks like the insertText is also used as the filter text. since if I add random stuff at the end it doesnt count)
 			range: new vscode.Range(position,position),   //learn how Range works, article explaining it is bookmarked, I need to find EOL Position or end of word positon somehow.
 														// console.log(12 |_| ))) when the cursor is at |_| and the range is (positon to positon.translate(0,5)), completion is 3);, so completion is adding 2 chars and the things has to replace 3 chhars to they add up to 5.
-			// command: {
-			// 	command: 'babbageai-vscode.log',
-			// 	title: 'Log when Completion Accepted',
-			// }
+			command: {
+				command: 'babbageai-vscode.log',
+				title: 'Log when Completion Accepted',
+			}
 		};
 		return new vscode.InlineCompletionList([completionItem]);
 	}
@@ -62,10 +62,10 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 			insertText: new vscode.SnippetString(inlineCompletion), //learn the intricasies of SnippetString (looks like the insertText is also used as the filter text. since if I add random stuff at the end it doesnt count)
 			range: new vscode.Range(position,position),   //learn how Range works, article explaining it is bookmarked, I need to find EOL Position or end of word positon somehow.
 															// console.log(12 |_| ))) when the cursor is at |_| and the range is (positon to positon.translate(0,5)), completion is 3);, so completion is adding 2 chars and the things has to replace 3 chhars to they add up to 5.
-			// command: {
-			// 	command: 'babbageai-vscode.log',
-			// 	title: 'Log when Completion Accepted'
-			// }
+			command: {
+				command: 'babbageai-vscode.log',
+				title: 'Log when Completion Accepted'
+			}
 		};
 		return new vscode.InlineCompletionList([completionItem]);
 	}
