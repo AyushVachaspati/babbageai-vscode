@@ -4,13 +4,13 @@ export interface Result {
     result: string
 }
 
-interface Prompt  {
+interface ModelInput  {
     prompt: string
 }
 
 async function getModelPrediction(prefix:string): Promise<Result> {
     let myUrl = "http://127.0.0.1:8000/code_complete_test";
-    let inputPrompt:Prompt  = {prompt: prefix};
+    let inputPrompt:ModelInput  = {prompt: prefix};
     // console.time("API Fetch");
     const response = await fetch(myUrl, {
         method: 'POST',
@@ -28,7 +28,7 @@ async function getModelPrediction(prefix:string): Promise<Result> {
 }
 
 
-const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 500; //Debounce helps prevent too many API calls, also helps user type stuff in which is prefix of suggestion and the suggestion doesnt change. 
 
 function debounce<T extends unknown[], R>(
   callback: (...rest: T) => R,

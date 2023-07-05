@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
 
+
 // Function to show Information to the user in a Information Box on the bottom right corner of the screen. 
 function showInformation() {	
 	vscode.window.showInformationMessage('Welcome to Babbage AI');
@@ -11,7 +12,7 @@ function showInformation() {
 function printLog(){
 	console.log("Completion Accepted");
 	// The inlineSuggest command only triggers if we give some delay.. even 1ms delay seems to make it work
-    setTimeout(()=>{vscode.commands.executeCommand("editor.action.inlineSuggest.trigger")}, 10);  
+    setTimeout(()=>{vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");}, 10);  
 	// vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");
 }
 
