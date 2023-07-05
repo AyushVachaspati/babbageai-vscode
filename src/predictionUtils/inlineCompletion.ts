@@ -26,6 +26,7 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 };
 
 async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
+	console.log("Lookahead Completion Called")
 	if(!context.selectedCompletionInfo){
 		return undefined;
 	}
@@ -39,10 +40,10 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	let replaceRange = new vscode.Range(position.translate(0,-currentCompletion.length),position);
 	prefix = prefix.slice(0, currentCompletion.length===0?undefined:-currentCompletion.length); 
 	prefix = prefix + context.selectedCompletionInfo.text; //get prefix as if popup suggestion was accepted
-	
+
 	let prompt:CachePrompt = {
 		prefix: prefix, 
-		completionType: CompletionType.inlineSuggestion
+		completionType: CompletionType.lookAheadSuggestion
 	};
 
 	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(prompt)));
@@ -51,13 +52,22 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 		let prediction = await debounceCompletions(prefix);
 		inlineCompletion = prediction? (context.selectedCompletionInfo.text + prediction.result.slice(prefix.length)).slice(currentCompletion.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
+
+		// Also cache inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
+		let ifAcceptedInlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
+		prompt.completionType = CompletionType.inlineSuggestion;
+		ifAcceptedInlineCompletion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedInlineCompletion) : undefined;
+
+	}
+	else{
+		await new Promise(f => setTimeout(f, 500)); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
 	}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
 			filterText: inlineCompletion,  // what does filter text do and how can we use this to improve user experience ( it seems like that it actually doesn't do anything in the code)
 			insertText: new vscode.SnippetString(inlineCompletion), //learn the intricasies of SnippetString (looks like the insertText is also used as the filter text. since if I add random stuff at the end it doesnt count)
-			range: new vscode.Range(position,position),   //learn how Range works, article explaining it is bookmarked, I need to find EOL Position or end of word positon somehow.
+			range: popupRange,   //learn how Range works, article explaining it is bookmarked, I need to find EOL Position or end of word positon somehow.
 			command: {									  // console.log(12 |_| ))) when the cursor is at |_| and the range is (positon to positon.translate(0,5)), completion is 3);, so completion is adding 2 chars and the things has to replace 3 chhars to they add up to 5.
 				command: 'babbageai-vscode.log',
 				title: 'Log when Completion Accepted',
@@ -66,6 +76,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 		return new vscode.InlineCompletionList([completionItem]);
 	}
 	return undefined;
+	
 }
 
 async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
@@ -77,13 +88,16 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		prefix: prefix, 
 		completionType: CompletionType.inlineSuggestion
 	};
-
+	
 	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(prompt)).toString());
 	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
 		inlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
+	}
+	else{
+		await new Promise(f => setTimeout(f, 500)); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
 	}
 
 	if(inlineCompletion){
