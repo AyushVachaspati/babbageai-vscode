@@ -28,7 +28,7 @@ async function getModelPrediction(prefix:string): Promise<Result> {
 }
 
 
-const DEBOUNCE_DELAY = 500; //Debounce helps prevent too many API calls, also helps user type stuff in which is prefix of suggestion and the suggestion doesnt change. 
+const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls, also helps user type stuff in which is prefix of suggestion and the suggestion doesnt change. 
 
 function debounce<T extends unknown[], R>(
   callback: (...rest: T) => R,

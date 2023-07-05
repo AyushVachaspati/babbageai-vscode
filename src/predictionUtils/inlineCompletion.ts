@@ -2,6 +2,7 @@ import {debounceCompletions, Result} from "./callApi";
 import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
+import assert = require("assert");
 
 export enum CompletionType {
     inlineSuggestion,
@@ -13,11 +14,9 @@ export type CachePrompt = {
     completionType: CompletionType 
 };
 
-// const object Provider which implements the Interface InlinCompletionItemProvider
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
+	
 	async provideInlineCompletionItems(document, position, context, token) {
-		console.log('Inline Completion Triggered');
-		// If lookAheadSuggestion is active (The popup suggestions which VsCode gives)
 		if(context.selectedCompletionInfo) {
 			return getLookAheadInlineCompletion(document, position, context, token);
 		};
@@ -25,12 +24,15 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	},
 };
 
-async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
-	console.log("Lookahead Completion Called")
-	if(!context.selectedCompletionInfo){
-		return undefined;
-	}
+async function waitFor(delay:number) {
+	return new Promise(f => setTimeout(f, delay));
+}
 
+/**	Provide inline completion consistent with the VsCode intellisense popup suggestions (called lookAheadCompletion here)
+ *	SelectedCompletionInfo corresponds to the lookAheadSuggestion	
+ */
+async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
+	assert(context.selectedCompletionInfo)
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().slice(document.offsetAt(position));
 	// console.log(prefix+"<FIM_TOKEN>"+postfix);
@@ -40,17 +42,17 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	let replaceRange = new vscode.Range(position.translate(0,-currentCompletion.length),position);
 	prefix = prefix.slice(0, currentCompletion.length===0?undefined:-currentCompletion.length); 
 	prefix = prefix + context.selectedCompletionInfo.text; //get prefix as if popup suggestion was accepted
-
+	
 	let prompt:CachePrompt = {
 		prefix: prefix, 
 		completionType: CompletionType.lookAheadSuggestion
 	};
 
 	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(prompt)));
-	
+
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
-		inlineCompletion = prediction? (context.selectedCompletionInfo.text + prediction.result.slice(prefix.length)).slice(currentCompletion.length) : undefined;
+		inlineCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 
 		// Also cache inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
@@ -60,8 +62,10 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 
 	}
 	else{
-		await new Promise(f => setTimeout(f, 500)); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
+		await waitFor(300); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
 	}
+	
+	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
@@ -80,6 +84,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 }
 
 async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
+	assert(context.selectedCompletionInfo===undefined);
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().slice(document.offsetAt(position));
 	// console.log(prefix+"<FIM_TOKEN>"+postfix);
@@ -97,8 +102,10 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}
 	else{
-		await new Promise(f => setTimeout(f, 500)); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
+		await waitFor(300); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
 	}
+	
+	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
