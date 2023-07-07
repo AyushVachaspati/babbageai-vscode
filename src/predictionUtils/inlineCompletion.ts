@@ -21,6 +21,7 @@ async function waitFor(delay:number) {
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	
 	async provideInlineCompletionItems(document, position, context, token) {
+		console.log("Triggered Completion");
 		if(context.selectedCompletionInfo) {
 			return getLookAheadInlineCompletion(document, position, context, token);
 		};
@@ -62,7 +63,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 
 	}
 	
-	// if(token.isCancellationRequested){return undefined;}
+	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
@@ -99,7 +100,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}
 	
-	// if(token.isCancellationRequested){return undefined;}
+	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
