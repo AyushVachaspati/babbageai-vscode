@@ -14,6 +14,10 @@ export type CachePrompt = {
     completionType: CompletionType 
 };
 
+async function waitFor(delay:number) {
+	return new Promise(f => setTimeout(f, delay));
+}
+
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	
 	async provideInlineCompletionItems(document, position, context, token) {
@@ -23,10 +27,6 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 		return getInlineCompletion(document, position, context, token);
 	},
 };
-
-async function waitFor(delay:number) {
-	return new Promise(f => setTimeout(f, delay));
-}
 
 /**	Provide inline completion consistent with the VsCode intellisense popup suggestions (called lookAheadCompletion here)
  *	SelectedCompletionInfo corresponds to the lookAheadSuggestion	
@@ -61,11 +61,8 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 		ifAcceptedInlineCompletion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedInlineCompletion) : undefined;
 
 	}
-	else{
-		await waitFor(300); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
-	}
 	
-	if(token.isCancellationRequested){return undefined;}
+	// if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
@@ -101,11 +98,8 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		inlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}
-	else{
-		await waitFor(300); //if the cache is hit we want to wait for some time for the user to take action before proceeding, we could do pattern matching for the completions somehow to make this redundant
-	}
 	
-	if(token.isCancellationRequested){return undefined;}
+	// if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {

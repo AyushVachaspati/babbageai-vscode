@@ -20,7 +20,18 @@
         "title": "Show Information",
         "category": "BabbageAI"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+          "command": "editor.action.inlineSuggest.trigger",
+          "key": "ctrl+'"
+      },
+      {
+        "key": "tab",
+        "command": "editor.action.inlineSuggest.commit",
+        "when": "inlineSuggestionVisible && !editorTabMovesFocus"
+      }
+  ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",

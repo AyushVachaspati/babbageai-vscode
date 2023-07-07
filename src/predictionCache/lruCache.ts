@@ -5,7 +5,7 @@ type LRUCacheNode = {
     result: string,
     prev: number | undefined,
     next: number | undefined
-}
+};
 
 export class LRUCache {
     map: Map<string, number>;
@@ -57,46 +57,6 @@ export class LRUCache {
 
 /************************************************************************************************************************************************************************************************/
 
-    moveToMRU(key: string, value: string){
-        let index = this.map.get(key);
-        assert(index!==undefined, "Supposed to be called when Index already present.");
-        let currentNode = this.linkedList.at(index);
-        assert(currentNode!==undefined, "Expected a LRUCacheNode here.");
-        if(index === this.tail){return;} //already MRU
-        else if(index === this.head){
-            this.head = currentNode.next;
-            let nextLRUNode = this.head!==undefined ? this.linkedList.at(this.head) : undefined;
-            nextLRUNode !== undefined ? nextLRUNode.prev = undefined : undefined;
-
-            let currentMRUNode = this.tail!== undefined ? this.linkedList.at(this.tail) : undefined;
-            currentMRUNode!==undefined ? currentMRUNode.next=index : undefined;
-            currentNode.prev = this.tail;
-            currentNode.next = undefined;
-            currentNode.key = key;
-            currentNode.result = value;
-            this.tail = index;
-
-        }
-        else{
-            let nextNode = currentNode.next ? this.linkedList.at(currentNode.next) : undefined;
-            let prevNode = currentNode.prev ? this.linkedList.at(currentNode.prev) : undefined;
-            assert(nextNode!==undefined && prevNode!==undefined, "Expected Current Node to be Middle Node");
-            prevNode.next = currentNode.next;
-            nextNode.prev = currentNode.prev;
-
-            let currentMRUNode = this.tail!== undefined ? this.linkedList.at(this.tail) : undefined;
-            currentMRUNode!==undefined ? currentMRUNode.next=index : undefined;
-            currentNode.prev = this.tail;
-            currentNode.next = undefined;
-            currentNode.key = key;
-            currentNode.result = value;
-            this.tail = index;
-
-        }
-    }
-
-/************************************************************************************************************************************************************************************************/
-
     clearCache(){
         this.map.clear();
         this.head = undefined;
@@ -139,6 +99,46 @@ export class LRUCache {
 
 /************************************************************************************************************************************************************************************************/
 
+    private moveToMRU(key: string, value: string){
+        let index = this.map.get(key);
+        assert(index!==undefined, "Supposed to be called when Index already present.");
+        let currentNode = this.linkedList.at(index);
+        assert(currentNode!==undefined, "Expected a LRUCacheNode here.");
+        if(index === this.tail){return;} //already MRU
+        else if(index === this.head){
+            this.head = currentNode.next;
+            let nextLRUNode = this.head!==undefined ? this.linkedList.at(this.head) : undefined;
+            nextLRUNode !== undefined ? nextLRUNode.prev = undefined : undefined;
+
+            let currentMRUNode = this.tail!== undefined ? this.linkedList.at(this.tail) : undefined;
+            currentMRUNode!==undefined ? currentMRUNode.next=index : undefined;
+            currentNode.prev = this.tail;
+            currentNode.next = undefined;
+            currentNode.key = key;
+            currentNode.result = value;
+            this.tail = index;
+
+        }
+        else{
+            let nextNode = currentNode.next ? this.linkedList.at(currentNode.next) : undefined;
+            let prevNode = currentNode.prev ? this.linkedList.at(currentNode.prev) : undefined;
+            assert(nextNode!==undefined && prevNode!==undefined, "Expected Current Node to be Middle Node");
+            prevNode.next = currentNode.next;
+            nextNode.prev = currentNode.prev;
+
+            let currentMRUNode = this.tail!== undefined ? this.linkedList.at(this.tail) : undefined;
+            currentMRUNode!==undefined ? currentMRUNode.next=index : undefined;
+            currentNode.prev = this.tail;
+            currentNode.next = undefined;
+            currentNode.key = key;
+            currentNode.result = value;
+            this.tail = index;
+
+        }
+    }
+
+/************************************************************************************************************************************************************************************************/
+
     private addElementToEnd(key:string, value: string){
         let newIndex = this.numElements;
         let prevNode = this.tail!==undefined? this.linkedList.at(this.tail) : undefined;
@@ -176,7 +176,7 @@ export class LRUCache {
             return;
         }
 
-        this.head = currentLRUNode.next!==undefined ? currentLRUNode.next : undefined; //setting LRU-2 to LRU, if only 1 element in cache then head is still head
+        this.head = currentLRUNode.next!==undefined ? currentLRUNode.next : undefined;
         assert(this.head!==undefined, "No Head Element for Linked List");
         let nextLRUNode = this.linkedList.at(this.head);
         nextLRUNode !== undefined ? nextLRUNode.prev = undefined : undefined;
