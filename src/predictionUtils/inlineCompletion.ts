@@ -32,7 +32,7 @@ async function waitFor(delay:number) {
  *	SelectedCompletionInfo corresponds to the lookAheadSuggestion	
  */
 async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
-	assert(context.selectedCompletionInfo)
+	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().slice(document.offsetAt(position));
 	// console.log(prefix+"<FIM_TOKEN>"+postfix);
@@ -84,7 +84,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 }
 
 async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
-	assert(context.selectedCompletionInfo===undefined);
+	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().slice(document.offsetAt(position));
 	// console.log(prefix+"<FIM_TOKEN>"+postfix);
