@@ -215,12 +215,18 @@ export class LRUCache {
 
 }
 
+// async function test1213(){
 // let test  = new LRUCache(10);
-// for (let index = 0; index < 20; index++) {
-//     test.set(`Key${index}`,`Value${index}`);
-//     test.printCache()
+//     for (let index = 0; index < 20; index++) {
+//         test.set(`Key${index}`,`Value${index}`);
+//         test.printCache()
+//         await new Promise(f => setTimeout(f,1000));
+    
+//     }
+//     test.get("Key10");
+//     test.printCache();
+//     await new Promise(f => setTimeout(f,1000));
+//     test.set("Key12","ASDF");
+//     test.printCache();
 // }
-// test.get("Key10")
-// test.printCache()
-// test.set("Key12","ASDF")
-// test.printCache()
+// test1213();

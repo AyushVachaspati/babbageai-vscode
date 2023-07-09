@@ -30,7 +30,7 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 };
 
 /**	Provide inline completion consistent with the VsCode intellisense popup suggestions (called lookAheadCompletion here)
- *	SelectedCompletionInfo corresponds to the lookAheadSuggestion	
+ *	context.SelectedCompletionInfo corresponds to lookAheadSuggestion	
  */
 async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
@@ -60,7 +60,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 		let ifAcceptedInlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		prompt.completionType = CompletionType.inlineSuggestion;
 		ifAcceptedInlineCompletion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedInlineCompletion) : undefined;
-
+		
 	}
 	
 	if(token.isCancellationRequested){return undefined;}
