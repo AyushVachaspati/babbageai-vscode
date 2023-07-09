@@ -11,14 +11,14 @@ interface ModelInput  {
 async function getModelPrediction(prefix:string): Promise<Result> {
     let myUrl = "http://127.0.0.1:8000/code_complete_test";
     let inputPrompt:ModelInput  = {prompt: prefix};
-    // console.time("API Fetch");
+    console.time("API Fetch");
     const response = await fetch(myUrl, {
         method: 'POST',
         // eslint-disable-next-line @typescript-eslint/naming-convention
         headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
         body: JSON.stringify(inputPrompt)
     });
-    // console.timeEnd("API Fetch");  
+    console.timeEnd("API Fetch");  
     if (!response.ok) { 
         console.log("Something Went Wrong");
      }
