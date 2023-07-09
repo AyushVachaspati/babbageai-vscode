@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
-
+import { statusBarItem, updateStatusBarBabbageActive, updateStatusBarBabbageLoading } from './statusBar/statusBar';
 
 // Function to show Information to the user in a Information Box on the bottom right corner of the screen. 
 function showInformation() {	
@@ -18,17 +18,29 @@ function printLog(){
 
 // This method is called when your extension is activated
 // Use this to register all the commands and CompletionProviders + Handlers for other stuff.
-export function activate(context: vscode.ExtensionContext) {		
+export async function activate(context: vscode.ExtensionContext) {
+	updateStatusBarBabbageLoading();
+
+	//Register Babbage Commands
 	context.subscriptions.push(
 		vscode.commands.registerCommand('babbageai-vscode.showInfo', showInformation)
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('babbageai-vscode.log', printLog)
 	);
+
+	//Register Babbage Inline Code Completion
 	context.subscriptions.push(
 		vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineCompletionProvider)
 	);
-	console.log('Babbage AI is now active!');
+	
+	//Register Babbage Status Bar Item for Disposal
+	context.subscriptions.push(statusBarItem);
+	
+	await new Promise(resolve => setTimeout(resolve, 3000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
+	
+	console.log('Babbage AI is active!');
+	updateStatusBarBabbageActive();
 }
 
 // This method is called when your extension is deactivated

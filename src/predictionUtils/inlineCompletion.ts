@@ -116,7 +116,3 @@ function validMidlinePosition(document: vscode.TextDocument, position: vscode.Po
 	const suffixText = document.getText(suffixRange);
 	return END_OF_LINE_VALID_REGEX.test(suffixText);
   }
-
-async function waitFor(delay:number) {
-	return new Promise(f => setTimeout(f, delay));
-}  
