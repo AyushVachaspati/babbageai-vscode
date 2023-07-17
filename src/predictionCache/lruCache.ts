@@ -43,7 +43,7 @@ export class LRUCache {
 
     set(key: string, value: string){
         if(this.map.get(key)!==undefined){
-            this.moveToMRU(key,value);
+            this.moveElementToMRU(key,value);
         }
         else{
             if(this.isFull()){
@@ -99,11 +99,12 @@ export class LRUCache {
 
 /************************************************************************************************************************************************************************************************/
 
-    private moveToMRU(key: string, value: string){
+    private moveElementToMRU(key: string, value: string){
         let index = this.map.get(key);
         assert(index!==undefined, "Supposed to be called when Index already present.");
         let currentNode = this.linkedList.at(index);
         assert(currentNode!==undefined, "Expected a LRUCacheNode here.");
+        
         if(index === this.tail){return;} //already MRU, i.e. the tail.
         
         if(index === this.head){

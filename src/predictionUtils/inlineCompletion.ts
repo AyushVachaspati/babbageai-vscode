@@ -34,7 +34,13 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
-	
+	// let postfix = document.getText().substring(document.offsetAt(position));
+	// let start_token = "<fim-prefix>";
+	// let end_token = "<fim-suffix>";
+	// let middle_token = "<fim-middle>";
+	// if(postfix){
+	// 	prefix = `${start_token}${prefix}${end_token}${postfix}${middle_token}`;
+	// }
 	let popupRange = context.selectedCompletionInfo.range;
 	let currentCompletion = document.getText(popupRange);
 	let replaceRange = new vscode.Range(position.translate(0,-currentCompletion.length),position);
@@ -80,7 +86,13 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
 	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
-	
+	// let postfix = document.getText().substring(document.offsetAt(position));
+	// let startToken = "<fim-prefix>";
+	// let endToken = "<fim-suffix>";
+	// let middleToken = "<fim-middle>";
+	// if(postfix){
+	// 	prefix = `${startToken}${prefix}${endToken}${postfix}${middleToken}`;
+	// }
 	let prompt:CachePrompt = {
 		prefix: prefix, 
 		completionType: CompletionType.inlineSuggestion
@@ -99,7 +111,8 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
 			insertText: inlineCompletion,
-			range: new vscode.Range(position, document.lineAt(position.line).range.end),  //replace everything until eol. excluding new line char
+			range: new vscode.Range(position, document.lineAt(position.line).range.end),  //replace everything until EOL. excluding new line char
+			// range: new vscode.Range(position,position),
 			command: {
 				command: 'babbageai-vscode.log',
 				title: 'Log when Completion Accepted'

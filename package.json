@@ -5,7 +5,7 @@
   "description": "Your AI Coding partner.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.79.0"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Other"
@@ -24,15 +24,15 @@
     ],
     "keybindings": [
       {
-          "command": "editor.action.inlineSuggest.trigger",
-          "key": "ctrl+'"
+        "command": "editor.action.inlineSuggest.trigger",
+        "key": "ctrl+'"
       },
       {
         "key": "tab",
         "command": "editor.action.inlineSuggest.commit",
         "when": "inlineSuggestionVisible && !editorTabMovesFocus"
       }
-  ]
+    ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",

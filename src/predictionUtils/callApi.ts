@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import {updateStatusBarBabbageActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
 
 export interface Result {
@@ -9,31 +9,36 @@ interface ModelInput  {
     prompt: string
 }
 
-async function getModelPrediction(prefix:string): Promise<Result> {
-    
+async function getModelPrediction(prefix:string): Promise<Result|undefined> {
     updateStatusBarFetchingPrediction();
 
-    let myUrl = "http://127.0.0.1:8000/code_complete_test";
-    let inputPrompt:ModelInput  = {prompt: prefix};
     console.time("API Fetch");
-    const response = await fetch(myUrl, {
-        method: 'POST',
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-        body: JSON.stringify(inputPrompt)
-    });
-    console.timeEnd("API Fetch");  
-    if (!response.ok) { 
-        console.log("Something Went Wrong");
+    let response: Response|undefined;
+    try{
+        let myUrl = "http://127.0.0.1:8000/code_complete_test";
+        let inputPrompt:ModelInput  = {prompt: prefix};
+        response = await fetch(myUrl, {
+            method: 'POST',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(inputPrompt),
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!response.ok) { 
+            console.log(`API Fetch Failed with: (Response Code: ${response.status}) ${response.statusText}`);
+        }
     }
+    catch (error){
+        console.log(error);
+    } 
+    console.timeEnd("API Fetch");
 
-    updateStatusBarBabbageActive();  
+    updateStatusBarBabbageActive();
     
-    return response.json() as Promise<Result>;
-      
+    return response?.json() as Promise<Result|undefined>;
 }
 
-const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls, also helps user type stuff in which is prefix of suggestion and the suggestion doesnt change. 
+const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls 
 
 function debounce<T extends unknown[], R>(
   callback: (...rest: T) => R,

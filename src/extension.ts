@@ -10,10 +10,10 @@ function showInformation() {
 };
 
 function printLog(){
-	console.log("Completion Accepted");
+	console.log("User Accepted Suggestoin"); // Use this place to log telemetary data.
+
 	// The inlineSuggest command only triggers if we give some delay.. even 1ms delay seems to make it work
     setTimeout(()=>{vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");}, 10);  
-	// vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");
 }
 
 // This method is called when your extension is activated
