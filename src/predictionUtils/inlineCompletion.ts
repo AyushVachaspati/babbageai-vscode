@@ -56,7 +56,6 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
-		console.log(prediction);
 		inlineCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 
@@ -103,7 +102,6 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
-		console.log(prediction);
 		inlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}

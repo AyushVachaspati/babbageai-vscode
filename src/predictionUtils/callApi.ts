@@ -8,6 +8,9 @@ export type ModelPrediction = {
 };
 
 async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefined> {
+    if(prefix.length===0){
+        return undefined;
+    }
     updateStatusBarFetchingPrediction();
     console.time("API Fetch");
     let response: Response|undefined;
@@ -16,7 +19,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
         let inputPrompt:InferenceRequest = {
             inputs:[{
                 name:"input",
-                shape:[1],
+                shape:[1,1],
                 datatype: "BYTES",
                 data:[prefix]
             }]
@@ -47,7 +50,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     return modelPrediction;
 }
 
-const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls 
+const DEBOUNCE_DELAY = 3; //Debounce helps prevent too many API calls 
 
 function debounce<T extends unknown[], R>(
   callback: (...rest: T) => R,
