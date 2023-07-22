@@ -68,5 +68,3 @@ function debounce<T extends unknown[], R>(
 }
 
 export const debounceCompletions = debounce(getModelPrediction, DEBOUNCE_DELAY);
-
-{inputs:[{name:"input", shape:[20], datatype: "BYTES", data:"Complete this string"}]}
