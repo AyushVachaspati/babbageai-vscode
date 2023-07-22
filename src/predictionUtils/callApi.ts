@@ -1,22 +1,26 @@
 import fetch, { Response } from 'node-fetch';
 import {updateStatusBarBabbageActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
+import {InferenceRequest,InferenceResponse} from "./apiSchema";
+import assert = require("assert");
 
-export interface Result {
-    result: string
-}
+export type ModelPrediction = {
+    result : string
+};
 
-interface ModelInput  {
-    prompt: string
-}
-
-async function getModelPrediction(prefix:string): Promise<Result|undefined> {
+async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefined> {
     updateStatusBarFetchingPrediction();
-
     console.time("API Fetch");
     let response: Response|undefined;
     try{
-        let myUrl = "http://127.0.0.1:8000/code_complete_test";
-        let inputPrompt:ModelInput  = {prompt: prefix};
+        let myUrl = "http://127.0.0.1:8000/v2/models/santacoder_huggingface/infer";
+        let inputPrompt:InferenceRequest = {
+            inputs:[{
+                name:"input",
+                shape:[1],
+                datatype: "BYTES",
+                data:[prefix]
+            }]
+        };
         response = await fetch(myUrl, {
             method: 'POST',
             // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -25,17 +29,22 @@ async function getModelPrediction(prefix:string): Promise<Result|undefined> {
             signal: AbortSignal.timeout(5000)
         });
         if (!response.ok) { 
-            console.log(`API Fetch Failed with: (Response Code: ${response.status}) ${response.statusText}`);
+            console.error(`API Fetch Failed with: (Response Code: ${response.status}) ${response.statusText}`);
         }
     }
     catch (error){
-        console.log(error);
-    } 
+        console.error(error);
+    }
     console.timeEnd("API Fetch");
-
     updateStatusBarBabbageActive();
     
-    return response?.json() as Promise<Result|undefined>;
+    let inferenceResponse = await (response?.json() as Promise<InferenceResponse>);
+    let completion = inferenceResponse['outputs'][0]['data'][0];
+    assert(typeof(completion)==="string", `Expected String Output in InferenceResponse. Got {typeof(completion)}`);
+    let modelPrediction:ModelPrediction = {
+        result: completion
+    };
+    return modelPrediction;
 }
 
 const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls 
@@ -56,3 +65,5 @@ function debounce<T extends unknown[], R>(
 }
 
 export const debounceCompletions = debounce(getModelPrediction, DEBOUNCE_DELAY);
+
+{inputs:[{name:"input", shape:[20], datatype: "BYTES", data:"Complete this string"}]}

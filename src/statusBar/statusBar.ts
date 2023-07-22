@@ -9,8 +9,8 @@ export function updateStatusBarBabbageLoading(){
 }
 
 export function updateStatusBarBabbageActive(){
-    statusBarItem.text = "BabbageAI Active $(rocket)";
-	// statusBarItem.text = "BabbageAI Active $(telescope)";
+    // statusBarItem.text = "BabbageAI Active $(rocket)";
+	statusBarItem.text = "BabbageAI Active $(telescope)";
 	statusBarItem.tooltip = "BabbageAi Active!";
 	statusBarItem.show();
 }

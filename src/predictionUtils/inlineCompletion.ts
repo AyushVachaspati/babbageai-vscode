@@ -1,4 +1,4 @@
-import {debounceCompletions, Result} from "./callApi";
+import {debounceCompletions} from "./callApi";
 import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
@@ -56,13 +56,14 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
+		console.log(prediction);
 		inlineCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 
 		// Also cache inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
-		let ifAcceptedInlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
+		let ifAcceptedLookAheadSuggestion = prediction? prediction.result.slice(prefix.length) : undefined;
 		prompt.completionType = CompletionType.inlineSuggestion;
-		ifAcceptedInlineCompletion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedInlineCompletion) : undefined;
+		ifAcceptedLookAheadSuggestion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedLookAheadSuggestion) : undefined;
 		
 	}
 	
@@ -102,6 +103,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prefix);
+		console.log(prediction);
 		inlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}

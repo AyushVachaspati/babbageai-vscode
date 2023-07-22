@@ -25,12 +25,13 @@
     "keybindings": [
       {
         "command": "editor.action.inlineSuggest.trigger",
-        "key": "ctrl+'"
+        "key": "ctrl+'",
+        "when": "editorTextFocus"
       },
       {
         "key": "tab",
         "command": "editor.action.inlineSuggest.commit",
-        "when": "inlineSuggestionVisible && !editorTabMovesFocus"
+        "when": "editorTextFocus && inlineSuggestionVisible && !editorTabMovesFocus"
       }
     ]
   },
