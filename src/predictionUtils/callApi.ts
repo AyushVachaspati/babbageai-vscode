@@ -1,5 +1,5 @@
 import fetch, { Response } from 'node-fetch';
-import {updateStatusBarBabbageActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
+import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
 import {InferenceRequest,InferenceResponse} from "./apiSchema";
 import assert = require("assert");
 
@@ -15,7 +15,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     console.time("API Fetch");
     let response: Response|undefined;
     try{
-        let myUrl = "http://127.0.0.1:8000/v2/models/santacoder_huggingface/infer";
+        let myUrl = "http://127.0.0.1/v2/models/santacoder_huggingface/infer";
         let inputPrompt:InferenceRequest = {
             inputs:[{
                 name:"input",
@@ -29,7 +29,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
             // eslint-disable-next-line @typescript-eslint/naming-convention
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify(inputPrompt),
-            signal: AbortSignal.timeout(5000)
+            signal: AbortSignal.timeout(30000)
         });
         if (!response.ok) { 
             console.error(`API Fetch Failed with: (Response Code: ${response.status}) ${response.statusText}`);
@@ -39,7 +39,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
         console.error(error);
     }
     console.timeEnd("API Fetch");
-    updateStatusBarBabbageActive();
+    updateStatusBarArtemusActive();
     
     let inferenceResponse = await (response?.json() as Promise<InferenceResponse>);
     let completion = inferenceResponse['outputs'][0]['data'][0];
@@ -50,7 +50,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     return modelPrediction;
 }
 
-const DEBOUNCE_DELAY = 3; //Debounce helps prevent too many API calls 
+const DEBOUNCE_DELAY = 300; //Debounce helps prevent too many API calls 
 
 function debounce<T extends unknown[], R>(
   callback: (...rest: T) => R,

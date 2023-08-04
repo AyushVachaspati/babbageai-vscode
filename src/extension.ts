@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
-import { statusBarItem, updateStatusBarBabbageActive, updateStatusBarBabbageLoading } from './statusBar/statusBar';
+import { statusBarItem, updateStatusBarArtemusActive, updateStatusBarArtemusLoading } from './statusBar/statusBar';
 
 // Function to show Information to the user in a Information Box on the bottom right corner of the screen. 
 function showInformation() {	
-	vscode.window.showInformationMessage('Welcome to Babbage AI');
+	vscode.window.showInformationMessage('Welcome to Artemus AI');
 };
 
 function printLog(){
@@ -17,31 +17,31 @@ function printLog(){
 // This method is called when your extension is activated
 // Use this to register all the commands and CompletionProviders + Handlers for other stuff.
 export async function activate(context: vscode.ExtensionContext) {
-	updateStatusBarBabbageLoading();
+	updateStatusBarArtemusLoading();
 
-	//Register Babbage Commands
+	//Register Artemus Commands
 	context.subscriptions.push(
-		vscode.commands.registerCommand('babbageai-vscode.showInfo', showInformation)
+		vscode.commands.registerCommand('artemusai-vscode.showInfo', showInformation)
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('babbageai-vscode.log', printLog)
+		vscode.commands.registerCommand('artemusai-vscode.log', printLog)
 	);
 
-	//Register Babbage Inline Code Completion
+	//Register Artemus Inline Code Completion
 	context.subscriptions.push(
 		vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineCompletionProvider)
 	);
 	
-	//Register Babbage Status Bar Item for Disposal
+	//Register Artemus Status Bar Item for Disposal
 	context.subscriptions.push(statusBarItem);
 	
-	await new Promise(resolve => setTimeout(resolve, 3000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
+	await new Promise(resolve => setTimeout(resolve, 1000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
 	
-	console.log('Babbage AI is active!');
-	updateStatusBarBabbageActive();
+	console.log('Artemus AI is active!');
+	updateStatusBarArtemusActive();
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-	console.log('Deactivating Extension BabbageAI: GoodBye! :)');
+	console.log('Deactivating Extension ArtemusAI: GoodBye! :)');
 }

@@ -1,6 +1,6 @@
-# babbageai-vscode README
+# artemusai-vscode README
 
-This is the README for your extension "babbageai-vscode". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "artemusai-vscode". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

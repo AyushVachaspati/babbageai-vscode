@@ -1,7 +1,7 @@
 {
-  "publisher": "BabbageAI",
-  "name": "babbageai-vscode",
-  "displayName": "BabbageAI",
+  "publisher": "ArtemusAI",
+  "name": "artemusai-vscode",
+  "displayName": "ArtemusAI",
   "description": "Your AI Coding partner.",
   "version": "0.0.1",
   "engines": {
@@ -17,9 +17,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "babbageai-vscode.showInfo",
+        "command": "artemusai-vscode.showInfo",
         "title": "Show Information",
-        "category": "BabbageAI"
+        "category": "ArtemusAI"
       }
     ],
     "keybindings": [

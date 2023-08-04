@@ -73,7 +73,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 			insertText: inlineCompletion,
 			range: popupRange,
 			command: {
-				command: 'babbageai-vscode.log',
+				command: 'artemusai-vscode.log',
 				title: 'Log when Completion Accepted',
 			}
 		};
@@ -114,7 +114,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 			range: new vscode.Range(position, document.lineAt(position.line).range.end),  //replace everything until EOL. excluding new line char
 			// range: new vscode.Range(position,position),
 			command: {
-				command: 'babbageai-vscode.log',
+				command: 'artemusai-vscode.log',
 				title: 'Log when Completion Accepted'
 			}
 		};

@@ -1,23 +1,23 @@
 import * as vscode from 'vscode';
 
-export let statusBarItem =  vscode.window.createStatusBarItem('babbage-status-bar',vscode.StatusBarAlignment.Left,-1);
+export let statusBarItem =  vscode.window.createStatusBarItem('artemus-status-bar',vscode.StatusBarAlignment.Left,-1);
 
-export function updateStatusBarBabbageLoading(){
-	statusBarItem.text = "BabbageAI Loading $(sync~spin)";
-	statusBarItem.tooltip = "Loading BabbageAI";
+export function updateStatusBarArtemusLoading(){
+	statusBarItem.text = "Artemus Loading $(sync~spin)";
+	statusBarItem.tooltip = "Loading Artemus";
 	statusBarItem.show();
 }
 
-export function updateStatusBarBabbageActive(){
-    // statusBarItem.text = "BabbageAI Active $(rocket)";
-	statusBarItem.text = "BabbageAI Active $(telescope)";
-	statusBarItem.tooltip = "BabbageAi Active!";
+export function updateStatusBarArtemusActive(){
+    // statusBarItem.text = "ArtemusAI Active $(rocket)";
+	statusBarItem.text = "Artemus Active $(telescope)";
+	statusBarItem.tooltip = "ArtemusAi Active!";
 	statusBarItem.show();
 }
 
 export function updateStatusBarFetchingPrediction(){
-    statusBarItem.text = "BabbageAI Fetching $(sync~spin)";
-	statusBarItem.tooltip = "BabbageAi Fetching Code Suggestions!";
+    statusBarItem.text = "Artemus Fetching $(sync~spin)";
+	statusBarItem.tooltip = "ArtemusAi Fetching Code Suggestions!";
 	statusBarItem.show();
 }
 
