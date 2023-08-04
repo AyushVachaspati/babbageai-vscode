@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
 import { statusBarItem, updateStatusBarArtemusActive, updateStatusBarArtemusLoading } from './statusBar/statusBar';
+import { ArtemusChatPanelProvider } from './artemusChat/artemusChatPanelProvider';
 
 // Function to show Information to the user in a Information Box on the bottom right corner of the screen. 
 function showInformation() {	
@@ -35,6 +36,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	//Register Artemus Status Bar Item for Disposal
 	context.subscriptions.push(statusBarItem);
 	
+	//Register Artemus Chat Panel
+	const provider = new ArtemusChatPanelProvider(context.extensionUri);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, provider)
+	);
+
 	await new Promise(resolve => setTimeout(resolve, 1000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
 	
 	console.log('Artemus AI is active!');

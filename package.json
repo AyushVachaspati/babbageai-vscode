@@ -15,6 +15,26 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "artemusai-vscode-sidebar",
+          "icon": "media/robot.svg",
+          "title": "Artemus Chat"
+        }
+      ]
+    },
+      "views": {
+        "artemusai-vscode-sidebar": [
+          {
+            "type": "webview",
+            "id": "artemusai-vscode.chatpanel",
+            "name": "Artemus Chat",
+            "icon": "media/robot.svg",
+            "contextualTitle": "Artemus Chat"
+          }
+        ]   
+    },
     "commands": [
       {
         "command": "artemusai-vscode.showInfo",
