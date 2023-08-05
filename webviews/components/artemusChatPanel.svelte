@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+	import Send from "./send.svelte";
 	let inputValue = '';
 	let disabled = true;
 	let inputHeight = "3em";
@@ -11,21 +13,26 @@
 	// 	}
 	// }
 	
-  function handleInput(event:any) {
-    inputValue = event.target.value
+
+	onMount(async () => {
+		document.getElementById("InputTextArea")?.focus();
+	});
+
+	function handleInput(event:any) {
+	inputValue = event.target.value
 		disabled = true;
 		if(inputValue.trim())
 			disabled = false;
 	}
 
-  function sendMessage() {
-    // Add your logic to handle sending the message
-    // For example, you can use the 'inputValue' variable to get the user's input.
-    console.log("Sending message:", inputValue);
+	function sendMessage() {
+	// Add your logic to handle sending the message
+	// For example, you can use the 'inputValue' variable to get the user's input.
+	console.log("Sending message:", inputValue);
 		inputValue="";
 		disabled=true;
-		document.getElementById("InputTextArea")?.focus()
-  }
+		document.getElementById("InputTextArea")?.focus();
+	}
 </script>
 
 <style>
@@ -60,13 +67,13 @@
 	}
 
 	.send-button {
-	background-color: darkcyan;
-	border: None;
-	position: absolute;
-	bottom: 15px;
-	right: 10px;
-	padding: 5px;
-	border-radius: 5px;	
+		background-color: rgb(34, 89, 126);
+		border: None;
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+		padding: 5px;
+		border-radius: 5px;	
 	}
 	.send-button:focus {
 		outline: none;
@@ -78,7 +85,7 @@
 	}
 
 	button:disabled{
-		background-color: gray;
+		background-color: transparent;
 	}
 	.output-area{
 		height: 100%;
@@ -102,7 +109,6 @@
 		font-family: 'Courier New', Courier, monospace;
 		font-size: medium;
 		border: none;
-		border-radius: 10px;
 	}
 
 	::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -120,6 +126,7 @@
 		height: 100vh;
 	}
 </style>
+
 
 
 <div class="flex-container">
@@ -239,12 +246,11 @@
 	<div class="chat-container">
 	  <div class="textarea-container">
 	    <textarea id='InputTextArea' class='input-area' placeholder="Ask Artemus" bind:value={inputValue} on:input={handleInput} />
-	    <button class="send-button" {disabled} on:click={sendMessage}>Send
+	    <button class="send-button" {disabled} on:click={sendMessage}><Send />
 		</button>
 	  </div>
 	</div>
 	<!-- <div><p>Current Open File Goes Here </p></div> -->
 	<!-- <br> -->
-	<img src="" alt='Not Found'>
 </div>
 
