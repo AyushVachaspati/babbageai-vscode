@@ -3,26 +3,31 @@
 	import MessageBox from "./MessageBox.svelte";
 	import Send from "./send.svelte";
 	import { Identity, type Message } from "../types/message";
-    import { not_equal, tick } from "svelte/internal";
-
+    import { not_equal, prevent_default, tick } from "svelte/internal";
+	
 	let inputTextArea:any;
 	let outputArea:any;
-	
+	let blink = false;
 	let chat:Message[] = [];
-	
+	let loading =true;
 	let inputValue = '';
 	let disabled = true;
 	$: disabled = inputValue.trim()? false: true;
 
-	// function keyup(event:any){
-	// 	if(disabled) 
-	// 		return
-	// 	if(event.keyCode===13 && !event.shiftKey){
-	// 		sendMessage();
-	// 	}
-	// }
+	function keypress(event:any){
+		if(event.shiftKey)
+			return;
+		if(event.keyCode===13){	
+			event.preventDefault();
+			if(disabled) return;
+			sendMessage();
+		}
+	}
 	
 	onMount(async () => {
+		await new Promise(resolve => setTimeout(resolve, 200));
+		loading = false;
+		await tick();
 		inputTextArea.focus();
 	});
 
@@ -30,8 +35,8 @@
 	}
 	
 	async function sendMessage() {
-		chat = [...chat, {identity: Identity.User, message: inputValue},{identity: Identity.Bot, message: inputValue}]
-		 
+		chat = chat.concat({identity: Identity.User, message: inputValue})
+		chat = chat.concat({identity: Identity.Bot, message: inputValue})
 		inputValue="";
 		inputTextArea.focus();
 		scrollToBottom(outputArea);
@@ -44,23 +49,27 @@
 
 </script>
 
-
-<div class="flex-container">
-	<div bind:this={outputArea} class='output-area'>
-	<MessageBox {chat} ></MessageBox>
-	</div>
-	<div class="chat-container">
-		<div class="textarea-container">
-		  <form>
-			  <textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={handleInput} />
-			  <button class="send-button" {disabled} on:click={sendMessage}><Send /></button>
-		  </form>
+{#if loading}
+	<div class="center">
+		<div class="loader"></div>
+	</div> 
+{:else}
+	<div class="flex-container">
+		<div bind:this={outputArea} class='output-area'>
+		<MessageBox {chat} {blink} ></MessageBox>
 		</div>
-	  </div>
-	  <!-- <div><p>Current Open File Goes Here </p></div> -->
-	  <!-- <br> -->
-</div>
-
+		<div class="chat-container">
+			<div class="textarea-container">
+			<form>
+				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={handleInput} on:keypress={keypress} />
+				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendMessage}><Send /></button>
+			</form>
+			</div>
+		</div>
+		<!-- <div><p>Current Open File Goes Here </p></div> -->
+		<!-- <br> -->
+	</div>
+{/if}
 
 <style>
 	/* width */
@@ -110,7 +119,7 @@
 	.send-button:hover:not([disabled])  {
 		cursor: pointer;
 		transform: scale(0.95);
-    	opacity: 0.9;
+		opacity: 0.9;
 	}
 
 	button:disabled{
@@ -124,7 +133,7 @@
 	}
 	.input-area{
 		background: rgb(50,50,50);
-		padding: 14px 0 10px 20px;
+		padding: 14px 40px 10px 20px;
 		resize: none;
 		overflow-y: scrollbar;
 		height: 3em;
@@ -151,4 +160,26 @@
 		flex-direction: column;
 		height: 100vh;
 	}
+
+
+	.center {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+	}
+
+	.loader {
+		border: 5px solid #f3f3f3; 
+		border-top: 5px solid gray; 
+		border-radius: 100%;
+		width: 30px;
+		height: 30px;
+		animation: spin 1s linear infinite;
+	}
+	@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
 </style>

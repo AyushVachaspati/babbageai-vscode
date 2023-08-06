@@ -4,12 +4,13 @@
     import {type Message, Identity } from "../types/message";
 
   export let chat:Message[] = [];
+  export let blink = true;
 </script>
 
 <style>
   .message_bot {
     background-color: rgb(58, 58, 58);
-    padding: 25px;
+    padding: 15px;
     position: relative;
     white-space: pre-line;
     margin-bottom: 10px;
@@ -17,7 +18,7 @@
     
   .message_human {
     background-color: transparent;
-    padding: 25px;
+    padding: 15px;
     position: abosolute;
     white-space: pre-line;
     margin-bottom: 10px;
@@ -39,6 +40,22 @@
     max-width: 100%;
     margin: 10px 10px 10px 0;
   }
+
+  .blink {
+    animation: blink 1s steps(1, end) infinite;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 </style>
 
 <div class = 'container'>
@@ -46,10 +63,16 @@
     {#if msg.identity===Identity.User}
       <div class="message_human border-gradient-right border-gradient-purple">
         {msg.message}
+        {#if blink}
+	        <span class="blink">|</span>
+        {/if}
       </div>
     {:else if msg.identity===Identity.Bot}
       <div class="message_bot border-gradient-left border-gradient-purple">
         {msg.message}
+        {#if blink}
+	        <span class="blink">|</span>
+        {/if}
       </div>
     {/if}
   {/each}

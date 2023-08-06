@@ -22,8 +22,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			enableScripts: true,
 
 			localResourceRoots: [
-                vscode.Uri.joinPath(this._extensionUri,"media/"),
-                vscode.Uri.joinPath(this._extensionUri,"out/compiled")
+				this._extensionUri
 			]
 		};
 
