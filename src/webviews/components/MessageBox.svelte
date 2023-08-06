@@ -19,7 +19,7 @@
   .message_human {
     background-color: transparent;
     padding: 15px;
-    position: abosolute;
+    position: relative;
     white-space: pre-line;
     margin-bottom: 10px;
   }
