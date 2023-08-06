@@ -11,11 +11,11 @@ import fs from "fs";
 const production = !process.env.ROLLUP_WATCH;
 
 export default fs
-  .readdirSync(path.join(__dirname, "src", "webviews", "pages"))
+  .readdirSync(path.join(__dirname, "src", "artemusChat", "webviews", "pages"))
   .map((input) => {
     const name = input.split(".")[0];
     return {
-      input: "src/webviews/pages/" + input,
+      input: "src/artemusChat/webviews/pages/" + input,
       output: {
         sourcemap: true,
         format: "iife",
@@ -47,7 +47,7 @@ export default fs
         }),
         commonjs(),
         typescript({
-          tsconfig: "src/webviews/tsconfig.json",
+          tsconfig: "src/artemusChat/webviews/tsconfig.json",
           sourceMap: !production,
           inlineSources: !production,
         }),

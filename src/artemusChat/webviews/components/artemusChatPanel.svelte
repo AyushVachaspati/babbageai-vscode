@@ -3,8 +3,8 @@
 	import MessageBox from "./MessageBox.svelte";
 	import Send from "./send.svelte";
 	import { Identity, type Message } from "../types/message";
-    import { not_equal, prevent_default, tick } from "svelte/internal";
-	
+    import { tick } from "svelte/internal";
+
 	let inputTextArea:any;
 	let outputArea:any;
 	let blink = false;
