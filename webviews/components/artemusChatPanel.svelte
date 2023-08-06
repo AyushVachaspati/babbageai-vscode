@@ -1,39 +1,66 @@
 <script lang="ts">
     import { onMount } from "svelte";
+	import MessageBox from "./MessageBox.svelte";
 	import Send from "./send.svelte";
+	import { Identity, type Message } from "../types/message";
+    import { not_equal, tick } from "svelte/internal";
+
+	let inputTextArea:any;
+	let outputArea:any;
+	
+	let chat:Message[] = [];
+	
 	let inputValue = '';
 	let disabled = true;
-	let inputHeight = "3em";
-	let imgSource = "";
-	// function keyup(event){
+	$: disabled = inputValue.trim()? false: true;
+
+	// function keyup(event:any){
 	// 	if(disabled) 
 	// 		return
-	// 	if(event.keyCode===13 & !event.shiftKey){
+	// 	if(event.keyCode===13 && !event.shiftKey){
 	// 		sendMessage();
 	// 	}
 	// }
 	
-
 	onMount(async () => {
-		document.getElementById("InputTextArea")?.focus();
+		inputTextArea.focus();
 	});
 
 	function handleInput(event:any) {
-	inputValue = event.target.value
-		disabled = true;
-		if(inputValue.trim())
-			disabled = false;
+	}
+	
+	async function sendMessage() {
+		chat = [...chat, {identity: Identity.User, message: inputValue},{identity: Identity.Bot, message: inputValue}]
+		 
+		inputValue="";
+		inputTextArea.focus();
+		scrollToBottom(outputArea);
 	}
 
-	function sendMessage() {
-	// Add your logic to handle sending the message
-	// For example, you can use the 'inputValue' variable to get the user's input.
-	console.log("Sending message:", inputValue);
-		inputValue="";
-		disabled=true;
-		document.getElementById("InputTextArea")?.focus();
-	}
+	async function scrollToBottom(node:any) {
+		await tick();
+		node.scroll({ top: node.scrollHeight, behavior: 'instant' });
+  	}; 
+
 </script>
+
+
+<div class="flex-container">
+	<div bind:this={outputArea} class='output-area'>
+	<MessageBox {chat} ></MessageBox>
+	</div>
+	<div class="chat-container">
+		<div class="textarea-container">
+		  <form>
+			  <textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={handleInput} />
+			  <button class="send-button" {disabled} on:click={sendMessage}><Send /></button>
+		  </form>
+		</div>
+	  </div>
+	  <!-- <div><p>Current Open File Goes Here </p></div> -->
+	  <!-- <br> -->
+</div>
+
 
 <style>
 	/* width */
@@ -62,7 +89,7 @@
 	}
 
 	.textarea-container {
-		margin: 10px;
+		margin: 10px 25px 10px 10px;
 		position: relative;
 	}
 
@@ -77,34 +104,33 @@
 	}
 	.send-button:focus {
 		outline: none;
-		border: 1px solid white;
+		border: 1px solid rgb(255,255,255,.3);
 	}
 
 	.send-button:hover:not([disabled])  {
 		cursor: pointer;
+		transform: scale(0.95);
+    	opacity: 0.9;
 	}
 
 	button:disabled{
 		background-color: transparent;
+		cursor: auto;
 	}
 	.output-area{
-		height: 100%;
+		height: 100vh;
 		overflow-y: scroll;
 		margin: 10px;
 	}
 	.input-area{
-		padding-top: 14px;
-		padding-top: 14px;
-		padding-left: 10px;
-		padding-left: 10px;
-		/* padding: 12px; */
+		background: rgb(50,50,50);
+		padding: 14px 0 10px 20px;
 		resize: none;
 		overflow-y: scrollbar;
 		height: 3em;
 		min-height: 3em;
 		max-height: 15em;
 		width: 100%;
-		background: rgb(59, 58, 58);
 		color: whitesmoke;
 		font-family: 'Courier New', Courier, monospace;
 		font-size: medium;
@@ -126,131 +152,3 @@
 		height: 100vh;
 	}
 </style>
-
-
-
-<div class="flex-container">
-	<div class='output-area'>
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>sdfsdf</p>	
-	<p>{@html "testing markdown ```py<br> def print():\n```"}</p>
-	</div>
-	
-	<div class="chat-container">
-	  <div class="textarea-container">
-	    <textarea id='InputTextArea' class='input-area' placeholder="Ask Artemus" bind:value={inputValue} on:input={handleInput} />
-	    <button class="send-button" {disabled} on:click={sendMessage}><Send />
-		</button>
-	  </div>
-	</div>
-	<!-- <div><p>Current Open File Goes Here </p></div> -->
-	<!-- <br> -->
-</div>
-
