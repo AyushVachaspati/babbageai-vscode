@@ -9,7 +9,7 @@ function showInformation() {
 };
 
 function printLog(){
-	console.log("User Accepted Suggestoin"); // Use this place to log telemetary data.
+	console.log("User Accepted Suggestion"); // Use this place to log telemetary data.
 
 	// The inlineSuggest command only triggers if we give some delay.. even 1ms delay seems to make it work
     setTimeout(()=>{vscode.commands.executeCommand("editor.action.inlineSuggest.trigger");}, 10);  
@@ -37,11 +37,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(statusBarItem);
 	
 	//Register Artemus Chat Panel
-	const provider = new ArtemusChatPanelProvider(context.extensionUri);
+	const artemusChatWebview = new ArtemusChatPanelProvider(context.extensionUri);
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, provider)
+		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview)
 	);
-
+	
 	await new Promise(resolve => setTimeout(resolve, 1000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
 	
 	console.log('Artemus AI is active!');

@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import { getNonce } from "../utils/nonce";
+import assert = require("assert");
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 	public static readonly viewType = 'artemusai-vscode.chatpanel';
 
-	private view?: vscode.WebviewView;
+	public view?: vscode.WebviewView;
     private doc?: vscode.TextDocument;
 
 	constructor(private readonly _extensionUri: vscode.Uri) {}
@@ -30,27 +31,27 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(data => {
 			switch (data.type) {
-				case 'colorSelected':
+				case 'testMsg':
 					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
+						console.log(`Message Recived with ${data.anotherthing}`);
 					}
 			}
 		});
 	}
 
-	public addColor() {
-		if (this.view) {
-			this.view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-			this.view.webview.postMessage({ type: 'addColor' });
-		}
+	public sendBotMsgChunk() {
+		let webviewMsgApi = this.view?.webview;
+		assert(webviewMsgApi, "Expected Webview to be defined");
+		webviewMsgApi.postMessage({ type: 'sendBotMsgChunk' });
+		
 	}
 
-	public clearColors() {
-		if (this.view) {
-			this.view.webview.postMessage({ type: 'clearColors' });
-		}
+	public sendBotMsgEnd() {
+		let webviewMsgApi = this.view?.webview;
+		assert(webviewMsgApi, "Expected Webview to be defined");
+		webviewMsgApi.postMessage({ type: 'sendBotMsgEnd' });
 	}
+
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
@@ -66,22 +67,26 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		const nonce = getNonce();
 		
 		return `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<!--
-				Use a content security policy to only allow loading images from https or from our extension directory,
-				and only allow scripts that have a specific nonce.
-	-->
-	<meta http-equiv="Content-Security-Policy" content="img-src ${webview.cspSource} https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<link href="${styleResetUri}" rel="stylesheet">
-			<link href="${customCSSUri}" rel="stylesheet">
-	<link href="${styleMainUri}" rel="stylesheet">
-		</head>
-  <body>
-			<script nonce="${nonce}" src="${scriptUri}"></script>
-		</body>
-		</html>`;
-}
+				<html lang="en">
+					<head>
+						<meta charset="UTF-8">
+						<!--
+							Use a content security policy to only allow loading images from https or from our extension directory,
+							and only allow scripts that have a specific nonce.
+						-->
+						<meta http-equiv="Content-Security-Policy" content="img-src ${webview.cspSource} https: data:;
+						style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
+						<meta name="viewport" content="width=device-width, initial-scale=1.0">
+						<link href="${styleResetUri}" rel="stylesheet">
+						<link href="${customCSSUri}" rel="stylesheet">
+						<link href="${styleMainUri}" rel="stylesheet">
+						<script nonce=${nonce}>
+							const vscodeApi = acquireVsCodeApi();
+						</script>
+					</head>
+					<body>
+						<script nonce="${nonce}" src="${scriptUri}"></script>
+					</body>
+				</html>`;
+	}
 }

@@ -20,7 +20,7 @@
 		if(event.keyCode===13){	
 			event.preventDefault();
 			if(disabled) return;
-			sendMessage();
+			sendUserMessage();
 		}
 	}
 	
@@ -29,12 +29,26 @@
 		loading = false;
 		await tick();
 		inputTextArea.focus();
+
+		window.addEventListener("message", (event) => {
+			const message = event.data;
+			switch(message.type){
+				case "sendBotMsgChunk":
+					console.log("Chunk recieved");
+					break;
+				case "sendBotMsgEnd":
+					console.log("Message Ended");
+					break;
+			}
+
+		})
+
 	});
 
 	function handleInput(event:any) {
 	}
 	
-	async function sendMessage() {
+	async function sendUserMessage() {
 		chat = chat.concat({identity: Identity.User, message: inputValue})
 		chat = chat.concat({identity: Identity.Bot, message: inputValue})
 		inputValue="";
@@ -62,9 +76,15 @@
 			<div class="textarea-container">
 			<form>
 				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={handleInput} on:keypress={keypress} />
-				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendMessage}><Send /></button>
+				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
+			<!-- svelte-ignore missing-declaration -->
+			<!-- <button on:click={()=>{
+				vscodeApi.postMessage({type:'testMsg', value:'Nice Test',anotherthing:'this works'});
+			}}>
+			Click to post message to VscodeAPI
+			</button> -->
 		</div>
 		<!-- <div><p>Current Open File Goes Here </p></div> -->
 		<!-- <br> -->
