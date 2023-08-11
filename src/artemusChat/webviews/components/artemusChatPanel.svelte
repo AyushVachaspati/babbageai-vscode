@@ -6,6 +6,7 @@
     import { tick } from "svelte/internal";
 	import MarkdownRenderer from "./MarkdownRenderer.svelte";
 	
+	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
 	let blink = false;
@@ -13,7 +14,7 @@
 	let loading =true;
 	let inputValue = '';
 	let disabled = true;
-	$: disabled = inputValue.trim()? false: true;
+	$: disabled = (!fetching && inputValue.trim())? false: true;
 
 	function keypress(event:any){
 		if(event.shiftKey)
@@ -44,6 +45,7 @@
 					console.log(message.result);
 					chat = chat.concat({identity: Identity.Bot, message: message.result});
 					scrollToBottom(outputArea);
+					fetching=false;
 					break;
 			}
 
@@ -55,6 +57,7 @@
 	}
 	
 	async function sendUserMessage() {
+		fetching=true;
 		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		chat = chat.concat({identity: Identity.User, message: inputValue})
 		inputValue="";
@@ -158,7 +161,7 @@
 		margin: 10px;
 	}
 	.input-area{
-		background: rgb(50,50,50);
+		background: rgb(50,50,50,0.3);
 		padding: 14px 40px 10px 20px;
 		resize: none;
 		overflow-y: scrollbar;

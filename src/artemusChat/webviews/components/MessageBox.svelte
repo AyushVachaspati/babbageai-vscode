@@ -10,19 +10,25 @@
 
 <style>
   .message_bot {
-    background-color: rgb(58, 58, 58);
+    background-color: rgb(18, 18, 18);
     padding: 15px;
     position: relative;
     /* white-space: pre-wrap; */
     margin-bottom: 10px;
+    font-size: 14.5px;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
   }
     
   .message_human {
-    background-color: transparent;
+    background-color: rgb(18, 18, 18, 0.3);
     padding: 15px;
     position: relative;
     /* white-space: pre-wrap; */
     margin-bottom: 10px;
+    font-size: 14.5px;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
   }
 
   .border-gradient-left {

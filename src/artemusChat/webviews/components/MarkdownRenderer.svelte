@@ -6,14 +6,19 @@
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
-          console.log(lang)  //this gives the language here.. you can use this to add component at the top to show which lang. 
-          return '<pre class="code-container"><code>' +
-                 hljs.highlight(lang, str, true).value +
+          return `<div>${hljs.getLanguage(lang).name}</div>`+
+                 '<pre class="code-container"><code class="code-block">' +
+                    hljs.highlight(lang, str, true).value +
                  '</code></pre>';
-        } catch (__) {}
+        } 
+        catch (error) {
+          console.error(error)
+        }
       }
-      
-      return '<pre class="code-container"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+      return `<div></div>` +
+              '<pre class="code-container"><code class="code-block">' +
+                md.utils.escapeHtml(str) +
+              '</code></pre>';
     }
   });
 
@@ -35,12 +40,16 @@ def fibonacci(''):
   css is placed in global file in media folder
 */
 :global(.code-container){
-    background-color: rgb(25, 24, 24);
+    background-color: rgba(25, 24, 24, 0.792);
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 20px;
     margin: 5px;
     overflow-y: scroll;
 }
+:global(.code-block){
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+}
 </style>
 
-{@html md.render(markdownContent)}
+<div>{@html md.render(markdownContent)}</div>
