@@ -2,6 +2,7 @@
 <script lang="ts">
     import { merge_ssr_styles } from "svelte/internal";
     import {type Message, Identity } from "../types/message";
+    import MarkdownRenderer from "./MarkdownRenderer.svelte";
 
   export let chat:Message[] = [];
   export let blink = true;
@@ -12,7 +13,7 @@
     background-color: rgb(58, 58, 58);
     padding: 15px;
     position: relative;
-    white-space: pre-wrap;
+    /* white-space: pre-wrap; */
     margin-bottom: 10px;
   }
     
@@ -20,7 +21,7 @@
     background-color: transparent;
     padding: 15px;
     position: relative;
-    white-space: pre-wrap;
+    /* white-space: pre-wrap; */
     margin-bottom: 10px;
   }
 
@@ -62,14 +63,14 @@
   {#each chat as msg}
     {#if msg.identity===Identity.User}
       <div class="message_human border-gradient-right border-gradient-purple">
-        {msg.message}
+        <MarkdownRenderer markdownContent={msg.message}/>
         {#if blink}
 	        <span class="blink">|</span>
         {/if}
       </div>
     {:else if msg.identity===Identity.Bot}
       <div class="message_bot border-gradient-left border-gradient-purple">
-        {msg.message}
+        <MarkdownRenderer markdownContent={msg.message}/>
         {#if blink}
 	        <span class="blink">|</span>
         {/if}

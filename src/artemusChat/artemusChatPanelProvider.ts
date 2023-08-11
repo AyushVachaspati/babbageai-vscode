@@ -77,6 +77,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
+		const highlightCssUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'syntax_highlight.css'));
 		
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
@@ -92,6 +93,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						<meta http-equiv="Content-Security-Policy" content="img-src ${webview.cspSource} https: data:;
 						style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
 						<meta name="viewport" content="width=device-width, initial-scale=1.0">
+						<link href="${highlightCssUri}" rel="stylesheet">
 						<link href="${styleResetUri}" rel="stylesheet">
 						<link href="${customCSSUri}" rel="stylesheet">
 						<link href="${styleMainUri}" rel="stylesheet">

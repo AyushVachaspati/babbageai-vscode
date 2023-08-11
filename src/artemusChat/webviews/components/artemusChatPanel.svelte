@@ -4,6 +4,7 @@
 	import Send from "./send.svelte";
 	import { Identity, type Message } from "../types/message";
     import { tick } from "svelte/internal";
+	import MarkdownRenderer from "./MarkdownRenderer.svelte";
 	
 	let inputTextArea:any;
 	let outputArea:any;
@@ -75,6 +76,7 @@
 {:else}
 	<div class="flex-container">
 		<div bind:this={outputArea} class='output-area'>
+		<MarkdownRenderer />
 		<MessageBox {chat} {blink} ></MessageBox>
 		</div>
 		<div class="chat-container">
