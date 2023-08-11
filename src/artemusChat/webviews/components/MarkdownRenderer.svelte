@@ -6,6 +6,7 @@
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
+          console.log(lang)  //this gives the language here.. you can use this to add component at the top to show which lang. 
           return '<pre class="code-container"><code>' +
                  hljs.highlight(lang, str, true).value +
                  '</code></pre>';
@@ -37,6 +38,8 @@ def fibonacci(''):
     background-color: rgb(25, 24, 24);
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 20px;
+    margin: 5px;
+    overflow-y: scroll;
 }
 </style>
 

@@ -76,7 +76,6 @@
 {:else}
 	<div class="flex-container">
 		<div bind:this={outputArea} class='output-area'>
-		<MarkdownRenderer />
 		<MessageBox {chat} {blink} ></MessageBox>
 		</div>
 		<div class="chat-container">
