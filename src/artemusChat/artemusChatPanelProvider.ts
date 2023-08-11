@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "../utils/nonce";
 import assert = require("assert");
+import { debounceCompletions } from "../predictionUtils/callApi";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -29,11 +30,25 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage(data => {
+		webviewView.webview.onDidReceiveMessage(async (data) => {
 			switch (data.type) {
 				case 'testMsg':
 					{
 						console.log(`Message Recived with ${data.anotherthing}`);
+						break;
+					}
+				case 'userInput':
+					{
+						try{
+							let prediction = await debounceCompletions(data.userInput);
+							webviewView.webview.postMessage({type:"result","result":prediction?.result});
+						}
+						catch(error){
+							console.error("Request to Artemus server failed.");
+							webviewView.webview.postMessage({type:"result","result":"Sorry, The request to the server failed."});
+						}
+						break;
+						
 					}
 			}
 		});

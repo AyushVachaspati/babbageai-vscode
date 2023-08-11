@@ -12,7 +12,7 @@
     background-color: rgb(58, 58, 58);
     padding: 15px;
     position: relative;
-    white-space: pre-line;
+    white-space: pre-wrap;
     margin-bottom: 10px;
   }
     
@@ -20,7 +20,7 @@
     background-color: transparent;
     padding: 15px;
     position: relative;
-    white-space: pre-line;
+    white-space: pre-wrap;
     margin-bottom: 10px;
   }
 

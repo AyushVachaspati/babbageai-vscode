@@ -24,6 +24,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.showInfo', showInformation)
 	);
+
+	// Command which is not exposed to the user in command pallet. (Commands not in Package.json are only available programmatically)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.log', printLog)
 	);
@@ -42,8 +44,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview)
 	);
 	
-	await new Promise(resolve => setTimeout(resolve, 1000)); //Fake wait time of 3 seconds to show loading Item. Wait time will be usefull when we validate stuff online.
-	
+	// Fake wait time of 1 second to show loading Item. 
+	// Wait time will be usefull when we validate extension
+	// api and need time to do it.
+	await new Promise(resolve => setTimeout(resolve, 1000)); 
+
 	console.log('Artemus AI is active!');
 	updateStatusBarArtemusActive();
 }

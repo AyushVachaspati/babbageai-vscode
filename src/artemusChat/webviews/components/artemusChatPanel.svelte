@@ -4,7 +4,7 @@
 	import Send from "./send.svelte";
 	import { Identity, type Message } from "../types/message";
     import { tick } from "svelte/internal";
-
+	
 	let inputTextArea:any;
 	let outputArea:any;
 	let blink = false;
@@ -39,6 +39,11 @@
 				case "sendBotMsgEnd":
 					console.log("Message Ended");
 					break;
+				case "result":
+					console.log(message.result);
+					chat = chat.concat({identity: Identity.Bot, message: message.result});
+					scrollToBottom(outputArea);
+					break;
 			}
 
 		})
@@ -49,8 +54,8 @@
 	}
 	
 	async function sendUserMessage() {
+		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		chat = chat.concat({identity: Identity.User, message: inputValue})
-		chat = chat.concat({identity: Identity.Bot, message: inputValue})
 		inputValue="";
 		inputTextArea.focus();
 		scrollToBottom(outputArea);
