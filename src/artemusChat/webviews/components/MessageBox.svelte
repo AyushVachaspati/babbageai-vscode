@@ -16,8 +16,10 @@
     /* white-space: pre-wrap; */
     margin-bottom: 10px;
     font-size: 14.5px;
-    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
     line-height: 1.5;
+    font-weight: 500;
   }
     
   .message_human {
@@ -27,8 +29,9 @@
     /* white-space: pre-wrap; */
     margin-bottom: 10px;
     font-size: 14.5px;
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.5;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;line-height: 1.5;
+    font-weight: 500;
   }
 
   .border-gradient-left {

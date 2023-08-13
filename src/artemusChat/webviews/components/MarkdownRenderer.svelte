@@ -1,26 +1,40 @@
 <script>
   import markdownit from 'markdown-it';
   import hljs from 'highlight.js';
+    import { merge_ssr_styles } from 'svelte/internal';
 
+  function test(event){
+    console.log("Clicked copy button")
+    console.log(event)
+  }
   const md = markdownit({
+    html: true,
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
-          return `<div>${hljs.getLanguage(lang).name}</div>`+
-                 '<pre class="code-container"><code class="code-block">' +
+          return '<pre><code>' +
                     hljs.highlight(lang, str, true).value +
-                 '</code></pre>';
+                 `</code></pre><div class="code-heading">${hljs.getLanguage(lang).name}</div>`;
         } 
         catch (error) {
           console.error(error)
         }
       }
-      return `<div></div>` +
-              '<pre class="code-container"><code class="code-block">' +
+      return  '<pre><code>' +
                 md.utils.escapeHtml(str) +
-              '</code></pre>';
+              `</code></pre><div class="code-heading">${""}</div>`;
     }
   });
+
+  String.prototype.spaceToNbsp = function() {
+    return this.replace(/ /g,"&nbsp;")
+              .replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;");
+    // return this.replace(" ","\u00A0");
+  }
+  String.prototype.MarkdownNbspToSpace = function() {
+    return this.replace(/&amp;nbsp;/g," ")
+    // return this.replace(" ","\u00A0");
+  }
 
   export let markdownContent = `
 # Hello Markdown!
@@ -36,20 +50,12 @@ def fibonacci(''):
 </script>
 
 <style>
-/*!
-  css is placed in global file in media folder
-*/
-:global(.code-container){
-    background-color: rgba(25, 24, 24, 0.792);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 20px;
-    margin: 5px;
-    overflow-y: scroll;
-}
-:global(.code-block){
-  color: white;
-  font-family: 'Courier New', Courier, monospace;
-}
+  :global(.code-heading) {
+    position: absolute;
+    top: 5px;
+    left: 20px;
+  }
+  
 </style>
 
-<div>{@html md.render(markdownContent)}</div>
+<div style="overflow-wrap:anywhere;">{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace()}</div>

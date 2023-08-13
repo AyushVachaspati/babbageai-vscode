@@ -22,12 +22,11 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.options = {
 			// Allow scripts in the webview
 			enableScripts: true,
-
 			localResourceRoots: [
 				this._extensionUri
-			]
+			],
 		};
-
+		
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage(async (data) => {
@@ -35,6 +34,19 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				case 'testMsg':
 					{
 						console.log(`Message Recived with ${data.anotherthing}`);
+						break;
+					}
+				case 'insertCode':
+					{
+						let code = data.code;
+						let editor = vscode.window.activeTextEditor;
+						if(!editor){ break; }
+						let selections = editor.selections;
+						editor.edit((editBuilder) => {
+							selections.forEach((selection) => {
+								editBuilder.replace(selection, code);
+							});
+						});
 						break;
 					}
 				case 'userInput':

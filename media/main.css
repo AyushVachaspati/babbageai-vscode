@@ -38,3 +38,24 @@ body {
 	border: none;
 	margin: 0 auto;
 }
+
+pre {
+	color: white;
+	font-family: 'Courier New', Courier, monospace;
+	background-color: rgba(25, 24, 24, 0.792);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	position: relative;
+	overflow: auto;
+	
+}
+code {
+	
+	color: white;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+p {
+    white-space: pre-wrap;
+}

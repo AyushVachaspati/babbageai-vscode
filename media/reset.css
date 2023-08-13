@@ -1,6 +1,6 @@
 html {
     box-sizing: border-box;
-    font-size: 13px;
+    /* font-size: 13px; */
   }
   
   *,
@@ -21,7 +21,7 @@ html {
   ul {
     margin: 0;
     padding: 0;
-    font-weight: normal;
+    /* font-weight: normal; */
   }
   
   img {

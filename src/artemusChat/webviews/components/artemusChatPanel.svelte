@@ -1,10 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
 	import MessageBox from "./MessageBox.svelte";
-	import Send from "./send.svelte";
+	import Send from "./icons/send.svelte";
 	import { Identity, type Message } from "../types/message";
     import { tick } from "svelte/internal";
-	import MarkdownRenderer from "./MarkdownRenderer.svelte";
+	import CopyCodeButton from "./copyCodeButton.svelte";
+    import InsertCodeButton from "./insertCodeButton.svelte";
 	
 	let fetching=false;
 	let inputTextArea:any;
@@ -63,6 +64,23 @@
 		inputValue="";
 		inputTextArea.focus();
 		scrollToBottom(outputArea);
+		await tick()
+		
+		let preComponents = document.querySelectorAll('pre');
+		console.log(preComponents)
+		preComponents.forEach((preComponent) => {
+			
+			//Need to remove the earlier applied buttons first  OR only apply buttons to one which are new elements 
+
+			let copyButton = new CopyCodeButton({
+				target: preComponent.parentElement as HTMLElement,
+				anchor: preComponent
+			});
+			let insertButton = new InsertCodeButton({
+				target: preComponent.parentElement as HTMLElement,
+				anchor: preComponent
+			});
+		})
 	}
 
 	async function scrollToBottom(node:any) {
@@ -150,6 +168,11 @@
 		transform: scale(0.95);
 		opacity: 0.9;
 	}
+	.send-button:hover:not([disabled])  {
+		cursor: pointer;
+		transform: scale(0.95);
+		opacity: 0.9;
+	}
 
 	button:disabled{
 		background-color: transparent;
@@ -164,7 +187,7 @@
 		background: rgb(50,50,50,0.3);
 		padding: 14px 40px 10px 20px;
 		resize: none;
-		overflow-y: scrollbar;
+		overflow-y: scroll;
 		height: 3em;
 		min-height: 3em;
 		max-height: 15em;
