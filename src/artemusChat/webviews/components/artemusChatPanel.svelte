@@ -67,19 +67,19 @@
 		await tick()
 		
 		let preComponents = document.querySelectorAll('pre');
-		console.log(preComponents)
+		// console.log(preComponents)
 		preComponents.forEach((preComponent) => {
-			
-			//Need to remove the earlier applied buttons first  OR only apply buttons to one which are new elements 
-
-			let copyButton = new CopyCodeButton({
-				target: preComponent.parentElement as HTMLElement,
-				anchor: preComponent
-			});
-			let insertButton = new InsertCodeButton({
-				target: preComponent.parentElement as HTMLElement,
-				anchor: preComponent
-			});
+			let hasButtons = preComponent.parentElement?.getElementsByClassName("copy-code-button").length;
+			if(!hasButtons){
+				let copyButton = new CopyCodeButton({
+					target: preComponent.parentElement as HTMLElement,
+					anchor: preComponent
+				});
+				let insertButton = new InsertCodeButton({
+					target: preComponent.parentElement as HTMLElement,
+					anchor: preComponent
+				});
+			}
 		})
 	}
 

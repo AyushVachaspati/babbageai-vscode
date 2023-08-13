@@ -51,11 +51,7 @@ pre {
 	
 }
 code {
-	
 	color: white;
 	font-family: 'Courier New', Courier, monospace;
 }
 
-p {
-    white-space: pre-wrap;
-}

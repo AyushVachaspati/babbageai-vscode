@@ -13,7 +13,6 @@
     background-color: rgb(18, 18, 18);
     padding: 15px;
     position: relative;
-    /* white-space: pre-wrap; */
     margin-bottom: 10px;
     font-size: 14.5px;
     color: white;
@@ -26,7 +25,6 @@
     background-color: rgb(18, 18, 18, 0.3);
     padding: 15px;
     position: relative;
-    /* white-space: pre-wrap; */
     margin-bottom: 10px;
     font-size: 14.5px;
     color: white;

@@ -29,11 +29,13 @@
   String.prototype.spaceToNbsp = function() {
     return this.replace(/ /g,"&nbsp;")
               .replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;");
-    // return this.replace(" ","\u00A0");
   }
   String.prototype.MarkdownNbspToSpace = function() {
     return this.replace(/&amp;nbsp;/g," ")
-    // return this.replace(" ","\u00A0");
+  }
+  String.prototype.correctWhiteSpace = function() {
+    var regex = new RegExp(String.fromCharCode(160), "g");
+    return this.replace(regex, " ");
   }
 
   export let markdownContent = `
@@ -50,6 +52,10 @@ def fibonacci(''):
 </script>
 
 <style>
+  .para {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
   :global(.code-heading) {
     position: absolute;
     top: 5px;
@@ -58,4 +64,5 @@ def fibonacci(''):
   
 </style>
 
-<div style="overflow-wrap:anywhere;">{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace()}</div>
+<p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p>
+<!-- {@html "<p>this is a test this is a test this is a test this is a test </p>"} -->
