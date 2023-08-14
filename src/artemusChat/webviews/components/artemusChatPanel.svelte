@@ -54,7 +54,10 @@
 
 	});
 
-	function handleInput(event:any) {
+	function resizeInputArea() {
+		let element = document.getElementsByClassName('input-area')[0] as HTMLElement;
+		element.style.height = 'auto';
+		element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
 	}
 	
 	async function sendUserMessage() {
@@ -81,6 +84,8 @@
 			}
 			
 		})
+
+		resizeInputArea();
 	}
 
 	async function scrollToBottom(node:any) {
@@ -102,7 +107,7 @@
 		<div class="chat-container">
 			<div class="textarea-container">
 			<form>
-				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={handleInput} on:keypress={keypress} />
+				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={resizeInputArea} on:keypress={keypress} />
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
@@ -150,7 +155,7 @@
 	}
 
 	.send-button {
-		background-color: rgb(34, 89, 126);
+		background-color: rgba(134, 134, 134, 0.708);
 		border: None;
 		position: absolute;
 		bottom: 10px;
@@ -163,11 +168,6 @@
 		border: 1px solid rgb(255,255,255,.3);
 	}
 
-	.send-button:hover:not([disabled])  {
-		cursor: pointer;
-		transform: scale(0.95);
-		opacity: 0.9;
-	}
 	.send-button:hover:not([disabled])  {
 		cursor: pointer;
 		transform: scale(0.95);
@@ -191,7 +191,7 @@
 		overflow-y: scroll;
 		height: 3em;
 		min-height: 3em;
-		max-height: 15em;
+		max-height: 10em;
 		width: 100%;
 		color: whitesmoke;
 		font-family: 'Courier New', Courier, monospace;
