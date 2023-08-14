@@ -20,7 +20,7 @@
           console.error(error)
         }
       }
-      return  '<div class="code-block-container"><pre class="code-block"><code>' +
+      return  '<div class="code-block-container"><hr class="line"><pre class="code-block"><code>' +
                 md.utils.escapeHtml(str) +
               `</code></pre><div class="code-heading">${""}</div></div>`;
     }

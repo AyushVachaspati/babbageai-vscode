@@ -48,7 +48,7 @@
 <svelte:window bind:innerWidth></svelte:window>
 
 
-{#if innerWidth>350}
+{#if innerWidth>400}
   <button type='submit' class="insert-code-button" title='Insert At Cursor' on:click|preventDefault={insertCode}><Send />  {buttonText}</button>
 {:else}
   <button type='submit' class="insert-code-button-small" title='Insert At Cursor' on:click|preventDefault={insertCode}><Send /></button>

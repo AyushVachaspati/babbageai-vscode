@@ -46,7 +46,7 @@
 
 <svelte:window bind:innerWidth></svelte:window>
 
-{#if innerWidth>350}
+{#if innerWidth>400}
   <button type='submit' class="copy-code-button" title='Copy Code' on:click|preventDefault={copyCode}><Copy />  {buttonText}</button>
 {:else}
   <button type='submit' class="copy-code-button-small" title='Copy Code' on:click|preventDefault={copyCode}><Copy /></button>

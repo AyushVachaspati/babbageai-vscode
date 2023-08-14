@@ -48,3 +48,19 @@ p{
 	white-space: pre-wrap;
 	word-wrap: break-word;
 }
+
+ul {
+	margin-left: 15px;
+	padding-left: 15px;
+}
+
+ol {
+	margin-left: 20px;
+	padding-left: 20px;
+}
+table, th, td {
+	border-collapse: collapse;
+	border: 1px solid white;
+	padding: 5px;
+	margin:5px;
+  }
