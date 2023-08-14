@@ -11,7 +11,7 @@
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
-          return '<div class="code-block-container"><hr class="line"><pre class="code-block"><code>' +
+          return '<div class="code-block-container"><hr class="line"><pre class="code-block"><code class="inner-code">' +
                     hljs.highlight(lang, str, true).value +
                  `</code></pre><div class="code-heading">${hljs.getLanguage(lang).name}</div></div>`;
         } 
@@ -75,6 +75,10 @@ def fibonacci(''):
     top: 7px;
     left: 20px;
   }
+  :global(.inner-code) {
+    white-space: inherit;
+    word-wrap: inherit;
+  }
   :global(.line){
     color:white;
     background-color:white;
@@ -85,6 +89,6 @@ def fibonacci(''):
   
 </style>
 
-{@html  md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}
+{@html  md.render(markdownContent)}
 <!-- {md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()} -->
 <!-- <p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p> -->
