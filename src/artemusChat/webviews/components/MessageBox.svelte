@@ -19,6 +19,7 @@
     font-family: 'Courier New', Courier, monospace;
     line-height: 1.5;
     font-weight: 500;
+    /* border-radius: 15px; */
   }
     
   .message_human {
@@ -28,8 +29,10 @@
     margin-bottom: 10px;
     font-size: 14.5px;
     color: white;
-    font-family: 'Courier New', Courier, monospace;line-height: 1.5;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.5;
     font-weight: 500;
+    /* border-radius: 15px; */
   }
 
   .border-gradient-left {

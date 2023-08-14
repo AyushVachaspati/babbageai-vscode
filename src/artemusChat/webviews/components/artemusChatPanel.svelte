@@ -184,6 +184,7 @@
 		margin: 10px;
 	}
 	.input-area{
+		border: 1px solid rgba(255, 255, 255, 0.2);
 		background: rgb(50,50,50,0.3);
 		padding: 14px 40px 10px 20px;
 		resize: none;
@@ -195,7 +196,9 @@
 		color: whitesmoke;
 		font-family: 'Courier New', Courier, monospace;
 		font-size: medium;
-		border: none;
+	}
+	.input-area:focus{
+		border: 1px solid rgba(255, 255, 255, 1);
 	}
 
 	::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
