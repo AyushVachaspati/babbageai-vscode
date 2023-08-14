@@ -66,20 +66,20 @@
 		scrollToBottom(outputArea);
 		await tick()
 		
-		let preComponents = document.querySelectorAll('pre');
+		let preComponents = Array.from(document.getElementsByClassName('code-block'));
 		// console.log(preComponents)
 		preComponents.forEach((preComponent) => {
+			console.log(document.getElementsByClassName('message_human'))
 			let hasButtons = preComponent.parentElement?.getElementsByClassName("copy-code-button").length;
 			if(!hasButtons){
 				let copyButton = new CopyCodeButton({
-					target: preComponent.parentElement as HTMLElement,
-					anchor: preComponent
+					target: preComponent.parentElement as HTMLElement
 				});
 				let insertButton = new InsertCodeButton({
-					target: preComponent.parentElement as HTMLElement,
-					anchor: preComponent
+					target: preComponent.parentElement as HTMLElement
 				});
 			}
+			
 		})
 	}
 

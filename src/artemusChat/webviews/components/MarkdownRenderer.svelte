@@ -12,17 +12,17 @@
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
-          return '<pre><code>' +
+          return '<div class="code-block-container"><hr class="line"><pre class="code-block"><code>' +
                     hljs.highlight(lang, str, true).value +
-                 `</code></pre><div class="code-heading">${hljs.getLanguage(lang).name}</div>`;
+                 `</code></pre><div class="code-heading">${hljs.getLanguage(lang).name}</div></div>`;
         } 
         catch (error) {
           console.error(error)
         }
       }
-      return  '<pre><code>' +
+      return  '<div class="code-block-container"><pre class="code-block"><code>' +
                 md.utils.escapeHtml(str) +
-              `</code></pre><div class="code-heading">${""}</div>`;
+              `</code></pre><div class="code-heading">${""}</div></div>`;
     }
   });
 
@@ -52,17 +52,40 @@ def fibonacci(''):
 </script>
 
 <style>
-  .para {
+  /* .para {
     white-space: pre-wrap;
     overflow-wrap: break-word;
+  } */
+
+  :global(.code-block){
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgba(24, 24, 24, 0.792);
+    /* background-color: rgba(118, 32, 32, 0.712); */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
+    padding: 3rem 1rem 1rem 1rem;
+    overflow: auto;
+    position:relative;
+  }
+  :global(.code-block-container){
+    position:relative;
   }
   :global(.code-heading) {
     position: absolute;
     top: 5px;
     left: 20px;
   }
+  :global(.line){
+    color:white;
+    background-color:white;
+    position:absolute;
+    top:25px;
+    width:100%;
+  }
   
 </style>
 
-<p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p>
-<!-- {@html "<p>this is a test this is a test this is a test this is a test </p>"} -->
+
+{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}
+<!-- <p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p> -->
