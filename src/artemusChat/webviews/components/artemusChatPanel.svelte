@@ -62,6 +62,7 @@
 	
 	async function sendUserMessage() {
 		fetching=true;
+		console.log(inputValue)
 		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		chat = chat.concat({identity: Identity.User, message: inputValue})
 		inputValue="";
