@@ -19,7 +19,7 @@
     font-weight: 300;
     text-align:center;
     position: absolute;
-    top: 5px;
+    top: 7px;
     right: 15px;
     background-color: transparent;
 		border: None;
@@ -32,7 +32,7 @@
   
   .copy-code-button-small {
     position: absolute;
-    top: 5px;
+    top: 7px;
     right: 15px;
     background-color: transparent;
     border: None;

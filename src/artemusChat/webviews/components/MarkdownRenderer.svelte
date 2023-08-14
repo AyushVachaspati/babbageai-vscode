@@ -58,7 +58,7 @@ def fibonacci(''):
   } */
 
   :global(.code-block){
-    color: white;
+    color: var(--vscode-editor-foreground);
     font-family: 'Courier New', Courier, monospace;
     background-color: rgba(24, 24, 24, 0.792);
     /* background-color: rgba(118, 32, 32, 0.712); */
@@ -73,7 +73,7 @@ def fibonacci(''):
   }
   :global(.code-heading) {
     position: absolute;
-    top: 5px;
+    top: 7px;
     left: 20px;
   }
   :global(.line){

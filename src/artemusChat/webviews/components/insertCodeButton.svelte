@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Send from "./icons/copy.svelte";
+  import Send from "./icons/insertCode.svelte";
   let isInserted = false;
   let buttonText = 'Insert Code'
   let innerWidth = 0; 
@@ -18,7 +18,7 @@
     font-weight: 300;
     text-align:center;
     position: absolute;
-    top: 5px;
+    top: 7px;
     right: 110px;
     background-color: transparent;
 		border: None;
@@ -32,7 +32,7 @@
 
   .insert-code-button-small {
   position: absolute;
-  top: 5px;
+  top: 7px;
   right: 40px;
   background-color: transparent;
   border: None;
