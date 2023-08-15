@@ -8,6 +8,7 @@
     console.log(event)
   }
   const md = markdownit({
+    linkify: true,
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
@@ -19,14 +20,17 @@
           console.error(error)
         }
       }
-      return  '<div class="code-block-container"><hr class="line"><pre class="code-block"><code>' +
+      return  '<div class="code-block-container"><hr class="line"><pre class="code-block"><code class="inner-code">' +
                 md.utils.escapeHtml(str) +
               `</code></pre><div class="code-heading">${""}</div></div>`;
     }
   });
 
   String.prototype.spaceToNbsp = function() {
-    return this.replace(/ /g,"&nbsp;")
+    
+    //Not replacing single space (" ") because that is significant in Markdown.
+    //only Tab and Tab equivalent, i.e 2,4,6,8 spaces are being replaced.
+    return this.replace(/  /g,"&nbsp;&nbsp;")
               .replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;");
   }
   String.prototype.MarkdownNbspToSpace = function() {
@@ -89,6 +93,6 @@ def fibonacci(''):
   
 </style>
 
-{@html  md.render(markdownContent)}
+{@html  md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}
 <!-- {md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()} -->
 <!-- <p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p> -->
