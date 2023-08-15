@@ -9,7 +9,6 @@
   }
   const md = markdownit({
     linkify: true,
-    typographer: true,
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
@@ -45,8 +44,8 @@
   }
   
   String.prototype.fixCodeBlockFontWeight = function() {
-    return this.replace(/<pre><code class="/g, '<p><code class="outer-code ')
-               .replace(/<pre><code>/g, '<p><code class="outer-code" >');
+    return this.replace(/<pre><code class="/g, '<pre><code class="outer-code ')
+               .replace(/<pre><code>/g, '<pre><code class="outer-code" >');
   }
 
   export let markdownContent = `
