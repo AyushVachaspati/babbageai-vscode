@@ -44,7 +44,7 @@
 					break;
 				case "result":
 					console.log(message.result);
-					chat = chat.concat({identity: Identity.Bot, message: message.result});
+					chat = chat.concat({identity: Identity.botMessage, message: message.result});
 					scrollToBottom(outputArea);
 					fetching=false;
 					break;
@@ -64,7 +64,7 @@
 		fetching=true;
 		console.log(inputValue)
 		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
-		chat = chat.concat({identity: Identity.User, message: inputValue})
+		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
 		inputValue="";
 		inputTextArea.focus();
 		scrollToBottom(outputArea);

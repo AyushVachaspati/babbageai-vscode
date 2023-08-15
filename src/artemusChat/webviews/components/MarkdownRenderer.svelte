@@ -9,6 +9,7 @@
   }
   const md = markdownit({
     linkify: true,
+    typographer: true,
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
@@ -33,12 +34,19 @@
     return this.replace(/  /g,"&nbsp;&nbsp;")
               .replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;");
   }
+
   String.prototype.MarkdownNbspToSpace = function() {
     return this.replace(/&amp;nbsp;/g," ")
   }
+
   String.prototype.correctWhiteSpace = function() {
     var regex = new RegExp(String.fromCharCode(160), "g");
     return this.replace(regex, " ");
+  }
+  
+  String.prototype.fixCodeBlockFontWeight = function() {
+    return this.replace(/<pre><code class="/g, '<p><code class="outer-code ')
+               .replace(/<pre><code>/g, '<p><code class="outer-code" >');
   }
 
   export let markdownContent = `
@@ -82,7 +90,12 @@ def fibonacci(''):
   :global(.inner-code) {
     white-space: inherit;
     word-wrap: inherit;
+    font-weight: inherit;
   }
+  :global(.outer-code){
+    font-weight: inherit;
+  }
+
   :global(.line){
     color:white;
     background-color:white;
@@ -93,6 +106,6 @@ def fibonacci(''):
   
 </style>
 
-{@html  md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}
+{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace().fixCodeBlockFontWeight()}
 <!-- {md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()} -->
 <!-- <p class='para'>{@html md.render(markdownContent.spaceToNbsp()).MarkdownNbspToSpace().correctWhiteSpace()}</p> -->

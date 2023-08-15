@@ -71,14 +71,14 @@
 
 <div class = 'container'>
   {#each chat as msg}
-    {#if msg.identity===Identity.User}
+    {#if msg.identity===Identity.userMessage}
       <div class="message_human border-gradient-right border-gradient-purple">
         <MarkdownRenderer markdownContent={msg.message}/>
         {#if blink}
 	        <span class="blink">|</span>
         {/if}
       </div>
-    {:else if msg.identity===Identity.Bot}
+    {:else if msg.identity===Identity.botMessage}
       <div class="message_bot border-gradient-left border-gradient-purple">
         <MarkdownRenderer markdownContent={msg.message}/>
         {#if blink}

@@ -1,6 +1,6 @@
 export enum Identity {
-    User,
-    Bot
+    userMessage,
+    botMessage
 }
 
 export type Message = {
