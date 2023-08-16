@@ -1,7 +1,8 @@
 import fetch, { Response } from 'node-fetch';
-import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
+import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../../statusBar/statusBar';
 import {InferenceRequest,InferenceResponse} from "./apiSchema";
 import assert = require("assert");
+import {getClient, getModelPredictionStream} from "../tritonGrpc/grpcApi";
 
 export type ModelPrediction = {
     result : string

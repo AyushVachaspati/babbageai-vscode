@@ -65,11 +65,12 @@
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "compileTritonProto": "yarn fetchProto && yarn generateTypes && yarn moveProto && yarn moveGeneratedCode",
+    "compileTritonProto": "yarn fetchProto && yarn generateTypes && yarn moveProto && yarn moveGeneratedCode && yarn distProto",
     "fetchProto": "mkdir ./proto && git clone https://github.com/triton-inference-server/common -b r23.06 ./upstream && mv ./upstream/protobuf/*.proto ./proto/ && rm -rf ./upstream",
     "generateTypes": "yarn proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --keepCase --grpcLib=@grpc/grpc-js --outDir=./generated proto/*.proto",
     "moveProto": "mv proto src/predictionUtils/tritonGrpc/proto",
-    "moveGeneratedCode": "mv generated src/predictionUtils/tritonGrpc/generated"
+    "moveGeneratedCode": "mv generated src/predictionUtils/tritonGrpc/generated",
+    "distProto": "cp -r src/predictionUtils/tritonGrpc/proto dist/"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",

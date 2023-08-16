@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { inlineCompletionProvider } from './predictionUtils/inlineCompletion';
+import { inlineCompletionProvider } from './predictionUtils/tritonHttp/inlineCompletion';
 import { statusBarItem, updateStatusBarArtemusActive, updateStatusBarArtemusLoading } from './statusBar/statusBar';
 import { ArtemusChatPanelProvider } from './artemusChat/artemusChatPanelProvider';
 
