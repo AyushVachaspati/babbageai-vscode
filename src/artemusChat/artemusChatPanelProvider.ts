@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getNonce } from "../utils/nonce";
+import { getNonce } from "./utils/nonce";
 import assert = require("assert");
 import { debounceCompletions } from "../predictionUtils/callApi";
 

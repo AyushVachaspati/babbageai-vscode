@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
 	import MessageBox from "./MessageBox.svelte";
-	import Send from "./icons/send.svelte";
+	import Send from "../icons/send.svelte";
 	import { Identity, type Message } from "../types/message";
     import { tick } from "svelte/internal";
 	import CopyCodeButton from "./copyCodeButton.svelte";

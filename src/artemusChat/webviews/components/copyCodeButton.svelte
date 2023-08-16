@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteComponent } from "svelte";
-  import Copy from "./icons/copy.svelte";
+  import Copy from "../icons/copy.svelte";
   let isCopied = false;
   let buttonText = 'Copy Code'
   let innerWidth = 0; 

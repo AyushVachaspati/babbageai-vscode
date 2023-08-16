@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Send from "./icons/insertCode.svelte";
+  import Send from "../icons/insertCode.svelte";
   let isInserted = false;
   let buttonText = 'Insert Code'
   let innerWidth = 0; 
