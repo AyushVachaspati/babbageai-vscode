@@ -87,8 +87,8 @@
 		let preComponents = Array.from(document.getElementsByClassName('code-block'));
 		// console.log(preComponents)
 		preComponents.forEach((preComponent) => {
-			console.log(document.getElementsByClassName('message_human'))
-			let hasButtons = preComponent.parentElement?.getElementsByClassName("copy-code-button").length;
+			let hasButtons = preComponent.parentElement?.getElementsByClassName("copy-code-button").length 
+							|| preComponent.parentElement?.getElementsByClassName("copy-code-button-small").length;
 			if(!hasButtons){
 				let copyButton = new CopyCodeButton({
 					target: preComponent.parentElement as HTMLElement
