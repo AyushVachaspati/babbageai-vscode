@@ -42,6 +42,11 @@
     background-color: rgba(255, 255, 255,0.05);
     cursor: pointer;
   }
+  
+  .copy-code-button-small:active {
+    background-color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+  }
 </style>
 
 <svelte:window bind:innerWidth></svelte:window>

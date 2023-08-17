@@ -43,6 +43,10 @@
     cursor: pointer;
   }
 
+  .insert-code-button-small:active {
+    background-color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+  }
 </style>
 
 <svelte:window bind:innerWidth></svelte:window>
