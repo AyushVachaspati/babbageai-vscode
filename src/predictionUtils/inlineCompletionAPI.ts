@@ -1,7 +1,5 @@
 import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
-import {getClient, 
-        getModelPredictionStream as grpcTritonStream,
-        getModelPrediction as grpcTritonFetch} from "./tritonGrpc/grpcApi";
+import {getClient, grpcPrediction as grpcTritonFetch} from "./tritonGrpc/grpcApi";
 
 export type ModelPrediction = {
     result : string
@@ -16,7 +14,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     let completion: string|undefined;
     try{
         const host = "localhost";
-        const port = "8001";
+        const port = "81";
         const modelName = "santacoder_huggingface";
         const modelVersion = "";
         const prompt = prefix;
@@ -57,33 +55,3 @@ function debounce<T extends unknown[], R>(
 }
 
 export const debounceCompletions = debounce(getModelPrediction, DEBOUNCE_DELAY);
-
-
-
-
-
-// async function getModelPredictionStream(prefix:string): Promise<undefined> {
-//     if(prefix.length===0){
-//         return undefined;
-//     }
-//     updateStatusBarFetchingPrediction();
-//     console.time("API Fetch");
-//     let completion: string|undefined;
-//     try{
-//         const host = "localhost";
-//         const port = "8001";
-//         const modelName = "santacoder_huggingface";
-//         const modelVersion = "";
-//         const prompt = prefix;
-
-//         const client = getClient(host,port);
-//         completion = await grpcTritonFetch(client,prompt,modelName,modelVersion);
-        
-//     }
-//     catch (error){
-//         console.error(error);
-//     }
-//     console.timeEnd("API Fetch");
-//     updateStatusBarArtemusActive();
-
-// }

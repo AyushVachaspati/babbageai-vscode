@@ -17,7 +17,7 @@ function encode(text:string) {
 };
 
 function decodeOutput(outputs:ModelInferResponse__Output| ModelInferResponse) {
-    return outputs.raw_output_contents? outputs.raw_output_contents[0].slice(4).toString() : undefined;
+    return outputs.raw_output_contents? outputs.raw_output_contents[0].slice(4).toString() : "";
 };
 
 export function getClient(host:string,port:string) {
@@ -61,7 +61,7 @@ export function getClient(host:string,port:string) {
     return modelMetadataResponse;
 }
 
- export async function getModelPrediction(
+ export async function grpcPrediction(
     client: GRPCInferenceServiceClient,
     prompt: string,
     modelName: string,
@@ -96,73 +96,65 @@ export function getClient(host:string,port:string) {
     return  response ? decodeOutput(response) : undefined;
 }
 
- export async function getModelPredictionStream(
+ export function grpcPredictionStream(
     client: GRPCInferenceServiceClient,
     prompt: string,
     modelName: string,
     modelVersion: string,
-    callback: (output:any)=>void,
+    responseCallback: (output:string)=>void,
+    endCallback: ()=>void,
+    errorCallback: (error:string)=>void,
     batchSize: number = 1,
-    dimension: number = 1) {
-    const streamClient = client.ModelStreamInfer();
-    const input:ModelInputTensor = {
-        name: "input",
-        datatype: "BYTES",
-        shape: [batchSize, dimension],
-        contents: {
-            bytes_contents: [encode(prompt)]
-        }
-    };
-
-    const modelInferRequest:ModelInferRequest = {
-        model_name: modelName,
-        model_version: modelVersion,
-        inputs: [input],
-        outputs:[
-            {
-                name:"output"
+    dimension: number = 1) 
+{
+    try{
+        const streamClient = client.ModelStreamInfer();
+        const input:ModelInputTensor = {
+            name: "input",
+            datatype: "BYTES",
+            shape: [batchSize, dimension],
+            contents: {
+                bytes_contents: [encode(prompt)]
             }
-        ]
-    };
+        };
 
-    streamClient.write(modelInferRequest);
-    streamClient.on('data', (response:ModelStreamInferResponse) => {
-        let errorResponse = response.error_message;
-        let inferResponse = response.infer_response;
-        if(errorResponse){
-            console.error(errorResponse);
-            return;
-        }
-        if(inferResponse){
-            if(!inferResponse.parameters?.triton_final_response.bool_param){
-                callback(decodeOutput(inferResponse));
-            }
-           else{
+        const modelInferRequest:ModelInferRequest = {
+            model_name: modelName,
+            model_version: modelVersion,
+            inputs: [input],
+            outputs:[
+                {
+                    name:"output"
+                }
+            ]
+        };
+        
+        streamClient.write(modelInferRequest);
+        streamClient.on('data', (response:ModelStreamInferResponse) => {
+            let errorResponse = response.error_message;
+            let inferResponse = response.infer_response;
+            if(errorResponse){
                 streamClient.end();
-                callback('<|endoftext|>');
+                errorCallback(errorResponse);
+                return;
             }
-        }
-    });
+            if(inferResponse){
+                if(!inferResponse.parameters?.triton_final_response.bool_param){
+                    responseCallback(decodeOutput(inferResponse));
+                }
+            else{
+                    streamClient.end();
+                    endCallback();
+                }
+            }
+        });
+        streamClient.on('error', (error:grpc.ServerErrorResponse) => {
+            let errorResponse = error.message;
+            streamClient.end();
+            errorCallback(errorResponse);
+        });
+    }
+    catch(error){
+        errorCallback((error as Error).message);
+    }
 }
-
-
-
-async function main() {
-    const host = "localhost";
-    const port = "8001";
-    const client = getClient(host,port);
-    
-    const modelName = "santacoder_huggingface_stream";
-    const modelVersion = "";
-    const batchSize = 1;
-    const dimension = 1;
-
-    console.log("Server Live: ",await isServerLive(client));
-    console.log("Server Ready: ",await isServerReady(client));
-    console.log("Model Metadata: ",await getModelMetaData(client,modelName,modelVersion));
-    const prompt = "def fib(n):";
-    // console.log("Model Prediction: \n",await getModelPrediction(client,prompt,modelName,modelVersion));
-    // // const prompt =  `def fib(n):`;
-    await getModelPredictionStream(client,prompt,modelName,modelVersion,(output) => {process.stdout.write(output);});
-}
-// main();

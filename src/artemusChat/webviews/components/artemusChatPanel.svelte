@@ -33,13 +33,21 @@
 		await tick();
 		inputTextArea.focus();
 
-		window.addEventListener("message", (event) => {
+		window.addEventListener("message",async (event) => {
 			const message = event.data;
 			switch(message.type){
 				case "sendBotMsgChunk":
-					console.log("Chunk recieved");
+					let temp = chat.pop();
+					if(temp){
+						temp.message = temp.message +message.data;
+						chat = chat.concat(temp);
+						scrollToBottom(outputArea);
+						await tick();
+						addCodeBlockButtons();
+					}
 					break;
 				case "sendBotMsgEnd":
+					fetching = false;
 					console.log("Message Ended");
 					break;
 				case "result":
@@ -62,14 +70,20 @@
 	
 	async function sendUserMessage() {
 		fetching=true;
-		console.log(inputValue)
-		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
+		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		inputValue="";
 		inputTextArea.focus();
+
 		scrollToBottom(outputArea);
 		await tick()
 		
+		addCodeBlockButtons();
+		resizeInputArea();
+	}
+
+	function addCodeBlockButtons() {
 		let preComponents = Array.from(document.getElementsByClassName('code-block'));
 		// console.log(preComponents)
 		preComponents.forEach((preComponent) => {
@@ -85,8 +99,6 @@
 			}
 			
 		})
-
-		resizeInputArea();
 	}
 
 	async function scrollToBottom(node:any) {
@@ -112,12 +124,6 @@
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
-			<!-- svelte-ignore missing-declaration -->
-			<!-- <button on:click={()=>{
-				vscodeApi.postMessage({type:'testMsg', value:'Nice Test',anotherthing:'this works'});
-			}}>
-			Click to post message to VscodeAPI
-			</button> -->
 		</div>
 		<!-- <div><p>Current Open File Goes Here </p></div> -->
 		<!-- <br> -->

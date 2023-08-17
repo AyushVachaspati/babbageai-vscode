@@ -1,4 +1,4 @@
-import {debounceCompletions} from "./callApi";
+import {debounceCompletions} from "./inlineCompletionAPI";
 import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');

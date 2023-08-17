@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { getNonce } from "./utils/nonce";
 import assert = require("assert");
-import { debounceCompletions } from "../predictionUtils/callApi";
+import { debounceCompletions } from "../predictionUtils/inlineCompletionAPI";
+import { getModelPredictionStream } from "../predictionUtils/chatResponseAPI";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -31,11 +32,6 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(async (data) => {
 			switch (data.type) {
-				case 'testMsg':
-					{
-						console.log(`Message Recived with ${data.anotherthing}`);
-						break;
-					}
 				case 'insertCode':
 					{
 						let code = data.code;
@@ -51,25 +47,24 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'userInput':
 					{
-						try{
-							let prediction = await debounceCompletions(data.userInput);
-							webviewView.webview.postMessage({type:"result","result":prediction?.result});
-						}
-						catch(error){
-							console.error("Request to Artemus server failed.");
-							webviewView.webview.postMessage({type:"result","result":"Sorry, The request to the server failed."});
-						}
-						break;
+						const responseCallback = (response:string)=>{this.sendBotMsgChunk(response);};
 						
+						const endCallback = ()=>{this.sendBotMsgEnd()};
+						
+						const errorCallback = (error: string)=>{console.error(error);};
+
+						getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
+						
+						break;	
 					}
 			}
 		});
 	}
 
-	public sendBotMsgChunk() {
+	public sendBotMsgChunk(response:string) {
 		let webviewMsgApi = this.view?.webview;
 		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'sendBotMsgChunk' });
+		webviewMsgApi.postMessage({ type: 'sendBotMsgChunk' ,data:response });
 		
 	}
 
