@@ -61,17 +61,19 @@ export function getClient(host:string,port:string) {
     return modelMetadataResponse;
 }
 
- async function getModelPrediction(
+ export async function getModelPrediction(
     client: GRPCInferenceServiceClient,
     prompt: string,
     modelName: string,
-    modelVersion: string
+    modelVersion: string,
+    batchSize: number = 1,
+    dimension: number = 1
     ) {
     const modelInfer = util.promisify(client.modelInfer).bind(client);
     const input:ModelInputTensor = {
         name: "input",
         datatype: "BYTES",
-        shape: [1,1],
+        shape: [batchSize,dimension],
         contents: {
             bytes_contents: [encode(prompt)]
         }
@@ -99,12 +101,14 @@ export function getClient(host:string,port:string) {
     prompt: string,
     modelName: string,
     modelVersion: string,
-    callback: (output:any)=>void) {
+    callback: (output:any)=>void,
+    batchSize: number = 1,
+    dimension: number = 1) {
     const streamClient = client.ModelStreamInfer();
     const input:ModelInputTensor = {
         name: "input",
         datatype: "BYTES",
-        shape: [1,1],
+        shape: [batchSize, dimension],
         contents: {
             bytes_contents: [encode(prompt)]
         }

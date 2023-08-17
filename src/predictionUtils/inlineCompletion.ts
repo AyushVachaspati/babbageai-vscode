@@ -1,6 +1,6 @@
 import {debounceCompletions} from "./callApi";
 import * as vscode from 'vscode';
-import { globalCache } from "../../predictionCache/predictionCache";
+import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
 import assert = require("assert");
 

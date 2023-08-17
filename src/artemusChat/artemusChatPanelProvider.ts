@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./utils/nonce";
 import assert = require("assert");
-import { debounceCompletions } from "../predictionUtils/tritonHttp/callApi";
+import { debounceCompletions } from "../predictionUtils/callApi";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
