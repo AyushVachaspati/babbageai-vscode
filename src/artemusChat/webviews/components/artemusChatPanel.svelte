@@ -17,7 +17,7 @@
 	let inputValue = '';
 	let disabled = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
-
+	
 	function keypress(event:any){
 		if(event.shiftKey)
 			return;
@@ -27,9 +27,8 @@
 			sendUserMessage();
 		}
 	}
-	
+
 	onMount(async () => {
-		await new Promise(resolve => setTimeout(resolve, 200));
 		loading = false;
 		await tick();
 		inputTextArea.focus();
@@ -42,15 +41,16 @@
 					if(temp){
 						temp.message = temp.message + message.data;
 						chat = chat.concat(temp);
-						scrollToBottom(outputArea);
+						await scrollToBottom(outputArea);
 						addCodeBlockButtons();
 					}
+					chat = chat;
 					break;
 				}
 				case "BotMsgEnd":{
 					fetching = false;
 					vscodeApi.postMessage({type:'setStatusBarActive'});
-					scrollToBottom(outputArea);
+					await scrollToBottom(outputArea);
 					addCodeBlockButtons();
 					inputTextArea.focus();
 					break;
@@ -65,7 +65,7 @@
 
 	});
 
-	function handleErrors(message:any) {
+	async function handleErrors(message:any) {
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){
@@ -74,7 +74,7 @@
 		fetching = false;
 		vscodeApi.postMessage({type:'setStatusBarActive'});
 		inputTextArea.focus();
-		scrollToBottom(outputArea);
+		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		
 		switch(error_code){
@@ -106,8 +106,7 @@
 		inputValue="";
 		inputTextArea.focus();
 
-		scrollToBottom(outputArea);
-		
+		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
 	}
@@ -133,7 +132,6 @@
 	async function scrollToBottom(node:any) {
 		await tick();
 		node.scroll({ top: node.scrollHeight, behavior: 'instant' });
-		await tick();
   	}; 
 
 </script>

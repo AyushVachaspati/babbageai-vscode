@@ -41,7 +41,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	//Register Artemus Chat Panel
 	const artemusChatWebview = new ArtemusChatPanelProvider(context.extensionUri);
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview)
+		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview,{
+			webviewOptions: {
+			  retainContextWhenHidden: true, // keeps the state of the webview even when it's not visible
+			},
+		  })
 	);
 	
 	// Fake wait time of 1 second to show loading Item. 

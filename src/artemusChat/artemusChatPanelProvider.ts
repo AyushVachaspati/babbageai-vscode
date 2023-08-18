@@ -34,14 +34,18 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		};
 		
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+		
 		webviewView.onDidChangeVisibility(() => {
 			if(webviewView.visible!==true){
-				console.log("Cancelling Response");
-				this.streamClient?.cancel();
-				this.streamClient = undefined;
+				// this.streamClient?.cancel();
+				// this.streamClient = undefined;
 			}	
 		});
-		webviewView.onDidDispose((event)=>{console.log(event);console.log("Disposed")});
+
+		webviewView.onDidDispose(()=>{
+			console.log(event);console.log("Disposed");
+		});
+
 		webviewView.webview.onDidReceiveMessage(async (data) => {
 			switch (data.type) {
 				case 'insertCode':
@@ -68,7 +72,6 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						};
 						
 						const errorCallback = (error: string)=>{
-							console.error(error);
 							this.sendBotMsgError(error);
 						};
 						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
