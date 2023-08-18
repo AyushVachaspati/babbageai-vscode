@@ -3,6 +3,10 @@ import { getNonce } from "./utils/nonce";
 import assert = require("assert");
 import { debounceCompletions } from "../predictionUtils/inlineCompletionAPI";
 import { getModelPredictionStream } from "../predictionUtils/chatResponseAPI";
+import { updateStatusBarArtemusActive, updateStatusBarArtemusLoading } from "../statusBar/statusBar";
+import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/generated/inference/ModelStreamInferResponse";
+import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
+import { ClientDuplexStream } from "@grpc/grpc-js";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -10,6 +14,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 	public view?: vscode.WebviewView;
     private doc?: vscode.TextDocument;
+	private streamClient: ClientDuplexStream<ModelInferRequest, ModelStreamInferResponse__Output> | undefined;
 
 	constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -47,15 +52,36 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'userInput':
 					{
-						const responseCallback = (response:string)=>{this.sendBotMsgChunk(response);};
+						const responseCallback = (response:string)=>{
+							this.sendBotMsgChunk(response);
+						};
 						
-						const endCallback = ()=>{this.sendBotMsgEnd()};
+						const endCallback = ()=>{
+							this.sendBotMsgEnd();
+						};
 						
-						const errorCallback = (error: string)=>{console.error(error);};
-
-						getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
-						
-						break;	
+						const errorCallback = (error: string)=>{
+							console.error(error);
+							this.sendBotMsgError(error);
+						};
+						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
+						break;
+					}
+				case 'setStatusBarLoading':
+					{
+						updateStatusBarArtemusLoading();
+						break;
+					}
+				case 'setStatusBarActive':
+					{
+						updateStatusBarArtemusActive();
+						break;
+					}
+				case 'cancelRequest':
+					{
+						this.streamClient?.cancel();
+						this.streamClient = undefined;
+						break;
 					}
 			}
 		});
@@ -64,16 +90,22 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 	public sendBotMsgChunk(response:string) {
 		let webviewMsgApi = this.view?.webview;
 		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'sendBotMsgChunk' ,data:response });
+		webviewMsgApi.postMessage({ type: 'BotMsgChunk' ,data:response});
 		
 	}
 
 	public sendBotMsgEnd() {
 		let webviewMsgApi = this.view?.webview;
 		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'sendBotMsgEnd' });
+		webviewMsgApi.postMessage({ type: 'BotMsgEnd' });
 	}
 
+	public sendBotMsgError(error:string) {
+		let webviewMsgApi = this.view?.webview;
+		assert(webviewMsgApi, "Expected Webview to be defined");
+		webviewMsgApi.postMessage({ type: 'BotMsgError',error:error });
+	}
+	
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.

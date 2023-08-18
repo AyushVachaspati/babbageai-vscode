@@ -6,7 +6,8 @@
     import { tick } from "svelte/internal";
 	import CopyCodeButton from "./copyCodeButton.svelte";
     import InsertCodeButton from "./insertCodeButton.svelte";
-	
+	import StopGenerateButton from "./stopGenerateButton.svelte";
+
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
@@ -36,7 +37,7 @@
 		window.addEventListener("message",async (event) => {
 			const message = event.data;
 			switch(message.type){
-				case "sendBotMsgChunk":
+				case "BotMsgChunk":{						
 					let temp = chat.pop();
 					if(temp){
 						temp.message = temp.message +message.data;
@@ -46,16 +47,37 @@
 						addCodeBlockButtons();
 					}
 					break;
-				case "sendBotMsgEnd":
+				}
+				case "BotMsgEnd":{
 					fetching = false;
+					vscodeApi.postMessage({type:'setStatusBarActive'});
 					console.log("Message Ended");
 					break;
-				case "result":
-					console.log(message.result);
-					chat = chat.concat({identity: Identity.botMessage, message: message.result});
-					scrollToBottom(outputArea);
-					fetching=false;
+				}
+				case "BotMsgError":{
+					//Handle all error codes
+					// Code	Number	Description
+					// OK	0	
+					// CANCELLED	1	
+					// UNKNOWN	2	
+					// INVALID_ARGUMENT	3	
+					// DEADLINE_EXCEEDED	4	
+					// NOT_FOUND	5	
+					// ALREADY_EXISTS	6	
+					// PERMISSION_DENIED	7	
+					// RESOURCE_EXHAUSTED	8	
+					// FAILED_PRECONDITION	9	
+					// ABORTED	10	UNAVAILABLE.
+					// OUT_OF_RANGE	11	
+					// UNIMPLEMENTED	12	
+					// INTERNAL	13	
+					// UNAVAILABLE	14	
+					// DATA_LOSS	15	
+					fetching = false;
+					vscodeApi.postMessage({type:'setStatusBarActive'});
+					console.error(message.data.error);
 					break;
+				}
 			}
 
 		})
@@ -72,6 +94,7 @@
 		fetching=true;
 		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
 		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		vscodeApi.postMessage({type:'setStatusBarLoading'});
 		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
 		inputValue="";
 		inputTextArea.focus();
@@ -108,6 +131,10 @@
 
 </script>
 
+
+
+
+
 {#if loading}
 	<div class="center">
 		<div class="loader"></div>
@@ -119,6 +146,9 @@
 		</div>
 		<div class="chat-container">
 			<div class="textarea-container">
+			{#if fetching}
+				<StopGenerateButton />
+			{/if}
 			<form>
 				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={resizeInputArea} on:keypress={keypress} />
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
@@ -129,6 +159,9 @@
 		<!-- <br> -->
 	</div>
 {/if}
+
+
+
 
 <style>
 	/* width */

@@ -140,7 +140,8 @@ export function getClient(host:string,port:string) {
             }
             if(inferResponse){
                 if(!inferResponse.parameters?.triton_final_response.bool_param){
-                    responseCallback(decodeOutput(inferResponse));
+                        responseCallback(decodeOutput(inferResponse));
+                        // streamClient.cancel();
                 }
             else{
                     streamClient.end();
@@ -150,11 +151,14 @@ export function getClient(host:string,port:string) {
         });
         streamClient.on('error', (error:grpc.ServerErrorResponse) => {
             let errorResponse = error.message;
-            streamClient.end();
+            // streamClient.end();
             errorCallback(errorResponse);
         });
-    }
+        return streamClient;
+        }
     catch(error){
         errorCallback((error as Error).message);
+        return undefined;
     }
+    return undefined;
 }
