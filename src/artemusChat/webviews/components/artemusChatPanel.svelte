@@ -40,10 +40,9 @@
 				case "BotMsgChunk":{						
 					let temp = chat.pop();
 					if(temp){
-						temp.message = temp.message +message.data;
+						temp.message = temp.message + message.data;
 						chat = chat.concat(temp);
 						scrollToBottom(outputArea);
-						await tick();
 						addCodeBlockButtons();
 					}
 					break;
@@ -51,31 +50,13 @@
 				case "BotMsgEnd":{
 					fetching = false;
 					vscodeApi.postMessage({type:'setStatusBarActive'});
-					console.log("Message Ended");
+					scrollToBottom(outputArea);
+					addCodeBlockButtons();
+					inputTextArea.focus();
 					break;
 				}
 				case "BotMsgError":{
-					//Handle all error codes
-					// Code	Number	Description
-					// OK	0	
-					// CANCELLED	1	
-					// UNKNOWN	2	
-					// INVALID_ARGUMENT	3	
-					// DEADLINE_EXCEEDED	4	
-					// NOT_FOUND	5	
-					// ALREADY_EXISTS	6	
-					// PERMISSION_DENIED	7	
-					// RESOURCE_EXHAUSTED	8	
-					// FAILED_PRECONDITION	9	
-					// ABORTED	10	UNAVAILABLE.
-					// OUT_OF_RANGE	11	
-					// UNIMPLEMENTED	12	
-					// INTERNAL	13	
-					// UNAVAILABLE	14	
-					// DATA_LOSS	15	
-					fetching = false;
-					vscodeApi.postMessage({type:'setStatusBarActive'});
-					console.error(message.data.error);
+					handleErrors(message);
 					break;
 				}
 			}
@@ -83,6 +64,32 @@
 		})
 
 	});
+
+	function handleErrors(message:any) {
+		let error_code = (message.error as string).split(" ")[0];
+		let temp = chat.pop();
+		if(temp && temp.message!==""){
+			chat = chat.concat(temp);
+		}
+		fetching = false;
+		vscodeApi.postMessage({type:'setStatusBarActive'});
+		inputTextArea.focus();
+		scrollToBottom(outputArea);
+		addCodeBlockButtons();
+		
+		switch(error_code){
+			case '1': {
+				chat = chat
+				break;
+			}
+			default: {
+				chat = chat.concat({identity: Identity.errorMessage, 
+									message: "An Error Occured while fetching Responses."})
+				break;
+			}
+		}
+	}
+
 
 	function resizeInputArea() {
 		let element = document.getElementsByClassName('input-area')[0] as HTMLElement;
@@ -100,7 +107,6 @@
 		inputTextArea.focus();
 
 		scrollToBottom(outputArea);
-		await tick()
 		
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -127,6 +133,7 @@
 	async function scrollToBottom(node:any) {
 		await tick();
 		node.scroll({ top: node.scrollHeight, behavior: 'instant' });
+		await tick();
   	}; 
 
 </script>

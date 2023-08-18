@@ -1,9 +1,10 @@
 export enum Identity {
     userMessage,
-    botMessage
+    botMessage,
+    errorMessage
 }
 
 export type Message = {
     identity: Identity,
-    message: string
+    message: string,
 }

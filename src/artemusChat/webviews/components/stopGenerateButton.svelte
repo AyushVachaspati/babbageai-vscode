@@ -8,8 +8,8 @@
 <style>
   .stop-generate-button {
     color: white;
-    position: relative;
-    top: 50%;
+    position: absolute;
+    top: -25px;
     left: 50%;
     margin-right: -50%;
     background-color: rgba(40, 40, 40, 0.5);

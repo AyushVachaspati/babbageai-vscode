@@ -34,7 +34,14 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		};
 		
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-
+		webviewView.onDidChangeVisibility(() => {
+			if(webviewView.visible!==true){
+				console.log("Cancelling Response");
+				this.streamClient?.cancel();
+				this.streamClient = undefined;
+			}	
+		});
+		webviewView.onDidDispose((event)=>{console.log(event);console.log("Disposed")});
 		webviewView.webview.onDidReceiveMessage(async (data) => {
 			switch (data.type) {
 				case 'insertCode':
@@ -103,7 +110,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 	public sendBotMsgError(error:string) {
 		let webviewMsgApi = this.view?.webview;
 		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'BotMsgError',error:error });
+		webviewMsgApi.postMessage({ type: 'BotMsgError', error: error });
 	}
 	
 	private _getHtmlForWebview(webview: vscode.Webview) {

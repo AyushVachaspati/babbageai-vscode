@@ -11,7 +11,6 @@ export function getModelPredictionStream (
         errorCallback("Error: Empty User Message.");
         return; 
     }
-    console.time("Chat API Fetch");
     try{
         const host = "localhost";
         const port = "81";
@@ -27,6 +26,5 @@ export function getModelPredictionStream (
     catch (error){
         errorCallback((error as Error).message);
     }
-    console.timeEnd("Chat API Fetch");
     return undefined;
 }

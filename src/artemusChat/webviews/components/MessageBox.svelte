@@ -35,6 +35,19 @@
     /* border-radius: 15px; */
   }
 
+  .message_error {
+    background-color: rgba(255, 0, 0, 0.3);
+    padding: 15px;
+    position: relative;
+    margin-bottom: 10px;
+    font-size: 14.5px;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.5;
+    font-weight: 500;
+    /* border-radius: 15px; */
+  }
+
   .border-gradient-left {
     border-left: 2px solid;
     border-image-slice: 1;
@@ -54,6 +67,8 @@
 
   .blink {
     animation: blink 1s steps(1, end) infinite;
+    font-size: 17px;
+    font-weight: 900;
   }
 
   @keyframes blink {
@@ -74,16 +89,17 @@
     {#if msg.identity===Identity.userMessage}
       <div class="message_human border-gradient-right border-gradient-purple">
         <MarkdownRenderer markdownContent={msg.message}/>
-        {#if blink}
-	        <span class="blink">|</span>
-        {/if}
       </div>
     {:else if msg.identity===Identity.botMessage}
       <div class="message_bot border-gradient-left border-gradient-purple">
         <MarkdownRenderer markdownContent={msg.message}/>
-        {#if blink}
+        {#if msg.message===""}
 	        <span class="blink">|</span>
         {/if}
+      </div>
+    {:else if msg.identity===Identity.errorMessage}
+      <div class="message_error">
+        <MarkdownRenderer markdownContent={msg.message}/>
       </div>
     {/if}
   {/each}
