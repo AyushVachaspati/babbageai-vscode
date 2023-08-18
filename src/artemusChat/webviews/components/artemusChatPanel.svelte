@@ -16,6 +16,7 @@
 	let loading =true;
 	let inputValue = '';
 	let disabled = true;
+	let scrollLock = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
 	
 	function keypress(event:any){
@@ -131,7 +132,21 @@
 
 	async function scrollToBottom(node:any) {
 		await tick();
-		node.scroll({ top: node.scrollHeight, behavior: 'instant' });
+		let currentScroll = node.scrollTop;
+		let lockThreshold = 30;
+		if(scrollLock){
+			node.scroll({ top: node.scrollHeight, behavior: 'instant' });
+			let difference = Math.abs(node.scrollTop - currentScroll);
+			if(difference > lockThreshold)
+				scrollLock = false;
+		}
+		else{
+			node.scroll({ top: node.scrollHeight, behavior: 'instant' });
+			let difference = Math.abs(node.scrollTop - currentScroll);
+			if(difference < lockThreshold)
+				scrollLock = true;
+			node.scroll({ top: currentScroll, behavior: 'instant' })
+		}
   	}; 
 
 </script>
