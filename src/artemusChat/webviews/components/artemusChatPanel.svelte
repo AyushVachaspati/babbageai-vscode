@@ -67,6 +67,7 @@
 	});
 
 	async function handleErrors(message:any) {
+		console.error(message)
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){
@@ -97,16 +98,40 @@
 		element.style.height = 'auto';
 		element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
 	}
+
 	
+    function constructPrompt(chat: Message[]): string {
+        let prompt = "";
+		chat.forEach( (message) => {
+			let identity = message.identity;
+			switch(identity){
+				case Identity.userMessage: {
+					prompt += `<|user|>${message.message}<|end|>\n`;
+					break;
+				}
+				case Identity.botMessage: {
+					prompt += `<|assistant|>${message.message}<|end|>\n`;
+					break;
+				}
+				case Identity.errorMessage: {
+					break;
+				}
+			}
+		})
+		return prompt+`<|assistant|>`;
+    }
+
 	async function sendUserMessage() {
 		fetching=true;
 		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
-		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		let prompt:string = constructPrompt(chat);
+
 		vscodeApi.postMessage({type:'setStatusBarLoading'});
-		vscodeApi.postMessage({type:'userInput',userInput:inputValue});
+		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		vscodeApi.postMessage({type:'userInput',userInput:prompt});
+		
 		inputValue="";
 		inputTextArea.focus();
-
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -148,6 +173,8 @@
 			node.scroll({ top: currentScroll, behavior: 'instant' })
 		}
   	}; 
+
+
 
 </script>
 

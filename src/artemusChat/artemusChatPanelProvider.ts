@@ -68,10 +68,12 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						};
 						
 						const endCallback = ()=>{
+							this.streamClient=undefined;
 							this.sendBotMsgEnd();
 						};
 						
 						const errorCallback = (error: string)=>{
+							this.streamClient=undefined;
 							this.sendBotMsgError(error);
 						};
 						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);

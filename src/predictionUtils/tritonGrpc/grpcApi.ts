@@ -141,7 +141,6 @@ export function getClient(host:string,port:string) {
             if(inferResponse){
                 if(!inferResponse.parameters?.triton_final_response.bool_param){
                         responseCallback(decodeOutput(inferResponse));
-                        // streamClient.cancel();
                 }
             else{
                     streamClient.end();
