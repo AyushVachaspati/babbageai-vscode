@@ -18,6 +18,9 @@ function printLog(){
 // This method is called when your extension is activated
 // Use this to register all the commands and CompletionProviders + Handlers for other stuff.
 export async function activate(context: vscode.ExtensionContext) {
+	// clear chat history from global state
+	// context.globalState.update("Artemus-Chat-State",undefined)
+	
 	updateStatusBarArtemusLoading();
 
 	//Register Artemus Commands
@@ -47,8 +50,31 @@ export async function activate(context: vscode.ExtensionContext) {
 		// 	  retainContextWhenHidden: true, // keeps the state of the webview even when it's not visible
 		// 	},
 		//   }
-		  )
+		)
 	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.newChat', ()=>{
+			artemusChatWebview.createNewChat();
+		})
+	);
+
+	// setting current panel to Chat panel
+	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.historyView', ()=>{
+			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',true);
+			artemusChatWebview.showChatHistory();
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.currentChat', ()=>{
+			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			artemusChatWebview.showCurrentChat();
+		})
+	);
+	
 	
 	// Fake wait time of 1 second to show loading Item. 
 	// Wait time will be usefull when we validate extension

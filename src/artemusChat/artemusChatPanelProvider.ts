@@ -7,6 +7,7 @@ import { updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from 
 import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/generated/inference/ModelStreamInferResponse";
 import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
 import { ClientDuplexStream } from "@grpc/grpc-js";
+import type {ChatContext, ChatHistory, ChatHistoryItem}  from "./webviews/types/chatState";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -43,7 +44,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		});
 
 		webviewView.onDidDispose(()=>{
-			console.log(event);console.log("Disposed");
+			console.log("Disposed");
 		});
 
 		webviewView.webview.onDidReceiveMessage(async (data) => {
@@ -63,18 +64,18 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'userInput':
 					{
-						const responseCallback = (response:string)=>{
-							this.sendBotMsgChunk(response);
+						const responseCallback = (response:string)=>{		
+							this.view?.webview.postMessage({ type: 'BotMsgChunk' ,data:response});
 						};
 						
 						const endCallback = ()=>{
-							this.streamClient=undefined;
-							this.sendBotMsgEnd();
+							this.streamClient=undefined;	
+							let webviewMsgApi = this.view?.webview.postMessage({ type: 'BotMsgEnd' });
 						};
 						
 						const errorCallback = (error: string)=>{
-							this.streamClient=undefined;
-							this.sendBotMsgError(error);
+							this.streamClient=undefined; 
+							this.view?.webview.postMessage({ type: 'BotMsgError', error: error });
 						};
 						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
 						break;
@@ -97,43 +98,109 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'saveCurrentChat':
 						{
-							await this.context.globalState.update("Artemus-Chat-State",data.state);
+							let chatHistory = await this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+							let currentChatContext = data.context as ChatContext;
+							console.log(currentChatContext.chat)
+							console.log(chatHistory);
+							let newChatHistory = this.updateChatHistory(chatHistory, currentChatContext);
+							console.log(newChatHistory);
+							await this.context.globalState.update("Artemus-Chat-State", newChatHistory);
 							this.view?.webview.postMessage({type: "stateSaved"});
 							break;
 						}
-				case 'restoreLatestChat':
+				case 'restoreChatById':
 					{
 						//get latest chat from the Artemus plugin state and return ChatContext
 						// state is ChatContext[]
-						console.log(this.context.globalState.get("Artemus-Chat-State"));
-						let chat = this.context.globalState.get("Artemus-Chat-State");
-						this.view?.webview.postMessage({
-							type: "restoreLatestChatContext",
-							latestChat: chat
+						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+						let chatIdToFind = data.chatId as string;
+						let chatHistoryItem = chatHistory?.chatItems.find((chatHistoryItem) => {
+							return chatHistoryItem.chatContext.chatId === chatIdToFind;
 						});
+						this.view?.webview.postMessage({
+							type: "restoreChatContext",
+							chatContext: chatHistoryItem?.chatContext
+						});
+						break;
+					}
+				case 'restoreLatestChat':
+					{
+						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+						
+						this.view?.webview.postMessage({
+							type: "restoreChatContext",
+							chatContext: chatHistory?.chatItems[0]?.chatContext
+						});
+						break;
+					}
+				case 'getChatHistory':
+					{
+						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+						this.view?.webview.postMessage({
+							type: "getChatHistory",
+							chatHistory: chatHistory
+						});
+						break;
+					}
+				case 'showChatView':
+					{
+						vscode.commands.executeCommand("artemusai-vscode.currentChat");
+						break;
+					}
+				case 'showHistoryView':
+					{
+						vscode.commands.executeCommand("artemusai-vscode.historyView");
 						break;
 					}
 			}
 		});
 	}
 
-	public sendBotMsgChunk(response:string) {
-		let webviewMsgApi = this.view?.webview;
-		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'BotMsgChunk' ,data:response});
-		
+	public updateChatHistory(chatHistory: ChatHistory|undefined, currentChatContext:ChatContext){
+		if(chatHistory === undefined){
+			console.log("returning new Chat history");
+			return {
+				chatItems:[
+					{
+						dateTime: new Date(),
+						chatContext: currentChatContext
+					}
+				]
+			};
+		}
+		let currentExists = false;
+		let currentChatId = currentChatContext.chatId;
+		let currentChat = currentChatContext.chat;
+		// find the current chat in chatHistory.chats
+		chatHistory.chatItems = chatHistory.chatItems.map((chatHistoryItem) => {
+			if(chatHistoryItem.chatContext.chatId === currentChatId){
+				currentExists = true;
+				return {
+					dateTime: new Date(),
+					chatContext: currentChatContext
+				} as ChatHistoryItem;
+			}
+			return chatHistoryItem;
+		});
+		if(!currentExists){
+			chatHistory.chatItems = chatHistory.chatItems.concat({
+				dateTime: new Date(),
+				chatContext: currentChatContext
+			});
+		}
+		return chatHistory;
 	}
 
-	public sendBotMsgEnd() {
-		let webviewMsgApi = this.view?.webview;
-		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'BotMsgEnd' });
+	public createNewChat() {
+		this.view?.webview.postMessage({ type: 'createNewChat'});
 	}
 
-	public sendBotMsgError(error:string) {
-		let webviewMsgApi = this.view?.webview;
-		assert(webviewMsgApi, "Expected Webview to be defined");
-		webviewMsgApi.postMessage({ type: 'BotMsgError', error: error });
+	public showChatHistory() {
+		this.view?.webview.postMessage({ type: 'showChatHistory'});
+	}
+	
+	public showCurrentChat() {
+		this.view?.webview.postMessage({ type: 'showCurrentChat'});
 	}
 	
 	private _getHtmlForWebview(webview: vscode.Webview) {

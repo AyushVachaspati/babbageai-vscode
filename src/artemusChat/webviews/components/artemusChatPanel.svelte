@@ -8,15 +8,18 @@
     import InsertCodeButton from "./insertCodeButton.svelte";
 	import StopGenerateButton from "./stopGenerateButton.svelte";
 	import { v4 as uuidv4} from "uuid";
-	import type { ChatContext } from "../types/state";
+	import type { ChatContext, ChatHistory } from "../types/chatState";
 
-	let chatContext: ChatContext;
+	let currentView = 'ChatView';
+	let chatContext: ChatContext|undefined;
+	let chatHistory: ChatHistory|undefined;
+	let shouldSaveCurrentChat = false;
 	let chatId = uuidv4();
-	let stateLock = false;
+	let saveLock = false;
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
-	let chat:Message[] = [];
+	let chat:Message[] = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];
 	let loading =true;
 	let inputValue = '';
 	let disabled = true;
@@ -75,19 +78,42 @@
 					break;
 				}
 				case 'stateSaved':{
-					stateLock = false;
+					saveLock = false;
 					break;
 				}
-				case 'restoreLatestChatContext':{
-					chatContext = data.latestChat as ChatContext;
-					chat = chatContext.chat;
-					chatId = chatContext.chatId;
+				case 'restoreChatContext':{
+					chatContext = data.chatContext as ChatContext|undefined;
+					console.log(chatContext)
+					if(chatContext){
+						chat = chatContext.chat;
+						chatId = chatContext.chatId;
+					}
+					break;
+				}
+				case 'getChatHistory':{
+					chatHistory = data.chatHistory as ChatHistory|undefined;
+					break;
+				}
+				case 'createNewChat':{
+					saveCurrentChat();
+					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
+					chatId = uuidv4();
+					vscodeApi.postMessage({type:'showChatView'});
+					await tick();
+					inputTextArea.focus();
+					break;
+				}
+				case 'showChatHistory':{
+					vscodeApi.postMessage({type:'getChatHistory'});
+					currentView = 'HistoryView';
+					break;
+				}
+				case 'showCurrentChat':{
+					currentView = 'ChatView';
 					break;
 				}
 			}
-
 		})
-
 	});
 
 	async function handleErrors(message:any) {
@@ -117,13 +143,6 @@
 		resizeInputArea();
 	}
 
-
-	function resizeInputArea() {
-		let element = document.getElementsByClassName('input-area')[0] as HTMLElement;
-		element.style.height = 'auto';
-		element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
-	}
-
 	
     function constructPrompt(chat: Message[]): string {
 		// append "put all code in markdown code block" to the end of all user inputs to make sure code is in blocks
@@ -148,7 +167,7 @@
     }
 
 	async function sendUserMessage() {
-		
+		shouldSaveCurrentChat = true; //only save chats once the user has given some
 		fetching=true;
 		
 		// Remove Error message if present
@@ -156,13 +175,14 @@
 		if(temp && temp.identity !== Identity.errorMessage)
 			chat = chat.concat(temp)
 
-		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
+		chat = chat.concat({identity: Identity.userMessage, message: inputValue});
 		let prompt:string = constructPrompt(chat);
+		chat = chat.concat({identity: Identity.botMessage, message: ""});
+		saveCurrentChat();
 
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
-		chat = chat.concat({identity: Identity.botMessage, message: ""})
 		vscodeApi.postMessage({type:'userInput',userInput:prompt});
-		
+
 		inputValue="";
 		inputTextArea.focus();
 		await scrollToBottom(outputArea);
@@ -170,7 +190,7 @@
 		resizeInputArea();
 	}
 
-	async function regenerateResponse() {		
+	async function regenerateResponse() {
 		fetching=true;
 		chat.pop(); //remove the error message
 		let temp = chat.pop();
@@ -179,8 +199,10 @@
 			chat = chat.concat(temp)
 		chat = chat;
 		let prompt:string = constructPrompt(chat);
-		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		saveCurrentChat();
+
+		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		vscodeApi.postMessage({type:'userInput',userInput:prompt});
 		
 		inputTextArea.focus();
@@ -189,18 +211,26 @@
 		resizeInputArea();
 	}
 
-	async function saveCurrentChat(){
-		if(stateLock){
+	function saveCurrentChat(){
+		if(!shouldSaveCurrentChat)
+			return;
+		if(saveLock){
+			console.log("State Locked")
 			return;
 		}
-		stateLock = true;
-		await vscodeApi.postMessage({
+		saveLock = true;
+		vscodeApi.postMessage({
 			type:'saveCurrentChat',
-			state: {
+			context: {
 				chatId: chatId,
 				chat: chat
 			} as ChatContext
 		});
+	}
+
+	function restoreChatById(chatId:string) {
+		vscodeApi.postMessage({type:'restoreChatById', chatId:chatId});
+		vscodeApi.postMessage({type:'showChatView'});
 	}
 
 	function addCodeBlockButtons() {
@@ -238,8 +268,12 @@
 			node.scroll({ top: currentScroll, behavior: 'instant' })
 		}
   	}; 
-
-
+	
+	function resizeInputArea() {
+		let element = document.getElementsByClassName('input-area')[0] as HTMLElement;
+		element.style.height = 'auto';
+		element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
+	}
 
 </script>
 
@@ -251,7 +285,7 @@
 	<div class="center">
 		<div class="loader"></div>
 	</div> 
-{:else}
+{:else if currentView=='ChatView'}
 	<div class="flex-container">
 		<div bind:this={outputArea} class='output-area'>
 		<MessageBox {chat} on:click = {regenerateResponse} ></MessageBox>
@@ -270,6 +304,16 @@
 		<!-- <div><p>Current Open File Goes Here </p></div> -->
 		<!-- <br> -->
 	</div>
+{:else if currentView=='HistoryView'}
+	{#if chatHistory!==undefined}
+		{#each chatHistory.chatItems as chatHistoryItem}
+			<div on:click|preventDefault={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}} on:keydown|preventDefault={undefined} on:keyup|preventDefault={undefined} on:keypress|preventDefault={undefined}>
+				{chatHistoryItem.chatContext.chatId}
+				{chatHistoryItem.chatContext.chat}
+				<br>
+			</div>
+		{/each}
+	{/if}
 {/if}
 
 

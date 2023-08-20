@@ -35,10 +35,53 @@
         }
       ]
     },
+    "menus": {
+      "view/title": [
+        {
+          "command": "artemusai-vscode.newChat",
+          "when": "view == artemusai-vscode.chatpanel",
+          "group": "navigation"
+        },
+        {
+          "command": "artemusai-vscode.historyView",
+          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == false",
+          "group": "navigation@2"
+        },
+        {
+          "command": "artemusai-vscode.currentChat",
+          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == true",
+          "group": "navigation@2"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "artemusai-vscode.showInfo",
         "title": "Show Information",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.newChat",
+        "title": "New Chat",
+        "icon": "$(add)",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.newChat",
+        "title": "New Chat",
+        "icon": "$(add)",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.historyView",
+        "title": "Chat History",
+        "icon": "$(history)",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.currentChat",
+        "title": "Return To Chat",
+        "icon": "$(arrow-left)",
         "category": "ArtemusAI"
       }
     ],
