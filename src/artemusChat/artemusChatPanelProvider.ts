@@ -3,7 +3,7 @@ import { getNonce } from "./utils/nonce";
 import assert = require("assert");
 import { debounceCompletions } from "../predictionUtils/inlineCompletionAPI";
 import { getModelPredictionStream } from "../predictionUtils/chatResponseAPI";
-import { updateStatusBarArtemusActive, updateStatusBarArtemusLoading } from "../statusBar/statusBar";
+import { updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from "../statusBar/statusBar";
 import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/generated/inference/ModelStreamInferResponse";
 import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
 import { ClientDuplexStream } from "@grpc/grpc-js";
@@ -16,7 +16,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
     private doc?: vscode.TextDocument;
 	private streamClient: ClientDuplexStream<ModelInferRequest, ModelStreamInferResponse__Output> | undefined;
 
-	constructor(private readonly _extensionUri: vscode.Uri) {}
+	constructor(private readonly _extensionUri: vscode.Uri, private context: vscode.ExtensionContext) {}
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
@@ -79,9 +79,9 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
 						break;
 					}
-				case 'setStatusBarLoading':
+				case 'setStatusBarFetching':
 					{
-						updateStatusBarArtemusLoading();
+						updateStatusBarFetchingPrediction();
 						break;
 					}
 				case 'setStatusBarActive':
@@ -93,6 +93,24 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					{
 						this.streamClient?.cancel();
 						this.streamClient = undefined;
+						break;
+					}
+				case 'saveCurrentChat':
+						{
+							await this.context.globalState.update("Artemus-Chat-State",data.state);
+							this.view?.webview.postMessage({type: "stateSaved"});
+							break;
+						}
+				case 'restoreLatestChat':
+					{
+						//get latest chat from the Artemus plugin state and return ChatContext
+						// state is ChatContext[]
+						console.log(this.context.globalState.get("Artemus-Chat-State"));
+						let chat = this.context.globalState.get("Artemus-Chat-State");
+						this.view?.webview.postMessage({
+							type: "restoreLatestChatContext",
+							latestChat: chat
+						});
 						break;
 					}
 			}

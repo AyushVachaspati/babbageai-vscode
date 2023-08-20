@@ -14,7 +14,8 @@ export function getModelPredictionStream (
     try{
         const host = "localhost";
         const port = "81";
-        const modelName = "starcoder_chat";
+        // const modelName = "starcoder_chat";
+        const modelName = "santacoder_huggingface_stream";
         const modelVersion = "";
         const prompt = userMsg;
         const client = getClient(host,port);

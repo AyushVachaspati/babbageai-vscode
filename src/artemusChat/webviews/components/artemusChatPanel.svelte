@@ -3,15 +3,19 @@
 	import MessageBox from "./MessageBox.svelte";
 	import Send from "../icons/send.svelte";
 	import { Identity, type Message } from "../types/message";
-    import { tick } from "svelte/internal";
+    import { prevent_default, tick } from "svelte/internal";
 	import CopyCodeButton from "./copyCodeButton.svelte";
     import InsertCodeButton from "./insertCodeButton.svelte";
 	import StopGenerateButton from "./stopGenerateButton.svelte";
+	import { v4 as uuidv4} from "uuid";
+	import type { ChatContext } from "../types/state";
 
+	let chatContext: ChatContext;
+	let chatId = uuidv4();
+	let stateLock = false;
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
-	let blink = false;
 	let chat:Message[] = [];
 	let loading =true;
 	let inputValue = '';
@@ -30,22 +34,26 @@
 	}
 
 	onMount(async () => {
+		// restore the latest conversation
+		vscodeApi.postMessage({type:'restoreLatestChat'});
+		//
 		loading = false;
 		await tick();
 		inputTextArea.focus();
 
 		window.addEventListener("message",async (event) => {
-			const message = event.data;
-			switch(message.type){
+			const data = event.data;
+			switch(data.type){
 				case "BotMsgChunk":{						
 					let temp = chat.pop();
 					if(temp){
-						temp.message = temp.message + message.data;
+						temp.message = temp.message + data.data;
 						chat = chat.concat(temp);
 						await scrollToBottom(outputArea);
 						addCodeBlockButtons();
 					}
 					chat = chat;
+					saveCurrentChat();
 					break;
 				}
 				case "BotMsgEnd":{
@@ -54,10 +62,26 @@
 					await scrollToBottom(outputArea);
 					addCodeBlockButtons();
 					inputTextArea.focus();
+					// Probably a bad idea! Wait 100ms before saving final state (so that stateLock is released, should switch to wait until unlocked)
+					await new Promise(res => setTimeout(res, 100));
+					saveCurrentChat();
 					break;
 				}
 				case "BotMsgError":{
-					handleErrors(message);
+					await handleErrors(data);
+					// Probably a bad idea! Wait 100ms before saving final state (so that stateLock is released, should switch to wait until unlocked)
+					await new Promise(res => setTimeout(res, 100));
+					saveCurrentChat();
+					break;
+				}
+				case 'stateSaved':{
+					stateLock = false;
+					break;
+				}
+				case 'restoreLatestChatContext':{
+					chatContext = data.latestChat as ChatContext;
+					chat = chatContext.chat;
+					chatId = chatContext.chatId;
 					break;
 				}
 			}
@@ -75,9 +99,6 @@
 		}
 		fetching = false;
 		vscodeApi.postMessage({type:'setStatusBarActive'});
-		inputTextArea.focus();
-		await scrollToBottom(outputArea);
-		addCodeBlockButtons();
 		
 		switch(error_code){
 			case '1': {
@@ -90,6 +111,10 @@
 				break;
 			}
 		}
+		inputTextArea.focus();
+		await scrollToBottom(outputArea);
+		addCodeBlockButtons();
+		resizeInputArea();
 	}
 
 
@@ -101,6 +126,7 @@
 
 	
     function constructPrompt(chat: Message[]): string {
+		// append "put all code in markdown code block" to the end of all user inputs to make sure code is in blocks
         let prompt = "";
 		chat.forEach( (message) => {
 			let identity = message.identity;
@@ -122,11 +148,18 @@
     }
 
 	async function sendUserMessage() {
+		
 		fetching=true;
+		
+		// Remove Error message if present
+		let temp = chat.pop()
+		if(temp && temp.identity !== Identity.errorMessage)
+			chat = chat.concat(temp)
+
 		chat = chat.concat({identity: Identity.userMessage, message: inputValue})
 		let prompt:string = constructPrompt(chat);
 
-		vscodeApi.postMessage({type:'setStatusBarLoading'});
+		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		chat = chat.concat({identity: Identity.botMessage, message: ""})
 		vscodeApi.postMessage({type:'userInput',userInput:prompt});
 		
@@ -137,9 +170,41 @@
 		resizeInputArea();
 	}
 
+	async function regenerateResponse() {		
+		fetching=true;
+		chat.pop(); //remove the error message
+		let temp = chat.pop();
+		// if the error occured while generating.. remove the incomplete response
+		if(temp && temp.identity !== Identity.botMessage)
+			chat = chat.concat(temp)
+		chat = chat;
+		let prompt:string = constructPrompt(chat);
+		vscodeApi.postMessage({type:'setStatusBarFetching'});
+		chat = chat.concat({identity: Identity.botMessage, message: ""})
+		vscodeApi.postMessage({type:'userInput',userInput:prompt});
+		
+		inputTextArea.focus();
+		await scrollToBottom(outputArea);
+		addCodeBlockButtons();
+		resizeInputArea();
+	}
+
+	async function saveCurrentChat(){
+		if(stateLock){
+			return;
+		}
+		stateLock = true;
+		await vscodeApi.postMessage({
+			type:'saveCurrentChat',
+			state: {
+				chatId: chatId,
+				chat: chat
+			} as ChatContext
+		});
+	}
+
 	function addCodeBlockButtons() {
 		let preComponents = Array.from(document.getElementsByClassName('code-block'));
-		// console.log(preComponents)
 		preComponents.forEach((preComponent) => {
 			let hasButtons = preComponent.parentElement?.getElementsByClassName("copy-code-button").length 
 							|| preComponent.parentElement?.getElementsByClassName("copy-code-button-small").length;
@@ -189,7 +254,7 @@
 {:else}
 	<div class="flex-container">
 		<div bind:this={outputArea} class='output-area'>
-		<MessageBox {chat} {blink} ></MessageBox>
+		<MessageBox {chat} on:click = {regenerateResponse} ></MessageBox>
 		</div>
 		<div class="chat-container">
 			<div class="textarea-container">

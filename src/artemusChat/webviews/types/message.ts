@@ -7,4 +7,4 @@ export enum Identity {
 export type Message = {
     identity: Identity,
     message: string,
-}
+};

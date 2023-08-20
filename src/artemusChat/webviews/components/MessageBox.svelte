@@ -1,11 +1,10 @@
 <!-- src/Message.svelte -->
 <script lang="ts">
-    import { merge_ssr_styles } from "svelte/internal";
-    import {type Message, Identity } from "../types/message";
-    import MarkdownRenderer from "./MarkdownRenderer.svelte";
-
+  import { merge_ssr_styles } from "svelte/internal";
+  import {type Message, Identity } from "../types/message";
+  import MarkdownRenderer from "./MarkdownRenderer.svelte";
+  import RegenerateButton from "./regenerateButton.svelte";
   export let chat:Message[] = [];
-  export let blink = true;
 </script>
 
 <style>
@@ -36,7 +35,7 @@
   }
 
   .message_error {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(255, 0, 0, 0.126);
     padding: 15px;
     position: relative;
     margin-bottom: 10px;
@@ -99,6 +98,7 @@
       </div>
     {:else if msg.identity===Identity.errorMessage}
       <div class="message_error">
+        <RegenerateButton on:click></RegenerateButton>
         <MarkdownRenderer markdownContent={msg.message}/>
       </div>
     {/if}
