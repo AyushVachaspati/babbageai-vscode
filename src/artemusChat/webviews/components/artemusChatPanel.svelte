@@ -8,7 +8,7 @@
     import InsertCodeButton from "./insertCodeButton.svelte";
 	import StopGenerateButton from "./stopGenerateButton.svelte";
 	import { v4 as uuidv4} from "uuid";
-	import type { ChatContext, ChatHistory } from "../types/chatState";
+	import type { ChatContext, ChatHistory, ChatHistoryItem } from "../types/chatState";
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
 
@@ -28,6 +28,15 @@
 	let scrollLock = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
 	
+	function sortChatDescending(chat1:ChatHistoryItem,chat2:ChatHistoryItem){
+		return (new Date(chat2.dateTime)).getTime() - (new Date(chat1.dateTime)).getTime()
+	}
+
+	function getLastUserMessage(chat:Message[]){
+		let msg = chat.slice().reverse().find(msg => msg.identity===Identity.userMessage);
+		return msg ? msg.message : "Error Loading Last User Msg";
+	}
+
 	function keypress(event:any){
 		if(event.shiftKey)
 			return;
@@ -44,7 +53,7 @@
 		//
 		loading = false;
 		await tick();
-		inputTextArea.focus();
+		inputTextArea?.focus();
 
 		window.addEventListener("message",async (event) => {
 			const data = event.data;
@@ -66,16 +75,12 @@
 					vscodeApi.postMessage({type:'setStatusBarActive'});
 					await scrollToBottom(outputArea);
 					addCodeBlockButtons();
-					inputTextArea.focus();
-					// Probably a bad idea! Wait 100ms before saving final state (so that stateLock is released, should switch to wait until unlocked)
-					await new Promise(res => setTimeout(res, 100));
+					inputTextArea?.focus();
 					saveCurrentChat();
 					break;
 				}
 				case "BotMsgError":{
 					await handleErrors(data);
-					// Probably a bad idea! Wait 100ms before saving final state (so that stateLock is released, should switch to wait until unlocked)
-					await new Promise(res => setTimeout(res, 100));
 					saveCurrentChat();
 					break;
 				}
@@ -87,10 +92,10 @@
 					chatContext = data.chatContext as ChatContext|undefined;
 					if(chatContext){
 						chat = chatContext.chat;
-						chatId = chatContext.chatId;
+						chatId = chatContext.chatId;	
 					}
 					await tick();
-					inputTextArea.focus();
+					inputTextArea?.focus();
 					break;
 				}
 				case 'getChatHistory':{
@@ -105,7 +110,7 @@
 					shouldSaveCurrentChat = false;
 					vscodeApi.postMessage({type:'showChatView'});
 					await tick();
-					inputTextArea.focus();
+					inputTextArea?.focus();
 					break;
 				}
 				case 'showChatHistory':{
@@ -116,7 +121,7 @@
 				case 'showCurrentChat':{
 					currentView = 'ChatView';
 					await tick();
-					inputTextArea.focus();
+					inputTextArea?.focus();
 					break;
 				}
 			}
@@ -144,7 +149,7 @@
 				break;
 			}
 		}
-		inputTextArea.focus();
+		inputTextArea?.focus();
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -191,7 +196,7 @@
 		vscodeApi.postMessage({type:'userInput',userInput:prompt});
 
 		inputValue="";
-		inputTextArea.focus();
+		inputTextArea?.focus();
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -212,7 +217,7 @@
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		vscodeApi.postMessage({type:'userInput',userInput:prompt});
 		
-		inputTextArea.focus();
+		inputTextArea?.focus();
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -222,7 +227,7 @@
 		if(!shouldSaveCurrentChat)
 			return;
 		if(saveLock){
-			console.log("State Locked")
+			console.warn("Save State Locked... Trying to prevent Race Condition.")
 			return;
 		}
 		saveLock = true;
@@ -239,8 +244,11 @@
 		vscodeApi.postMessage({type:'deleteChatHistory',chatId:chatId});
 	}
 
-	function restoreChatById(chatId:string) {
-		vscodeApi.postMessage({type:'restoreChatById', chatId:chatId});
+	function restoreChatById(chatIdToRestore:string) {
+		if(chatIdToRestore!==chatId){
+			vscodeApi.postMessage({type:'cancelRequest'});
+			vscodeApi.postMessage({type:'restoreChatById', chatId:chatIdToRestore});
+		}
 		vscodeApi.postMessage({type:'showChatView'});
 	}
 
@@ -263,6 +271,10 @@
 
 	async function scrollToBottom(node:any) {
 		await tick();
+		
+		if(!node)
+			return
+
 		let currentScroll = node.scrollTop;
 		let lockThreshold = 30;
 		if(scrollLock){
@@ -281,9 +293,11 @@
   	}; 
 	
 	function resizeInputArea() {
-		let element = document.getElementsByClassName('input-area')[0] as HTMLElement;
-		element.style.height = 'auto';
-		element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
+		let element = document.getElementsByClassName('input-area')[0] as HTMLElement|undefined;
+		if(element){
+			element.style.height = 'auto';
+			element.style.height = element.scrollHeight - 15 + 'px';  // 10 is a ad hoc constant to make the intial text area correct
+		}
 	}
 
 </script>
@@ -318,9 +332,8 @@
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
 		<ClearHistoryButton on:click={()=>{deleteChatHistory(chatId)}}/>
-		{#each chatHistory.chatItems.sort((chat1,chat2) => (new Date(chat2.dateTime)).getTime() - (new Date(chat1.dateTime)).getTime())
-				as chatHistoryItem}
-			<HistoryCard title={chatHistoryItem.chatContext.chat[1].message} 
+		{#each chatHistory.chatItems.sort(sortChatDescending) as chatHistoryItem}
+			<HistoryCard title={getLastUserMessage(chatHistoryItem.chatContext.chat)} 
 						date={new Date(chatHistoryItem.dateTime).toLocaleDateString()}
 						time={new Date(chatHistoryItem.dateTime).toLocaleTimeString()}
 						currentChat={chatId===chatHistoryItem.chatContext.chatId}

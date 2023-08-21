@@ -45,23 +45,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	const artemusChatWebview = new ArtemusChatPanelProvider(context.extensionUri,context);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview,
-		// 	{
-		// 	webviewOptions: {
-		// 	  retainContextWhenHidden: true, // keeps the state of the webview even when it's not visible
-		// 	},
-		//   }
+			{
+			webviewOptions: {
+			  retainContextWhenHidden: true, // keeps the state of the webview even when it's not visible
+			},
+		  }
 		)
 	);
-
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.newChat', ()=>{
 			artemusChatWebview.createNewChat();
 		})
 	);
-
-	// setting current panel to Chat panel
-	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
-
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.historyView', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',true);
@@ -73,7 +68,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
 			artemusChatWebview.showCurrentChat();
 		})
-	);
+	);	
+	// setting current panel to Chat panel
+	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
 	
 	
 	// Fake wait time of 1 second to show loading Item. 

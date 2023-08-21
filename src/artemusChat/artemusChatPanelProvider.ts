@@ -161,11 +161,11 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						});
 
 						if(!chatHistoryItem){
-							this.context.globalState.update("Artemus-Chat-State", undefined);
+							await this.context.globalState.update("Artemus-Chat-State", undefined);
 						}
 						else {
 							chatHistory.chatItems = [chatHistoryItem];
-							this.context.globalState.update("Artemus-Chat-State", chatHistory);
+							await this.context.globalState.update("Artemus-Chat-State", chatHistory);
 						}
 						this.showChatHistory();
 						break;
