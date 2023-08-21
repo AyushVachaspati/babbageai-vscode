@@ -152,6 +152,12 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						vscode.commands.executeCommand("artemusai-vscode.historyView");
 						break;
 					}
+				case 'deleteChatHistory':
+					{
+						this.context.globalState.update("Artemus-Chat-State", undefined);
+						this.showChatHistory();
+						break;
+					}
 			}
 		});
 	}

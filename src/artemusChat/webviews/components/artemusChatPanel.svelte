@@ -9,6 +9,7 @@
 	import StopGenerateButton from "./stopGenerateButton.svelte";
 	import { v4 as uuidv4} from "uuid";
 	import type { ChatContext, ChatHistory } from "../types/chatState";
+    import ClearHistoryButton from "./clearHistoryButton.svelte";
 
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -83,11 +84,12 @@
 				}
 				case 'restoreChatContext':{
 					chatContext = data.chatContext as ChatContext|undefined;
-					console.log(chatContext)
 					if(chatContext){
 						chat = chatContext.chat;
 						chatId = chatContext.chatId;
 					}
+					await tick();
+					inputTextArea.focus();
 					break;
 				}
 				case 'getChatHistory':{
@@ -98,6 +100,7 @@
 					saveCurrentChat();
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
 					chatId = uuidv4();
+					shouldSaveCurrentChat = false;
 					vscodeApi.postMessage({type:'showChatView'});
 					await tick();
 					inputTextArea.focus();
@@ -110,6 +113,8 @@
 				}
 				case 'showCurrentChat':{
 					currentView = 'ChatView';
+					await tick();
+					inputTextArea.focus();
 					break;
 				}
 			}
@@ -228,6 +233,10 @@
 		});
 	}
 
+	function deleteChatHistory() {
+		vscodeApi.postMessage({type:'deleteChatHistory'});
+	}
+
 	function restoreChatById(chatId:string) {
 		vscodeApi.postMessage({type:'restoreChatById', chatId:chatId});
 		vscodeApi.postMessage({type:'showChatView'});
@@ -306,6 +315,7 @@
 	</div>
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
+		<ClearHistoryButton on:click={deleteChatHistory}/>
 		{#each chatHistory.chatItems as chatHistoryItem}
 			<div on:click|preventDefault={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}} on:keydown|preventDefault={undefined} on:keyup|preventDefault={undefined} on:keypress|preventDefault={undefined}>
 				{chatHistoryItem.chatContext.chatId}
