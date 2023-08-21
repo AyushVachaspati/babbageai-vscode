@@ -98,6 +98,7 @@
 				}
 				case 'createNewChat':{
 					saveCurrentChat();
+				    vscodeApi.postMessage({type:'cancelRequest'});
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
 					chatId = uuidv4();
 					shouldSaveCurrentChat = false;
