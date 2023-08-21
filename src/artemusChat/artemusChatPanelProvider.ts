@@ -100,10 +100,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						{
 							let chatHistory = await this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
 							let currentChatContext = data.context as ChatContext;
-							console.log(currentChatContext.chat)
-							console.log(chatHistory);
 							let newChatHistory = this.updateChatHistory(chatHistory, currentChatContext);
-							console.log(newChatHistory);
 							await this.context.globalState.update("Artemus-Chat-State", newChatHistory);
 							this.view?.webview.postMessage({type: "stateSaved"});
 							break;
@@ -154,7 +151,22 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'deleteChatHistory':
 					{
-						this.context.globalState.update("Artemus-Chat-State", undefined);
+						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+						
+						if(!chatHistory){ return;}
+
+						let chatIdToFind = data.chatId as string;
+						let chatHistoryItem = chatHistory.chatItems.find((chatHistoryItem) => {
+							return chatHistoryItem.chatContext.chatId === chatIdToFind;
+						});
+
+						if(!chatHistoryItem){
+							this.context.globalState.update("Artemus-Chat-State", undefined);
+						}
+						else {
+							chatHistory.chatItems = [chatHistoryItem];
+							this.context.globalState.update("Artemus-Chat-State", chatHistory);
+						}
 						this.showChatHistory();
 						break;
 					}

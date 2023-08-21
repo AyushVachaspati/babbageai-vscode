@@ -10,7 +10,7 @@
 		border: 1px solid rgba(255, 255, 255, 0.25);
 		border-radius: 15px;
     padding: 7px 15px;
-    margin: 10px;
+    margin: 10px 30px;
   }
   .clear-history-button:hover {
     background-color: rgba(255, 255, 255,0.05);

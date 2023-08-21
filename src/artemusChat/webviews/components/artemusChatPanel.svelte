@@ -3,13 +3,14 @@
 	import MessageBox from "./MessageBox.svelte";
 	import Send from "../icons/send.svelte";
 	import { Identity, type Message } from "../types/message";
-    import { prevent_default, tick } from "svelte/internal";
+    import { tick } from "svelte/internal";
 	import CopyCodeButton from "./copyCodeButton.svelte";
     import InsertCodeButton from "./insertCodeButton.svelte";
 	import StopGenerateButton from "./stopGenerateButton.svelte";
 	import { v4 as uuidv4} from "uuid";
 	import type { ChatContext, ChatHistory } from "../types/chatState";
     import ClearHistoryButton from "./clearHistoryButton.svelte";
+    import HistoryCard from "./historyCard.svelte";
 
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -234,8 +235,8 @@
 		});
 	}
 
-	function deleteChatHistory() {
-		vscodeApi.postMessage({type:'deleteChatHistory'});
+	function deleteChatHistory(chatId:string) {
+		vscodeApi.postMessage({type:'deleteChatHistory',chatId:chatId});
 	}
 
 	function restoreChatById(chatId:string) {
@@ -316,13 +317,15 @@
 	</div>
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
-		<ClearHistoryButton on:click={deleteChatHistory}/>
-		{#each chatHistory.chatItems as chatHistoryItem}
-			<div on:click|preventDefault={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}} on:keydown|preventDefault={undefined} on:keyup|preventDefault={undefined} on:keypress|preventDefault={undefined}>
-				{chatHistoryItem.chatContext.chatId}
-				{chatHistoryItem.chatContext.chat}
-				<br>
-			</div>
+		<ClearHistoryButton on:click={()=>{deleteChatHistory(chatId)}}/>
+		{#each chatHistory.chatItems.sort((chat1,chat2) => (new Date(chat2.dateTime)).getTime() - (new Date(chat1.dateTime)).getTime())
+				as chatHistoryItem}
+			<HistoryCard title={chatHistoryItem.chatContext.chat[1].message} 
+						date={new Date(chatHistoryItem.dateTime).toLocaleDateString()}
+						time={new Date(chatHistoryItem.dateTime).toLocaleTimeString()}
+						currentChat={chatId===chatHistoryItem.chatContext.chatId}
+						on:click={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}}>
+			</HistoryCard>
 		{/each}
 	{/if}
 {/if}
