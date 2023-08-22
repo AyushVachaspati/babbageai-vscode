@@ -15,14 +15,17 @@
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
 	let chatHistory: ChatHistory|undefined;
+	
 	let shouldSaveCurrentChat = false;
-	let chatId = uuidv4();
 	let saveLock = false;
+	autoSave();
+
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
+	let chatId = uuidv4();
 	let chat:Message[] = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];
-	let loading =true;
+	let loading = true;
 	let inputValue = '';
 	let disabled = true;
 	let scrollLock = true;
@@ -48,9 +51,8 @@
 	}
 
 	onMount(async () => {
-		// restore the latest conversation
+		//TODO: Should we reset all variables here
 		vscodeApi.postMessage({type:'restoreLatestChat'});
-		//
 		loading = false;
 		await tick();
 		inputTextArea?.focus();
@@ -89,6 +91,7 @@
 					break;
 				}
 				case 'restoreChatContext':{
+					//TODO: Should we reset all variables here?
 					chatContext = data.chatContext as ChatContext|undefined;
 					if(chatContext){
 						chat = chatContext.chat;
@@ -103,6 +106,7 @@
 					break;
 				}
 				case 'createNewChat':{
+					//TODO: Should we reset all variables here
 					saveCurrentChat();
 				    vscodeApi.postMessage({type:'cancelRequest'});
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
@@ -221,6 +225,11 @@
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
+	}
+
+	function autoSave() {
+		saveCurrentChat();
+		setTimeout(autoSave, 5000) //Try to AutoSave Every 5 seconds.
 	}
 
 	function saveCurrentChat(){
