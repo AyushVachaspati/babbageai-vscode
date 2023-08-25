@@ -11,6 +11,7 @@
 	import type { ChatContext, ChatHistory, ChatHistoryItem } from "../types/chatState";
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
+    import { constructPrompt } from "../utils/promptGenerator";
 
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -51,8 +52,8 @@
 	}
 
 	onMount(async () => {
-		//TODO: Should we reset all variables here
-		vscodeApi.postMessage({type:'restoreLatestChat'});
+		// TODO: Should I restore latest chat on reload or Start a new Chat on reload.
+		// vscodeApi.postMessage({type:'restoreLatestChat'});
 		loading = false;
 		await tick();
 		inputTextArea?.focus();
@@ -60,6 +61,15 @@
 		window.addEventListener("message",async (event) => {
 			const data = event.data;
 			switch(data.type){
+				case "appendUserMessage":{			
+					chat = chat.concat({identity: Identity.userMessage, message: data.inputValue});
+					saveCurrentChat();
+					break;
+				}
+				case "generateResponse":{						
+					generateResponse();
+					break;
+				}
 				case "BotMsgChunk":{						
 					let temp = chat.pop();
 					if(temp){
@@ -86,19 +96,22 @@
 					saveCurrentChat();
 					break;
 				}
+				case "commandError":{
+					handleCommandErrors(data);
+					saveCurrentChat();
+					break;
+				}
 				case 'stateSaved':{
 					saveLock = false;
 					break;
 				}
 				case 'restoreChatContext':{
-					//TODO: Should we reset all variables here?
 					chatContext = data.chatContext as ChatContext|undefined;
 					if(chatContext){
 						chat = chatContext.chat;
-						chatId = chatContext.chatId;	
+						chatId = chatContext.chatId;
+						scrollLock = true;	
 					}
-					await tick();
-					inputTextArea?.focus();
 					break;
 				}
 				case 'getChatHistory':{
@@ -106,7 +119,6 @@
 					break;
 				}
 				case 'createNewChat':{
-					//TODO: Should we reset all variables here
 					saveCurrentChat();
 				    vscodeApi.postMessage({type:'cancelRequest'});
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
@@ -126,6 +138,9 @@
 					currentView = 'ChatView';
 					await tick();
 					inputTextArea?.focus();
+					await scrollToBottom(outputArea);
+					addCodeBlockButtons();
+					resizeInputArea();
 					break;
 				}
 			}
@@ -159,72 +174,56 @@
 		resizeInputArea();
 	}
 
-	
-    function constructPrompt(chat: Message[]): string {
-		// append "put all code in markdown code block" to the end of all user inputs to make sure code is in blocks
-        let prompt = "";
-		chat.forEach( (message) => {
-			let identity = message.identity;
-			switch(identity){
-				case Identity.userMessage: {
-					prompt += `<|user|>${message.message}<|end|>\n`;
-					break;
-				}
-				case Identity.botMessage: {
-					prompt += `<|assistant|>${message.message}<|end|>\n`;
-					break;
-				}
-				case Identity.errorMessage: {
-					break;
-				}
-			}
-		})
-		return prompt+`<|assistant|>`;
-    }
-
-	async function sendUserMessage() {
-		shouldSaveCurrentChat = true; //only save chats once the user has given some
-		fetching=true;
+	async function handleCommandErrors(message:any) {
+		console.error(message)
+		fetching = false;
+		vscodeApi.postMessage({type:'setStatusBarActive'});
 		
-		// Remove Error message if present
-		let temp = chat.pop()
-		if(temp && temp.identity !== Identity.errorMessage)
-			chat = chat.concat(temp)
-
-		chat = chat.concat({identity: Identity.userMessage, message: inputValue});
-		let prompt:string = constructPrompt(chat);
-		chat = chat.concat({identity: Identity.botMessage, message: ""});
-		saveCurrentChat();
-
-		vscodeApi.postMessage({type:'setStatusBarFetching'});
-		vscodeApi.postMessage({type:'userInput',userInput:prompt});
-
-		inputValue="";
+			chat = chat.concat({identity: Identity.botMessage, 
+								message: message.message})
 		inputTextArea?.focus();
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
 	}
 
+	async function generateResponse(){
+		// expects that the user message is appended and then generates the Bot response
+		let prompt:string = constructPrompt(chat);
+		chat = chat.concat({identity: Identity.botMessage, message: ""});
+		saveCurrentChat();
+
+		shouldSaveCurrentChat = true; //only save chats once the user has given some
+		fetching = true;
+		vscodeApi.postMessage({type:'setStatusBarFetching'});
+		vscodeApi.postMessage({type:'userInput',userInput:prompt});
+
+		inputTextArea?.focus();
+		await scrollToBottom(outputArea);
+		addCodeBlockButtons();
+		resizeInputArea();
+	}
+
+	function sendUserMessage() {		
+		// Remove Error message if present
+		let temp = chat.pop()
+		if(temp && temp.identity !== Identity.errorMessage)
+			chat = chat.concat(temp)
+		
+		vscodeApi.postMessage({
+			type: 'userCommand',
+			input: inputValue
+		})
+		inputValue="";
+	}
 	async function regenerateResponse() {
-		fetching=true;
 		chat.pop(); //remove the error message
 		let temp = chat.pop();
 		// if the error occured while generating.. remove the incomplete response
 		if(temp && temp.identity !== Identity.botMessage)
 			chat = chat.concat(temp)
 		chat = chat;
-		let prompt:string = constructPrompt(chat);
-		chat = chat.concat({identity: Identity.botMessage, message: ""})
-		saveCurrentChat();
-
-		vscodeApi.postMessage({type:'setStatusBarFetching'});
-		vscodeApi.postMessage({type:'userInput',userInput:prompt});
-		
-		inputTextArea?.focus();
-		await scrollToBottom(outputArea);
-		addCodeBlockButtons();
-		resizeInputArea();
+		generateResponse();
 	}
 
 	function autoSave() {

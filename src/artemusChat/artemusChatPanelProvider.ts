@@ -80,6 +80,46 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						this.streamClient = getModelPredictionStream(data.userInput,responseCallback,endCallback,errorCallback);
 						break;
 					}
+				case 'userCommand':
+					{
+						let inputTxt:string = data.input.trim();
+						
+						if(inputTxt.charAt(0) === '/') {
+						// try to use a predefined command
+							let command = inputTxt.split('\n')[0].trim();
+							switch (command) {
+								// all suppored commands go here. 
+								case '/explain':
+								case '/document': {
+									let input = inputTxt.split('\n').slice(1).join('\n');
+									if(!input){
+										let highlightedCode  =  this.getHighlightedCode();
+										if(!highlightedCode){
+											this.adduserMessage(inputTxt);
+											this.commandError(`Please select some code for **${command}** command.`);
+											break;
+										}
+										inputTxt = command + '\n' + highlightedCode;
+									}
+									this.adduserMessage(inputTxt);
+									this.generateResponse(); //prompt construction based on command will be handle by prompt generator
+									break;
+								}
+								default: {
+									this.adduserMessage(inputTxt);
+									this.commandError(`**${command}** is not a recognized command.`);
+									break;
+								}
+							}
+						}
+						else{
+						// Normal user conversation input
+							this.adduserMessage(inputTxt);
+							this.generateResponse();
+						}
+
+						break;
+					}
 				case 'setStatusBarFetching':
 					{
 						updateStatusBarFetchingPrediction();
@@ -172,6 +212,46 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 			}
 		});
+	}
+
+	public adduserMessage(userMessage:string) {
+		this.view?.webview.postMessage({
+			type:"appendUserMessage",
+			inputValue: userMessage
+		});
+	}
+
+	public generateResponse() {
+		this.view?.webview.postMessage({
+			type:"generateResponse"
+		});
+	}
+
+	public commandError(error:string) {
+		this.view?.webview.postMessage({
+			type:"commandError",
+			message: error
+		});
+	}
+
+	public getHighlightedCode() {
+		const editor = vscode.window.activeTextEditor;
+		if(!editor){
+			return undefined;
+		}
+		const selection = editor.selection;
+		let language = editor.document.languageId;
+		console.log(language);
+		if (!selection.isEmpty) {
+			let firstLineRange = editor.document.lineAt(selection.start.line).range;
+			let lastLineRange = editor.document.lineAt(selection.end.line).range;
+			const selectionRange = new vscode.Range(firstLineRange.start, lastLineRange.end);
+			const highlighted = editor.document.getText(selectionRange);
+			return `\`\`\`${language}\n${highlighted}\n\`\`\``;
+		}
+		else {
+			return undefined;
+		}
 	}
 
 	public updateChatHistory(chatHistory: ChatHistory|undefined, currentChatContext:ChatContext){

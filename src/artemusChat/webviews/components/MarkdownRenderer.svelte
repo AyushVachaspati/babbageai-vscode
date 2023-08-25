@@ -48,17 +48,7 @@
                .replace(/<pre><code>/g, '<pre><code class="outer-code" >');
   }
 
-  export let markdownContent = `
-# Hello Markdown!
-
-\`\`\`python
-def fibonacci(''):
-    if n<2:
-        return n
-    else:
-        return fibonacci(n-1)+fibonacci(n-2)
-\`\`\`
-  `;
+  export let markdownContent = "";
 </script>
 
 <style>
@@ -68,7 +58,7 @@ def fibonacci(''):
   } */
 
   :global(.code-block){
-    color: var(--vscode-editor-foreground);
+    color: inherit;
     font-family: 'Courier New', Courier, monospace;
     background-color: rgba(24, 24, 24, 0.792);
     /* background-color: rgba(118, 32, 32, 0.712); */
@@ -79,6 +69,7 @@ def fibonacci(''):
     position:relative;
   }
   :global(.code-block-container){
+    color:white;
     position:relative;
   }
   :global(.code-heading) {
@@ -87,6 +78,7 @@ def fibonacci(''):
     left: 20px;
   }
   :global(.inner-code) {
+    color: inherit;
     white-space: inherit;
     word-wrap: inherit;
     font-weight: inherit;
