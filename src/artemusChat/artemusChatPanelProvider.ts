@@ -262,7 +262,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			}
 			catch {
 				this.adduserMessage(inputText);
-				this.commandError(`Could Not open\n\n**${filePath}**\n\nPlease Check File Path and Range are correct.`);
+				this.commandError(`Could Not open\n**${filePath}**\nPlease Check File Path and Range are correct.`);
 			}
 		}
 	}
@@ -299,19 +299,23 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 		const file = await vscode.workspace.openTextDocument(filePath);
 		let language = file.languageId;
+		let previewText:string;
 		if(startLine!==undefined && endLine!==undefined){
 			startLine--;
 			endLine--;
 			let firstLineRange = file.lineAt(startLine).range;
 			let lastLineRange = file.lineAt(endLine).range;
 			const selectionRange = new vscode.Range(firstLineRange.start, lastLineRange.end);
-			let previewText = file.getText(selectionRange);
-			return `\`\`\`${language}\n${previewText}\n\`\`\``;
+			previewText = file.getText(selectionRange);
 		}
 		else{
-			let previewText = file.getText();
-			return `\`\`\`${language}\n${previewText}\n\`\`\``;
+			previewText = file.getText();
 		}
+		// let previewLines = previewText.split('\n');
+		// if(previewLines.length > 10){
+		// 	previewText = previewLines.slice(0,5).join('\n') +"\n...\n"+ previewLines.slice(previewLines.length-5).join('\n');
+		// }
+		return `\`\`\`${language}\n${previewText}\n\`\`\``;
 	}
 
 	public updateChatHistory(chatHistory: ChatHistory|undefined, currentChatContext:ChatContext){

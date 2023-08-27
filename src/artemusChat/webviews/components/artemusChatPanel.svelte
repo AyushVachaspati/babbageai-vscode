@@ -334,7 +334,7 @@
 				<StopGenerateButton />
 			{/if}
 			<form>
-				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} />
+				<textarea bind:this={inputTextArea} class='input-area' placeholder="Ask something or '/' for commands" bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} />
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
@@ -353,6 +353,8 @@
 						on:click={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}}>
 			</HistoryCard>
 		{/each}
+	{:else}
+	<div style='margin: 15px 10px;'>Nothing to show here. Start a new chat to talk to Artemus.</div>
 	{/if}
 {/if}
 
