@@ -179,76 +179,17 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
-	public async handleUserInput(inputText:string) {
+	public handleUserInput(inputText:string) {
 		inputText = inputText.trim();
 						
 		if(inputText.charAt(0) === '/') {
 			let command = inputText.split('\n')[0].trim();
-			let filePath:string|undefined = inputText.split('\n')[1];
 
 			switch (command) {
 				// all suppored commands go here. 
 				case '/explain':
 				case '/document': {
-					if(filePath){
-						filePath = filePath.trim();
-						if(this.validFilePath(filePath)){
-							try{
-								let fileUri = filePath.split(' ')[1].split('#')[0];
-								let fileSplit = filePath.split('#');
-								let rangeNumbers = fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : undefined;
-								let startLine:number|undefined = undefined;
-								let endLine:number|undefined = undefined;
-								if(rangeNumbers){
-									startLine = rangeNumbers.split('-')[0] ? +rangeNumbers.split('-')[0] : NaN;
-									endLine =  rangeNumbers.split('-')[1] ? +rangeNumbers.split('-')[1] : NaN;
-								}
-
-								let previewText = await this.getPreviewText(fileUri,startLine,endLine);
-								inputText = command + '\n' +
-								( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
-								'\n' + previewText;
-								this.adduserMessage(inputText);
-								this.generateResponse();
-							}
-							catch{
-								this.adduserMessage(inputText);
-								this.commandError(`Could Not open\n\n**${filePath}**\n\nPlease Check File Path and Range are correct.`);
-							}
-						}
-						else{
-							this.adduserMessage(inputText);
-							this.commandError(`**${inputText}**\n\nis not a valid command.`);
-						}
-					}
-					else {
-						let editor = vscode.window.activeTextEditor;
-						if(!editor){
-							this.adduserMessage(inputText);
-							this.commandError(`Please select some code for **${command}** command.`);
-						}
-						else{
-							try{
-								let fileUri = editor.document.uri.path;
-								let startLine:number|undefined = editor.selection.start.line + 1;
-								let endLine:number|undefined = editor.selection.end.line + 1;
-								if(startLine===endLine){
-									startLine=undefined;
-									endLine = undefined;
-								}
-								let previewText = await this.getPreviewText(fileUri,startLine,endLine);
-								inputText = command + '\n' +
-											( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
-											'\n' + previewText;
-								this.adduserMessage(inputText);
-								this.generateResponse();
-							}
-							catch {
-								this.adduserMessage(inputText);
-								this.commandError(`Could Not open\n\n**${filePath}**\n\nPlease Check File Path and Range are correct.`);
-							}
-						}
-					}
+					this.handlePredefinedCommand(inputText,command);
 					break;
 				}
 				default: {
@@ -264,7 +205,68 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			this.generateResponse();
 		}		
 	}
+	public async handlePredefinedCommand(inputText:string,command:string) {
+		let filePath:string|undefined = inputText.split('\n')[1];
+		if(filePath){
+			filePath = filePath.trim();
+			if(!this.validFilePath(filePath)){
+				this.adduserMessage(inputText);
+				this.commandError(`**${inputText}**\nis not a valid command.`);
+				return;
+			}
+			try{
+				let fileUri = filePath.split(' ')[1].split('#')[0];
+				let fileSplit = filePath.split('#');
+				let rangeNumbers = fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : undefined;
+				let startLine:number|undefined = undefined;
+				let endLine:number|undefined = undefined;
+				if(rangeNumbers){
+					startLine = rangeNumbers.split('-')[0] ? +rangeNumbers.split('-')[0] : NaN;
+					endLine =  rangeNumbers.split('-')[1] ? +rangeNumbers.split('-')[1] : NaN;
+				}
 
+				let previewText = await this.getPreviewText(fileUri,startLine,endLine);
+				inputText = command + '\n' +
+				( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
+				'\n' + previewText;
+				
+				this.adduserMessage(inputText);
+				this.generateResponse();
+			}
+			catch{
+				this.adduserMessage(inputText);
+				this.commandError(`Could Not open\n**${filePath}**\nPlease Check File Path and Range are correct.`);
+			}
+		}
+		else {
+			let editor = vscode.window.activeTextEditor;
+			if(!editor){
+				this.adduserMessage(inputText);
+				this.commandError(`Please select some code for **${command}** command.`);
+				return;
+			}
+			try{
+				let fileUri = editor.document.uri.path;
+				let startLine:number|undefined = editor.selection.start.line + 1;
+				let endLine:number|undefined = editor.selection.end.line + 1;
+				if(startLine===endLine){
+					startLine=undefined;
+					endLine = undefined;
+				}
+				let previewText = await this.getPreviewText(fileUri,startLine,endLine);
+				inputText = command + '\n' +
+							( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
+							'\n' + previewText;
+				this.adduserMessage(inputText);
+				this.generateResponse();
+			}
+			catch {
+				this.adduserMessage(inputText);
+				this.commandError(`Could Not open\n\n**${filePath}**\n\nPlease Check File Path and Range are correct.`);
+			}
+		}
+	}
+	
 	public validFilePath(filePath:string) {
 		filePath = filePath.trim().split(" ")['0'];
 		return filePath === "File:";
