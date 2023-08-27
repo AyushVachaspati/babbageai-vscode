@@ -341,7 +341,7 @@
 	{#if chatHistory!==undefined}
 		<ClearHistoryButton on:click={()=>{deleteChatHistory(chatId)}}/>
 		{#each chatHistory.chatItems.sort(sortChatDescending) as chatHistoryItem}
-			<HistoryCard title={getLastUserMessage(chatHistoryItem.chatContext.chat)} 
+			<HistoryCard title={getLastUserMessage(chatHistoryItem.chatContext.chat).slice(0,100)} 
 						date={new Date(chatHistoryItem.dateTime).toLocaleDateString()}
 						time={new Date(chatHistoryItem.dateTime).toLocaleTimeString()}
 						currentChat={chatId===chatHistoryItem.chatContext.chatId}
