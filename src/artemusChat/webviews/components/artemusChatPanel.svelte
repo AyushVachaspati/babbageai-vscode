@@ -31,7 +31,8 @@
 	let disabled = true;
 	let scrollLock = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
-	
+	$: showCommandOptions = inputValue.charAt(0) === '/' ? true: false;
+
 	function sortChatDescending(chat1:ChatHistoryItem,chat2:ChatHistoryItem){
 		return (new Date(chat2.dateTime)).getTime() - (new Date(chat1.dateTime)).getTime()
 	}
@@ -41,7 +42,7 @@
 		return msg ? msg.message : "Error Loading Last User Msg";
 	}
 
-	function keypress(event:any){
+	function inputAreaKeypress(event:any){
 		if(event.shiftKey)
 			return;
 		if(event.keyCode===13){	
@@ -63,6 +64,10 @@
 			switch(data.type){
 				case "appendUserMessage":{			
 					chat = chat.concat({identity: Identity.userMessage, message: data.inputValue});
+					inputTextArea?.focus();
+					await scrollToBottom(outputArea,true);
+					addCodeBlockButtons();
+					resizeInputArea();
 					saveCurrentChat();
 					break;
 				}
@@ -75,7 +80,7 @@
 					if(temp){
 						temp.message = temp.message + data.data;
 						chat = chat.concat(temp);
-						await scrollToBottom(outputArea);
+						await scrollToBottom(outputArea,false);
 						addCodeBlockButtons();
 					}
 					chat = chat;
@@ -85,7 +90,7 @@
 				case "BotMsgEnd":{
 					fetching = false;
 					vscodeApi.postMessage({type:'setStatusBarActive'});
-					await scrollToBottom(outputArea);
+					await scrollToBottom(outputArea,false);
 					addCodeBlockButtons();
 					inputTextArea?.focus();
 					saveCurrentChat();
@@ -110,7 +115,6 @@
 					if(chatContext){
 						chat = chatContext.chat;
 						chatId = chatContext.chatId;
-						scrollLock = true;	
 					}
 					break;
 				}
@@ -138,7 +142,7 @@
 					currentView = 'ChatView';
 					await tick();
 					inputTextArea?.focus();
-					await scrollToBottom(outputArea);
+					await scrollToBottom(outputArea,true);
 					addCodeBlockButtons();
 					resizeInputArea();
 					break;
@@ -148,7 +152,7 @@
 	});
 
 	async function handleErrors(message:any) {
-		console.error(message)
+		// console.error(message)
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){
@@ -175,14 +179,14 @@
 	}
 
 	async function handleCommandErrors(message:any) {
-		console.error(message)
+		// console.error(message)
 		fetching = false;
 		vscodeApi.postMessage({type:'setStatusBarActive'});
 		
 			chat = chat.concat({identity: Identity.botMessage, 
 								message: message.message})
 		inputTextArea?.focus();
-		await scrollToBottom(outputArea);
+		await scrollToBottom(outputArea,true);
 		addCodeBlockButtons();
 		resizeInputArea();
 	}
@@ -196,10 +200,10 @@
 		shouldSaveCurrentChat = true; //only save chats once the user has given some
 		fetching = true;
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
-		vscodeApi.postMessage({type:'userInput',userInput:prompt});
+		vscodeApi.postMessage({type:'startGeneration',prompt:prompt});
 
 		inputTextArea?.focus();
-		await scrollToBottom(outputArea);
+		await scrollToBottom(outputArea,true);
 		addCodeBlockButtons();
 		resizeInputArea();
 	}
@@ -211,7 +215,7 @@
 			chat = chat.concat(temp)
 		
 		vscodeApi.postMessage({
-			type: 'userCommand',
+			type: 'userInput',
 			input: inputValue
 		})
 		inputValue="";
@@ -235,7 +239,7 @@
 		if(!shouldSaveCurrentChat)
 			return;
 		if(saveLock){
-			console.warn("Save State Locked... Trying to prevent Race Condition.")
+			// console.warn("Save State Locked... Trying to prevent Race Condition.")
 			return;
 		}
 		saveLock = true;
@@ -277,9 +281,10 @@
 		})
 	}
 
-	async function scrollToBottom(node:any) {
+	async function scrollToBottom(node:any,force:boolean=false) {
 		await tick();
-		
+		if(force)
+			scrollLock = true;
 		if(!node)
 			return
 
@@ -329,7 +334,7 @@
 				<StopGenerateButton />
 			{/if}
 			<form>
-				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={resizeInputArea} on:keypress={keypress} />
+				<textarea bind:this={inputTextArea} class='input-area' placeholder="" bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} />
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
