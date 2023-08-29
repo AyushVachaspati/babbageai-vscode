@@ -16,8 +16,8 @@ export async function constructPrompt(chat: Message[]): Promise<string> {
                 let preview = await getCodePreview(filePath);
                 let codeSnippet = preview.preview;
                 let language = preview.language;
-                let promptPrefix = `Explain the following ${language} code. Be very detailed and specific, and indicate when it is not clear to you what is going on. Format your response as an ordered list. Finally summarize your explanations at the end.\n`;
-                let promptSuffix  = "Enclose code snippets with three backticks like so: ```";
+                let promptPrefix = `Explain the following ${language} code. Indicate when it is not clear to you what is going on. Format your response as an ordered list. Finally summarize your explanations at the end.\n`;
+                let promptSuffix  = "Put all code in markdown code blocks using ```";
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 prompt = `<|user|>${prompt}<|end|>\n`;
                 break;
@@ -27,7 +27,7 @@ export async function constructPrompt(chat: Message[]): Promise<string> {
                 let codeSnippet = preview.preview;
                 let language = preview.language;
                 let promptPrefix = `Generate a comment to document the parameters and functionality of the following ${language} code\n`;
-                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nEnclose code snippets with three backticks like so: \`\`\``;
+                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nPut everythin in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 prompt = `<|user|>${prompt}<|end|>\n`;
                 break;
@@ -49,7 +49,7 @@ export async function constructPrompt(chat: Message[]): Promise<string> {
                         prompt += `<|user|>${command}\n${filePath}<|end|>\n`;
                     }
                     else{
-                        let promptSuffix  = "Enclose any code snippets with three backticks like so: ```";
+                        let promptSuffix  = "Put all code in markdown code blocks using ```";
                         prompt += `<|user|>${message.message}\n${promptSuffix}<|end|>\n`;
                     }
                     break;
