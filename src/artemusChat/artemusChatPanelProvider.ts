@@ -8,6 +8,8 @@ import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/
 import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
 import { ClientDuplexStream } from "@grpc/grpc-js";
 import type {ChatContext, ChatHistory, ChatHistoryItem}  from "./webviews/types/chatState";
+import { constructPrompt } from "./utils/promptGenerator";
+import { getCodePreview } from "./utils/getCodePreview";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -64,6 +66,17 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'startGeneration':
 					{
+						let prompt: string;
+						try{
+							prompt = await constructPrompt(data.chat);
+						}
+						catch (error){
+							this.commandError((error as Error).message);
+							return;
+						}
+
+						this.view?.webview.postMessage({type:"addEmptyBotMsg"});
+						// console.log(prompt);
 						const responseCallback = (response:string)=>{		
 							this.view?.webview.postMessage({ type: 'BotMsgChunk' ,data:response});
 						};
@@ -77,7 +90,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 							this.streamClient=undefined; 
 							this.view?.webview.postMessage({ type: 'BotMsgError', error: error });
 						};
-						this.streamClient = getModelPredictionStream(data.prompt,responseCallback,endCallback,errorCallback);
+						this.streamClient = getModelPredictionStream(prompt,responseCallback,endCallback,errorCallback);
 						break;
 					}
 				case 'userInput':
@@ -209,33 +222,22 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		let filePath:string|undefined = inputText.split('\n')[1];
 		if(filePath){
 			filePath = filePath.trim();
-			if(!this.validFilePath(filePath)){
+			if(!this.validCommandFileFormat(filePath)){
 				this.adduserMessage(inputText);
 				this.commandError(`**${inputText}**\nis not a valid command.`);
 				return;
 			}
 			try{
-				let fileUri = filePath.split(' ')[1].split('#')[0];
-				let fileSplit = filePath.split('#');
-				let rangeNumbers = fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : undefined;
-				let startLine:number|undefined = undefined;
-				let endLine:number|undefined = undefined;
-				if(rangeNumbers){
-					startLine = rangeNumbers.split('-')[0] ? +rangeNumbers.split('-')[0] : NaN;
-					endLine =  rangeNumbers.split('-')[1] ? +rangeNumbers.split('-')[1] : NaN;
-				}
-
-				let previewText = await this.getPreviewText(fileUri,startLine,endLine);
-				inputText = command + '\n' +
-				( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
-				'\n' + previewText;
+				let previewText =  (await getCodePreview(filePath)).preview;
+				
+				inputText = command + '\n' + filePath.trim() +'\n' + previewText;
 				
 				this.adduserMessage(inputText);
 				this.generateResponse();
 			}
-			catch{
+			catch (error){
 				this.adduserMessage(inputText);
-				this.commandError(`Could Not open\n**${filePath}**\nPlease Check File Path and Range are correct.`);
+				this.commandError((error as Error).message);
 			}
 		}
 		else {
@@ -245,29 +247,30 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				this.commandError(`Please select some code for **${command}** command.`);
 				return;
 			}
+			let fileUri = editor.document.uri.path;
 			try{
-				let fileUri = editor.document.uri.path;
 				let startLine:number|undefined = editor.selection.start.line + 1;
 				let endLine:number|undefined = editor.selection.end.line + 1;
 				if(startLine===endLine){
 					startLine=undefined;
 					endLine = undefined;
 				}
-				let previewText = await this.getPreviewText(fileUri,startLine,endLine);
-				inputText = command + '\n' +
-							( (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}` ) +
-							'\n' + previewText;
+
+				filePath =  (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}`;
+				let previewText = (await getCodePreview(filePath)).preview;
+				inputText = command + '\n' + filePath.trim() + '\n' + previewText;
+				
 				this.adduserMessage(inputText);
 				this.generateResponse();
 			}
-			catch {
+			catch (error){
 				this.adduserMessage(inputText);
-				this.commandError(`Could Not open\n**${filePath}**\nPlease Check File Path and Range are correct.`);
+				this.commandError((error as Error).message);
 			}
 		}
 	}
 	
-	public validFilePath(filePath:string) {
+	public validCommandFileFormat(filePath:string) {
 		filePath = filePath.trim().split(" ")['0'];
 		return filePath === "File:";
 	}
@@ -292,32 +295,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
-	public async getPreviewText(filePath:string, startLine:number|undefined, endLine:number|undefined) {
-		if(Number.isNaN(startLine) || Number.isNaN(endLine)){
-			throw Error(`Incorrect Range. Got ${startLine}, ${endLine}`);
-		}
-
-		const file = await vscode.workspace.openTextDocument(filePath);
-		let language = file.languageId;
-		let previewText:string;
-		if(startLine!==undefined && endLine!==undefined){
-			startLine--;
-			endLine--;
-			let firstLineRange = file.lineAt(startLine).range;
-			let lastLineRange = file.lineAt(endLine).range;
-			const selectionRange = new vscode.Range(firstLineRange.start, lastLineRange.end);
-			previewText = file.getText(selectionRange);
-		}
-		else{
-			previewText = file.getText();
-		}
-		// let previewLines = previewText.split('\n');
-		// if(previewLines.length > 10){
-		// 	previewText = previewLines.slice(0,5).join('\n') +"\n...\n"+ previewLines.slice(previewLines.length-5).join('\n');
-		// }
-		return `\`\`\`${language}\n${previewText}\n\`\`\``;
-	}
-
+	
 	public updateChatHistory(chatHistory: ChatHistory|undefined, currentChatContext:ChatContext){
 		if(chatHistory === undefined){
 			return {

@@ -11,7 +11,6 @@
 	import type { ChatContext, ChatHistory, ChatHistoryItem } from "../types/chatState";
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
-    import { constructPrompt } from "../utils/promptGenerator";
 
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -73,6 +72,10 @@
 				}
 				case "generateResponse":{						
 					generateResponse();
+					break;
+				}
+				case "addEmptyBotMsg":{
+					chat = chat.concat({identity: Identity.botMessage, message: ""});
 					break;
 				}
 				case "BotMsgChunk":{						
@@ -192,15 +195,12 @@
 	}
 
 	async function generateResponse(){
-		// expects that the user message is appended and then generates the Bot response
-		let prompt:string = constructPrompt(chat);
-		chat = chat.concat({identity: Identity.botMessage, message: ""});
 		saveCurrentChat();
 
 		shouldSaveCurrentChat = true; //only save chats once the user has given some
 		fetching = true;
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
-		vscodeApi.postMessage({type:'startGeneration',prompt:prompt});
+		vscodeApi.postMessage({type:'startGeneration',chat:chat});
 
 		inputTextArea?.focus();
 		await scrollToBottom(outputArea,true);
