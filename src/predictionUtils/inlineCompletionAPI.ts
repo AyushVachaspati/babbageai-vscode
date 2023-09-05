@@ -10,7 +10,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
         return undefined;
     }
     updateStatusBarFetchingPrediction();
-    console.time("API Fetch");
+    // console.time("API Fetch");
     let completion: string|undefined;
     try{
         const host = "localhost";
@@ -26,7 +26,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     catch (error){
         console.error(error);
     }
-    console.timeEnd("API Fetch");
+    // console.timeEnd("API Fetch");
     updateStatusBarArtemusActive();
     
     if(completion===undefined){

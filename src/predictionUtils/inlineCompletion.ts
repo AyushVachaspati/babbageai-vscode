@@ -16,7 +16,7 @@ export type CachePrompt = {
 
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	async provideInlineCompletionItems(document, position, context, token) {
-		console.log("Triggered Completion");
+		// console.log("Triggered Completion");
 		if(!validMidlinePosition(document,position)){
 			return undefined;
 		}
@@ -66,7 +66,6 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 		
 	}
 	
-	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
@@ -105,8 +104,6 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		inlineCompletion = prediction? prediction.result.slice(prefix.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
 	}
-	
-	if(token.isCancellationRequested){return undefined;}
 
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {

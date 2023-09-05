@@ -22,7 +22,7 @@
   }
     
   .message_human {
-    background-color: rgb(18, 18, 18, 0.3);
+    background-color: rgb(40, 40, 40);
     padding: 15px;
     position: relative;
     margin-bottom: 10px;
@@ -35,7 +35,7 @@
   }
 
   .message_error {
-    background-color: rgba(255, 0, 0, 0.126);
+    background-color: rgba(255, 0, 0, 0.125);
     padding: 15px;
     position: relative;
     margin-bottom: 10px;
@@ -86,7 +86,7 @@
 <div class = 'container'>
   {#each chat as msg}
     {#if msg.identity===Identity.userMessage}
-      <div class="message_human border-gradient-right border-gradient-purple">
+      <div class="message_human border-gradient-right  border-gradient-purple">
         <MarkdownRenderer markdownContent={msg.message}/>
       </div>
     {:else if msg.identity===Identity.botMessage}

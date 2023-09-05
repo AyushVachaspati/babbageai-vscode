@@ -49,7 +49,7 @@ export async function constructPrompt(chat: Message[]): Promise<string> {
                         prompt += `<|user|>${command}\n${filePath}<|end|>\n`;
                     }
                     else{
-                        let promptSuffix  = "Put all code in markdown code blocks using ```";
+                        let promptSuffix  = "put all code in markdown code blocks";
                         prompt += `<|user|>${message.message}\n${promptSuffix}<|end|>\n`;
                     }
                     break;
