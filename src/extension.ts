@@ -47,14 +47,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview,
 			{
 			webviewOptions: {
-			  retainContextWhenHidden: false, // keeps the state of the webview even when it's not visible
+			  retainContextWhenHidden: true, // keeps the state of the webview even when it's not visible
 			},
 		  }
 		)
 	);
 	
-	// "command": "artemusai-vscode.explainCommand",
-	// "command": "artemusai-vscode.documentCommand",
+	// setting current panel to Chat panel
+	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
+	vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
+	
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.newChat', ()=>{
 			artemusChatWebview.createNewChat();
@@ -63,18 +65,21 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.historyView', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',true);
+			vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',false);
 			artemusChatWebview.showChatHistory();
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.currentChat', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
 			artemusChatWebview.showCurrentChat();
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.explainCommand', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
 			artemusChatWebview.showCurrentChat();
 			artemusChatWebview.executeCommand('/explain');
 		})
@@ -82,13 +87,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.documentCommand', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
 			artemusChatWebview.showCurrentChat();
 			artemusChatWebview.executeCommand('/document');
 		})
-	);	
-	// setting current panel to Chat panel
-	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
-	
+	);
 	
 	// Fake wait time of 1 second to show loading Item. 
 	// Wait time will be usefull when we validate extension

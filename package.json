@@ -71,7 +71,7 @@
       },
       {
         "command": "artemusai-vscode.currentChat",
-        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == true",
+        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.currentChatPanel == false",
         "group": "navigation@2"
       }
     ]
