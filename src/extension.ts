@@ -52,6 +52,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		  }
 		)
 	);
+	
+	// "command": "artemusai-vscode.explainCommand",
+	// "command": "artemusai-vscode.documentCommand",
 	context.subscriptions.push(
 		vscode.commands.registerCommand('artemusai-vscode.newChat', ()=>{
 			artemusChatWebview.createNewChat();
@@ -67,6 +70,20 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('artemusai-vscode.currentChat', ()=>{
 			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
 			artemusChatWebview.showCurrentChat();
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.explainCommand', ()=>{
+			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			artemusChatWebview.showCurrentChat();
+			artemusChatWebview.executeCommand('/explain');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.documentCommand', ()=>{
+			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			artemusChatWebview.showCurrentChat();
+			artemusChatWebview.executeCommand('/document');
 		})
 	);	
 	// setting current panel to Chat panel

@@ -35,24 +35,46 @@
         }
       ]
     },
-    "menus": {
-      "view/title": [
+    "submenus": [
+      {
+        "label": "Artemus",
+        "id": "artemusai.submenu"
+      }
+    ],
+    "menus": { 
+      "editor/context": [
         {
-          "command": "artemusai-vscode.newChat",
-          "when": "view == artemusai-vscode.chatpanel",
-          "group": "navigation"
-        },
-        {
-          "command": "artemusai-vscode.historyView",
-          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == false",
-          "group": "navigation@2"
-        },
-        {
-          "command": "artemusai-vscode.currentChat",
-          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == true",
-          "group": "navigation@2"
+          "submenu": "artemusai.submenu",
+          "group": "navigation@0"
         }
-      ]
+      ],
+      "artemusai.submenu": [
+        {
+          "command": "artemusai-vscode.explainCommand",
+          "group": "artemusCommands@1"
+        },
+        {
+          "command": "artemusai-vscode.documentCommand",
+          "group": "artemusCommands@2"
+        }
+      ],
+    "view/title": [
+      {
+        "command": "artemusai-vscode.newChat",
+        "when": "view == artemusai-vscode.chatpanel",
+        "group": "navigation"
+      },
+      {
+        "command": "artemusai-vscode.historyView",
+        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == false",
+        "group": "navigation@2"
+      },
+      {
+        "command": "artemusai-vscode.currentChat",
+        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == true",
+        "group": "navigation@2"
+      }
+    ]
     },
     "commands": [
       {
@@ -82,6 +104,16 @@
         "command": "artemusai-vscode.currentChat",
         "title": "Return To Chat",
         "icon": "$(arrow-left)",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.explainCommand",
+        "title": "Explain Code",
+        "category": "ArtemusAI"
+      },
+      {
+        "command": "artemusai-vscode.documentCommand",
+        "title": "Document Code",
         "category": "ArtemusAI"
       }
     ],

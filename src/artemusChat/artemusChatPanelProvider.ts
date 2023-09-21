@@ -252,7 +252,8 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			try{
 				let startLine:number|undefined = editor.selection.start.line + 1;
 				let endLine:number|undefined = editor.selection.end.line + 1;
-				if(startLine===endLine){
+				//if there's no selection then use the whole file
+				if(startLine===endLine && editor?.selection.isEmpty){
 					startLine=undefined;
 					endLine = undefined;
 				}
@@ -340,7 +341,24 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 	}
 	
 	public showCurrentChat() {
+		this.view?.show();
 		this.view?.webview.postMessage({ type: 'showCurrentChat'});
+	}
+
+	public executeCommand(command:string) {
+		switch(command){
+			case '/explain': {
+				this.handleUserInput('/explain');
+				break;
+			}
+			case '/document': {
+				this.handleUserInput('/document');
+				break;
+			}
+			default: {
+				console.error(`Error: Invalid Command ${command}`);
+			}
+		}
 	}
 	
 	private _getHtmlForWebview(webview: vscode.Webview) {
