@@ -31,7 +31,7 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 /**	Provide inline completion based on VsCode intellisense popup suggestions (called lookAheadCompletion here)
  *	context.SelectedCompletionInfo corresponds to lookAheadSuggestion	
  */
-async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
+async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().substring(document.offsetAt(position));
@@ -82,7 +82,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	
 }
 
-async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, token:vscode.CancellationToken) {
+async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
 	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	// let postfix = document.getText().substring(document.offsetAt(position));

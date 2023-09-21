@@ -218,6 +218,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			this.generateResponse();
 		}		
 	}
+	
 	public async handlePredefinedCommand(inputText:string,command:string) {
 		let filePath:string|undefined = inputText.split('\n')[1];
 		if(filePath){
