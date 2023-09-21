@@ -11,11 +11,12 @@
 	import type { ChatContext, ChatHistory, ChatHistoryItem } from "../types/chatState";
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
+    import CommandPalette from "./commandPalette.svelte";
 
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
 	let chatHistory: ChatHistory|undefined;
-	
+
 	let shouldSaveCurrentChat = false;
 	let saveLock = false;
 	autoSave();
@@ -30,7 +31,32 @@
 	let disabled = true;
 	let scrollLock = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
-	$: showCommandOptions = inputValue.charAt(0) === '/' ? true: false;
+
+	let commandsList:string[] = ["/explain","/document"]
+	$: commands = commandsList.filter((value) => {
+			highlightIndex=0;
+			return value.startsWith(inputValue.trimStart()) &&
+			value !== inputValue.trimStart()
+		}
+	)
+
+	$: showCommandPalette = inputValue.trimStart().charAt(0) === '/' ? true: false;
+	let highlightIndex = 0;
+
+	const commandHandler = (event:MouseEvent) => {
+        let button = event.target as HTMLButtonElement;
+        inputValue = button.innerText;
+		inputTextArea.focus();
+    }
+
+	function switchCommand(event:KeyboardEvent) {
+		if(event.key === 'ArrowUp'){
+			highlightIndex = (highlightIndex + (commands.length - 1)) % commands.length;
+		}
+		if(event.key === 'ArrowDown'){
+			highlightIndex = (highlightIndex + 1) % commands.length;
+		}
+	}
 
 	function sortChatDescending(chat1:ChatHistoryItem,chat2:ChatHistoryItem){
 		return (new Date(chat2.dateTime)).getTime() - (new Date(chat1.dateTime)).getTime()
@@ -41,10 +67,10 @@
 		return msg ? msg.message : "Error Loading Last User Msg";
 	}
 
-	function inputAreaKeypress(event:any){
+	function inputAreaKeypress(event:KeyboardEvent){
 		if(event.shiftKey)
 			return;
-		if(event.keyCode===13){	
+		if(event.key==="Enter"){	
 			event.preventDefault();
 			if(disabled) return;
 			sendUserMessage();
@@ -208,7 +234,14 @@
 		resizeInputArea();
 	}
 
-	function sendUserMessage() {		
+	function sendUserMessage() {
+		//when the user is selecting a command using Enter Key
+		if(showCommandPalette && commands.length>0){
+			inputValue = commands[highlightIndex];
+			inputTextArea.focus()
+			return;
+		}	
+
 		// Remove Error message if present
 		let temp = chat.pop()
 		if(temp && temp.identity !== Identity.errorMessage)
@@ -334,13 +367,17 @@
 				<StopGenerateButton />
 			{/if}
 			<form>
-				<textarea bind:this={inputTextArea} class='input-area' placeholder="Ask something or '/' for commands" bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} />
+				<CommandPalette show={showCommandPalette}
+							commands={commands}
+							commandHandler={commandHandler}
+							highlightIndex={highlightIndex}></CommandPalette>
+				<textarea bind:this={inputTextArea} class='input-area' placeholder="Ask something or '/' for commands" 
+						  bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} 
+						  on:keydown={switchCommand}/>
 				<button type='submit' class="send-button" {disabled} on:click|preventDefault={sendUserMessage}><Send /></button>
 			</form>
 			</div>
 		</div>
-		<!-- <div><p>Current Open File Goes Here </p></div> -->
-		<!-- <br> -->
 	</div>
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
@@ -416,11 +453,13 @@
 		background-color: transparent;
 		cursor: auto;
 	}
+	
 	.output-area{
 		height: 100vh;
 		overflow-y: scroll;
 		margin: 10px;
 	}
+
 	.input-area{
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		background: rgb(50,50,50,0.3);
@@ -435,6 +474,7 @@
 		font-family: 'Courier New', Courier, monospace;
 		font-size: medium;
 	}
+	
 	.input-area:focus{
 		border: 1px solid rgba(255, 255, 255, 1);
 	}
