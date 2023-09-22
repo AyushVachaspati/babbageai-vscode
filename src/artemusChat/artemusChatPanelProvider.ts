@@ -253,10 +253,10 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				let startLine:number|undefined = editor.selection.start.line + 1;
 				let endLine:number|undefined = editor.selection.end.line + 1;
 				//if there's no selection then use the whole file
-				if(startLine===endLine && editor?.selection.isEmpty){
-					startLine=undefined;
-					endLine = undefined;
-				}
+				// if(startLine===endLine && editor?.selection.isEmpty){
+				// 	startLine=undefined;
+				// 	endLine = undefined;
+				// }
 
 				filePath =  (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}`;
 				let previewText = (await getCodePreview(filePath)).preview;
