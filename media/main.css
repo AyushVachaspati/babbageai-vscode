@@ -50,6 +50,7 @@ code {
 p{
 	white-space: pre-wrap;
 	word-wrap: break-word;
+	margin: 10px 0;
 }
 
 ul {

@@ -15,7 +15,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     try{
         const host = "localhost";
         const port = "81";
-        const modelName = "santacoder_huggingface";
+        const modelName = "starcoder_huggingface";
         const modelVersion = "";
         const prompt = prefix;
 

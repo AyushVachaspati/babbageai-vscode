@@ -1,8 +1,15 @@
 <script lang="ts">
+    import DeleteHistoryItemButton from "./deleteHistoryItemButton.svelte";
+
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
     export let title:string;
     export let date:string;
     export let time: string;
     export let currentChat = false;
+    function forwardMessage(message: any) {
+        dispatch("message",message.data)
+    }
 </script>
   
 <style>
@@ -17,12 +24,12 @@
 
    .history-card:active {
     background-color: rgba(255, 255, 255, 0.5);
-    transform: scale(0.98);
+    /* transform: scale(0.98); */
    }
    
    .history-card:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.02);
+    /* transform: scale(1.02); */
     cursor: pointer;
    }
    
@@ -31,12 +38,14 @@
     font-weight: bold;
    }
 </style>
-  
+
 <div class = "history-card" on:click|preventDefault  on:keydown|stopPropagation on:keyup|stopPropagation  on:keypress|stopPropagation>
+<DeleteHistoryItemButton  on:message={forwardMessage}></DeleteHistoryItemButton>
 {#if currentChat}
     <p>{date}   {time} (Current Chat)</p>
 {:else}
     <p>{date}   {time}</p>
 {/if}
     <p class="history-heading">{title}<p>
+
 </div>

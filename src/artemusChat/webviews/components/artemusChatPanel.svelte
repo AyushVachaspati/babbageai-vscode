@@ -3,7 +3,7 @@
 	import MessageBox from "./MessageBox.svelte";
 	import Send from "../icons/send.svelte";
 	import { Identity, type Message } from "../types/message";
-    import { tick } from "svelte/internal";
+    import { compute_rest_props, tick } from "svelte/internal";
 	import CopyCodeButton from "./copyCodeButton.svelte";
     import InsertCodeButton from "./insertCodeButton.svelte";
 	import StopGenerateButton from "./stopGenerateButton.svelte";
@@ -24,7 +24,7 @@
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
-	let chatId = uuidv4();
+	let currentChatId = uuidv4();
 	let chat:Message[] = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];
 	let loading = true;
 	let inputValue = '';
@@ -117,7 +117,7 @@
 					break;
 				}
 				case "BotMsgEnd":{
-					fetching = false;
+					setFetching(false);
 					vscodeApi.postMessage({type:'setStatusBarActive'});
 					await scrollToBottom(outputArea,false);
 					addCodeBlockButtons();
@@ -143,7 +143,7 @@
 					chatContext = data.chatContext as ChatContext|undefined;
 					if(chatContext){
 						chat = chatContext.chat;
-						chatId = chatContext.chatId;
+						currentChatId = chatContext.chatId;
 					}
 					break;
 				}
@@ -155,7 +155,7 @@
 					saveCurrentChat();
 				    vscodeApi.postMessage({type:'cancelRequest'});
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
-					chatId = uuidv4();
+					currentChatId = uuidv4();
 					shouldSaveCurrentChat = false;
 					vscodeApi.postMessage({type:'showChatView'});
 					await tick();
@@ -187,12 +187,14 @@
 		if(temp && temp.message!==""){
 			chat = chat.concat(temp);
 		}
-		fetching = false;
+		setFetching(false);
 		vscodeApi.postMessage({type:'setStatusBarActive'});
 		
 		switch(error_code){
 			case '1': {
 				chat = chat
+				chat = chat.concat({identity: Identity.errorMessage, 
+									message: "Request Cancelled."})
 				break;
 			}
 			default: {
@@ -209,11 +211,10 @@
 
 	async function handleCommandErrors(message:any) {
 		// console.error(message)
-		fetching = false;
+		setFetching(false);
 		vscodeApi.postMessage({type:'setStatusBarActive'});
 		
-			chat = chat.concat({identity: Identity.botMessage, 
-								message: message.message})
+		chat = chat.concat({identity: Identity.botMessage,message: message.message})
 		inputTextArea?.focus();
 		await scrollToBottom(outputArea,true);
 		addCodeBlockButtons();
@@ -224,7 +225,7 @@
 		saveCurrentChat();
 
 		shouldSaveCurrentChat = true; //only save chats once the user has given some
-		fetching = true;
+		setFetching(true);
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		vscodeApi.postMessage({type:'startGeneration',chat:chat});
 
@@ -279,23 +280,31 @@
 		vscodeApi.postMessage({
 			type:'saveCurrentChat',
 			context: {
-				chatId: chatId,
+				chatId: currentChatId,
 				chat: chat
 			} as ChatContext
 		});
 	}
 
-	function deleteChatHistory(chatId:string) {
-		vscodeApi.postMessage({type:'deleteChatHistory',chatId:chatId});
+
+	function deleteChatById(message:any,chatIdToDelete:string) {
+		console.log("Handling message", message.data, chatIdToDelete);
+		if(chatIdToDelete!==currentChatId){
+			vscodeApi.postMessage({type:'deleteChatHistory', chatIdDelete:chatIdToDelete});
+		}
+	}
+	function deleteChatHistory(chatIdRetain:string) {
+		vscodeApi.postMessage({type:'deleteChatHistory',chatIdRetain:chatIdRetain});
 	}
 
 	function restoreChatById(chatIdToRestore:string) {
-		if(chatIdToRestore!==chatId){
+		if(chatIdToRestore!==currentChatId){
 			vscodeApi.postMessage({type:'cancelRequest'});
 			vscodeApi.postMessage({type:'restoreChatById', chatId:chatIdToRestore});
 		}
 		vscodeApi.postMessage({type:'showChatView'});
 	}
+
 
 	function addCodeBlockButtons() {
 		let preComponents = Array.from(document.getElementsByClassName('code-block'));
@@ -346,6 +355,17 @@
 		}
 	}
 
+	function setFetching(value:boolean){
+		if(value){
+			fetching = true;
+			vscodeApi.postMessage({type:'disableArtemusCommands'});
+		}
+		else{
+			fetching = false;
+			vscodeApi.postMessage({type:'enableArtemusCommands'});
+		}
+	}
+
 </script>
 
 
@@ -381,12 +401,13 @@
 	</div>
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
-		<ClearHistoryButton on:click={()=>{deleteChatHistory(chatId)}}/>
+		<ClearHistoryButton on:click={()=>{deleteChatHistory(currentChatId)}}/>
 		{#each chatHistory.chatItems.sort(sortChatDescending) as chatHistoryItem}
 			<HistoryCard title={getLastUserMessage(chatHistoryItem.chatContext.chat).slice(0,100)} 
 						date={new Date(chatHistoryItem.dateTime).toLocaleDateString()}
 						time={new Date(chatHistoryItem.dateTime).toLocaleTimeString()}
-						currentChat={chatId===chatHistoryItem.chatContext.chatId}
+						currentChat={currentChatId===chatHistoryItem.chatContext.chatId}
+						on:message={(event)=>{deleteChatById(event,chatHistoryItem.chatContext.chatId)}}
 						on:click={()=>{restoreChatById(chatHistoryItem.chatContext.chatId)}}>
 			</HistoryCard>
 		{/each}

@@ -45,7 +45,7 @@
       "editor/context": [
         {
           "submenu": "artemusai.submenu",
-          "group": "navigation@0"
+          "group": "0_artemusCommands"
         }
       ],
       "artemusai.submenu": [
@@ -109,12 +109,14 @@
       {
         "command": "artemusai-vscode.explainCommand",
         "title": "Explain Code",
-        "category": "ArtemusAI"
+        "category": "ArtemusAI",
+        "enablement": "artemus-vscode.enableArtemusCommands"
       },
       {
         "command": "artemusai-vscode.documentCommand",
         "title": "Document Code",
-        "category": "ArtemusAI"
+        "category": "ArtemusAI",
+        "enablement": "artemus-vscode.enableArtemusCommands"
       }
     ],
     "keybindings": [

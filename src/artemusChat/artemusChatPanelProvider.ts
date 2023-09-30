@@ -51,6 +51,16 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(async (data) => {
 			switch (data.type) {
+				case 'disableArtemusCommands':
+					{
+						vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",false);
+						break;
+					}
+				case 'enableArtemusCommands':
+					{
+						vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",true);
+						break;
+					}
 				case 'insertCode':
 					{
 						let code = data.code;
@@ -125,8 +135,6 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						}
 				case 'restoreChatById':
 					{
-						//get latest chat from the Artemus plugin state and return ChatContext
-						// state is ChatContext[]
 						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
 						let chatIdToFind = data.chatId as string;
 						let chatHistoryItem = chatHistory?.chatItems.find((chatHistoryItem) => {
@@ -170,19 +178,37 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				case 'deleteChatHistory':
 					{
 						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
-						
-						if(!chatHistory){ return;}
 
-						let chatIdToFind = data.chatId as string;
-						let chatHistoryItem = chatHistory.chatItems.find((chatHistoryItem) => {
-							return chatHistoryItem.chatContext.chatId === chatIdToFind;
+						if(!chatHistory){ 
+							return;
+						}
+
+						let chatIdToDelete = data.chatIdDelete as string;
+						
+						if(chatIdToDelete){
+							// deleting a single Chat Item.
+							chatHistory.chatItems = chatHistory.chatItems.filter((item) => item.chatContext.chatId !== chatIdToDelete);
+							if(chatHistory.chatItems.length!==0){
+								await this.context.globalState.update("Artemus-Chat-State", chatHistory);
+							}
+							else{
+								await this.context.globalState.update("Artemus-Chat-State", undefined);
+							}
+							this.showChatHistory();
+							return;
+						}
+
+						// clearing entire chat history except current chat
+						let chatIdToRetain = data.chatIdRetain as string;
+						let chatHistoryItemRetain = chatHistory.chatItems.find((chatHistoryItem) => {
+							return chatHistoryItem.chatContext.chatId === chatIdToRetain;
 						});
 
-						if(!chatHistoryItem){
+						if(!chatHistoryItemRetain){
 							await this.context.globalState.update("Artemus-Chat-State", undefined);
 						}
 						else {
-							chatHistory.chatItems = [chatHistoryItem];
+							chatHistory.chatItems = [chatHistoryItemRetain];
 							await this.context.globalState.update("Artemus-Chat-State", chatHistory);
 						}
 						this.showChatHistory();

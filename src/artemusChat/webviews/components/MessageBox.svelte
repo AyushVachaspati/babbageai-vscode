@@ -10,7 +10,7 @@
 <style>
   .message_bot {
     background-color: rgb(18, 18, 18);
-    padding: 15px;
+    padding: 10px;
     position: relative;
     margin-bottom: 10px;
     font-size: 14.5px;
@@ -23,7 +23,7 @@
     
   .message_human {
     background-color: rgb(40, 40, 40);
-    padding: 15px;
+    padding: 10px;
     position: relative;
     margin-bottom: 10px;
     font-size: 14.5px;
@@ -36,7 +36,7 @@
 
   .message_error {
     background-color: rgba(255, 0, 0, 0.125);
-    padding: 15px;
+    padding: 10px;
     position: relative;
     margin-bottom: 10px;
     font-size: 14.5px;

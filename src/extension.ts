@@ -92,6 +92,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			artemusChatWebview.executeCommand('/document');
 		})
 	);
+
+	// Enable Right Click Menu Commands
+	vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",true);
+					
 	
 	// Fake wait time of 1 second to show loading Item. 
 	// Wait time will be usefull when we validate extension

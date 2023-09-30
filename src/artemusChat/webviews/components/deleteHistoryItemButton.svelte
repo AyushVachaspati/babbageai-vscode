@@ -1,30 +1,34 @@
 <script lang="ts">
-  import Send from "../icons/insertCode.svelte";
+  import Delete from '../icons/delete.svelte';
+  import { createEventDispatcher } from 'svelte'
+  const dispatch = createEventDispatcher()
   export let disabled = false;
+  function forwardMessage(event:any) {
+    dispatch('message', "delete");
+  }
 </script>
 
 <style>
   .delete-history-item-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: transparent;
-  border: None;
-  border-radius: 5px;
+    position:absolute;
+    right: 35px;
+    background-color: transparent;
+    border: None;
+    border-radius: 5px;
   }
-  .delete-history-item-button:hover:not([disabled]) {
+  .delete-history-item-button:hover{
     background-color: rgba(255, 255, 255,0.05);
     cursor: pointer;
   }
-
   .delete-history-item-button:active {
     background-color: rgba(255, 255, 255, 0.25);
     cursor: pointer;
   }
   .delete-history-item-button:disabled{
     background-color: rgba(255, 255, 255, 0.25);
-    cursor: pointer;
   }
 </style>
 
-<button type='submit' class="delete-history-item-button" title='Delete this Chat' on:click|preventDefault {disabled}><Send /></button>
+<div>
+  <button type='submit' class="delete-history-item-button" title='Delete this Chat' on:click|preventDefault|stopPropagation={forwardMessage} {disabled}><Delete/></button>
+</div>
