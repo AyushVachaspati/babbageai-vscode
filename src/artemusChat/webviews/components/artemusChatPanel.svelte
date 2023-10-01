@@ -181,7 +181,7 @@
 	});
 
 	async function handleErrors(message:any) {
-		// console.error(message)
+		console.error(message)
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){

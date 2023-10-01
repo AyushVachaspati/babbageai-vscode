@@ -48,17 +48,19 @@
   }
 
   .border-gradient-left {
-    border-left: 2px solid;
+    border-left: 3px solid;
     border-image-slice: 1;
   }
   .border-gradient-right {
-    border-right: 2px solid;
+    border-right: 3px solid;
     border-image-slice: 1;
   }
-    .border-gradient-purple {
-    border-image-source: linear-gradient(to bottom, #743ad5, #d53a9d);
+  .border-gradient-purple {
+    border-image-source: linear-gradient(to bottom,  #53019a, #ff00e6);
   }
-  
+  .border-gradient-blue {
+    border-image-source: linear-gradient(to bottom, #0017c6, #00d0ff);
+  }
   .container{
     max-width: 100%;
     margin: 10px 10px 10px 0;
@@ -86,7 +88,7 @@
 <div class = 'container'>
   {#each chat as msg}
     {#if msg.identity===Identity.userMessage}
-      <div class="message_human border-gradient-right  border-gradient-purple">
+      <div class="message_human border-gradient-right  border-gradient-blue">
         <MarkdownRenderer markdownContent={msg.message}/>
       </div>
     {:else if msg.identity===Identity.botMessage}
