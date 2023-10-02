@@ -35,7 +35,8 @@
   }
 
   String.prototype.MarkdownNbspToSpace = function() {
-    return this.replace(/&amp;nbsp;/g," ")
+    var regex = new RegExp(`<span class="hljs-operator">&amp;</span>nbsp;`, "g"); // Dirty fix for highlighed "&" in sql
+    return this.replace(/&amp;nbsp;/g," ").replace(regex," ")
   }
 
   String.prototype.correctWhiteSpace = function() {

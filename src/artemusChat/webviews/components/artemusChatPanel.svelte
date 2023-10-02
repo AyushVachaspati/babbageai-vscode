@@ -154,6 +154,10 @@
 				case 'createNewChat':{
 					saveCurrentChat();
 				    vscodeApi.postMessage({type:'cancelRequest'});
+					vscodeApi.postMessage({type:'createNewChatHelper'})
+					break;
+				}
+				case 'createNewChatHelper':{
 					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
 					currentChatId = uuidv4();
 					shouldSaveCurrentChat = false;
@@ -192,7 +196,6 @@
 		
 		switch(error_code){
 			case '1': {
-				chat = chat
 				chat = chat.concat({identity: Identity.errorMessage, 
 									message: "Request Cancelled."})
 				break;

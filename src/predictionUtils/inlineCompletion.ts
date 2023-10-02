@@ -35,9 +35,9 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
-	let startToken = "<fim-prefix>";
-	let endToken = "<fim-suffix>";
-	let middleToken = "<fim-middle>";
+	let startToken = "<fim_prefix>";
+	let endToken = "<fim_suffix>";
+	let middleToken = "<fim_middle>";
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -52,6 +52,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	else{
 		prompt = prefix;
 	}
+	console.log(prompt)
 
 	let cacheItem:CachePrompt = {
 		prefix: prompt, 
@@ -92,9 +93,9 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
-	let startToken = "<fim-prefix>";
-	let endToken = "<fim-suffix>";
-	let middleToken = "<fim-middle>";
+	let startToken = "<fim_prefix>";
+	let endToken = "<fim_suffix>";
+	let middleToken = "<fim_middle>";
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -110,6 +111,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		completionType: CompletionType.inlineSuggestion
 	};
 	
+	console.log(prompt)
 	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(cacheItem)).toString());
 	
 	if(!inlineCompletion){
@@ -117,7 +119,6 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		inlineCompletion = prediction? prediction.result.slice(prompt.length) : undefined;
 		inlineCompletion? globalCache.set(sha1(JSON.stringify(cacheItem)), inlineCompletion) : undefined;
 	}
-
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
 			insertText: inlineCompletion,
