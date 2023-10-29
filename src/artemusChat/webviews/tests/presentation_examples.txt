@@ -1,0 +1,213 @@
+###########################################################################################################################
+Inline Completion Examples
+###########################################################################################################################
+###########################################################################################################################
+
+create_shipping_address.rb
+class CreateShippingAddresses < ActiveRecord::Migration
+	def change
+		create_table :shipping_addresses do |t|
+		end
+	end
+end
+###########################################################################################################################
+isPrimeTest.java
+import static org.junit.Assert.*;
+	import org.junit.Test;
+	public class IsPrimeTest {
+	  // Math.isPrime(int) returns whether the given number is prime or not
+	  @Test
+	  public void testIsPrime() {}
+###########################################################################################################################
+longestSubarr.cpp
+// C++ implementation to find the length of
+// longest increasing contiguous subarray
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+// function to find the length of longest increasing
+// contiguous subarray
+int lenOfLongIncSubArr(int arr[], int n){}
+###########################################################################################################################
+parse_expenses.py
+#!/usr/bin/env python3.7
+
+import datetime
+def parse_expenses(expenses_string):
+###########################################################################################################################
+package main
+	type Run struct {
+		Time int // in milliseconds
+		Results string
+		Failed bool
+	}
+	// Get average runtime of successful runs in seconds
+	func averageRuntimeInSeconds(runs []Run) float64 {}
+###########################################################################################################################
+scatter using graph objects
+import plotly.graph_objects as go
+
+def DrawScatterPlot(x_values, y_values, x_label, y_label, title):
+###########################################################################################################################
+scatter using matplotlib
+import matplotlib.pyplot as plt
+
+def draw_scatterplot(x_values, y_values, x_label, y_label, title):
+###########################################################################################################################
+scatter using plotly express
+import plotly.express as px
+
+def draw_scatterplot(x_values, y_values, x_label, y_label, title):
+###########################################################################################################################
+#!/usr/bin/env ts-node
+import { fetch } from "fetch-h2";
+// Determine whether the sentiment of text is positive
+// Use a web service
+async function isPositive(text: string): Promise<boolean> {
+###########################################################################################################################
+
+
+###########################################################################################################################
+Chat Examples
+###########################################################################################################################
+
+explain sentiments.ts
+
+###########################################################################################################################
+
+document sentiments.ts
+
+###########################################################################################################################
+
+translate this code to cpp
+```go
+func averageRuntimeInSeconds(runs []Run) float64 {
+        var totalTime int
+        for _, run := range runs {
+            if!run.Failed {
+                totalTime += run.Time
+            }
+        }
+        return float64(totalTime) / 1000
+    }
+```
+
+###########################################################################################################################
+
+translate this code to java
+```ts
+async function isPositive(text: string): Promise<boolean> {
+  const response = await fetch("https://api.meaningcloud.com/sentiment-2.1", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Api-Key": "YOUR_API_KEY",
+    },
+    body: JSON.stringify({
+      lang: "en",
+      key: "YOUR_API_KEY",
+      txt: text,
+    }),
+  });
+  const json = await response.json();
+  return json.score > 0.5;
+}
+```
+
+###########################################################################################################################
+
+How to create a simple dashboard with graph using plotly dash.
+
+###########################################################################################################################
+
+Write unit tests for the following code
+```cpp
+int lenOfLongIncSubArr(int arr[], int n){
+	
+    // Initialize result
+    int res = 1;
+ 
+    // Initialize current length of longest increasing
+    // subarray
+    int len = 1;
+ 
+    // Traverse the array
+    for (int i = 1; i < n; i++) {
+ 
+        // If current element is greater than previous
+        // element, then update the result
+        if (arr[i] > arr[i - 1]) {
+            res = max(res, len + 1);
+        }
+ 
+        // Else, reset the length of longest increasing
+        // subarray
+        else {
+            len = 1;
+        }
+    }
+ 
+    // Return the length of longest increasing subarray
+    return res;
+}
+```
+###########################################################################################################################
+
+Convert this code to PEP8 standard. Also include all necessary type annotations.
+```py
+def draw_scatterplot(x_values, y_values, x_label, y_label, title):
+    plt.scatter(x_values, y_values, c='red', edgecolors='black')
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.show()
+```
+
+###########################################################################################################################
+
+simplify mundate tasks
+
+Convert this to a python dictionary
+AAA	AAA
+AA+	AA
+AA	AA
+AA-	AA
+A+	A
+A	A
+A-	A
+BBB+	BBB
+BBB	BBB
+BBB-	BBB
+BB+	BB
+BB	BB
+BB-	BB
+B+	B
+B	B
+B-	B
+C	C
+
+
+convert this to a cpp map
+AAA	AAA
+AA+	AA
+AA	AA
+AA-	AA
+A+	A
+A	A
+A-	A
+BBB+	BBB
+BBB	BBB
+BBB-	BBB
+BB+	BB
+BB	BB
+BB-	BB
+B+	B
+B	B
+B-	B
+C	C
+
+###########################################################################################################################
+
+
+###########################################################################################################################

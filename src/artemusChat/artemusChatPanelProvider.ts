@@ -177,7 +177,6 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'createNewChatHelper': 
 					{
-						console.log("Creating new chat helper");
 						this.view?.webview.postMessage({type: "createNewChatHelper"});
 						break;
 					}

@@ -12,7 +12,7 @@
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
     import CommandPalette from "./commandPalette.svelte";
-
+	
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
 	let chatHistory: ChatHistory|undefined;
@@ -121,7 +121,7 @@
 					vscodeApi.postMessage({type:'setStatusBarActive'});
 					await scrollToBottom(outputArea,false);
 					addCodeBlockButtons();
-					inputTextArea?.focus();
+					// inputTextArea?.focus();
 					saveCurrentChat();
 					break;
 				}
@@ -206,7 +206,7 @@
 				break;
 			}
 		}
-		inputTextArea?.focus();
+		// inputTextArea?.focus();
 		await scrollToBottom(outputArea);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -218,7 +218,7 @@
 		vscodeApi.postMessage({type:'setStatusBarActive'});
 		
 		chat = chat.concat({identity: Identity.botMessage,message: message.message})
-		inputTextArea?.focus();
+		// inputTextArea?.focus();
 		await scrollToBottom(outputArea,true);
 		addCodeBlockButtons();
 		resizeInputArea();
@@ -232,7 +232,7 @@
 		vscodeApi.postMessage({type:'setStatusBarFetching'});
 		vscodeApi.postMessage({type:'startGeneration',chat:chat});
 
-		inputTextArea?.focus();
+		// inputTextArea?.focus();
 		await scrollToBottom(outputArea,true);
 		addCodeBlockButtons();
 		resizeInputArea();
