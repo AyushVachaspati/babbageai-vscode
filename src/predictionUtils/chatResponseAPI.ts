@@ -1,4 +1,3 @@
-import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
 import {getClient, grpcPredictionStream as grpcTritonFetchStream} from "./tritonGrpc/grpcApi";
 
 export function getModelPredictionStream (

@@ -15,7 +15,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     try{
         const host = "localhost";
         const port = "81";
-        const modelName = "starcoder_huggingface";
+        const modelName = "santacoder_huggingface";
         const modelVersion = "";
         const prompt = prefix;
 
@@ -26,9 +26,10 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     catch (error){
         console.error(error);
     }
-    // console.timeEnd("API Fetch");
-    updateStatusBarArtemusActive();
-    
+    finally{
+        // console.timeEnd("API Fetch");
+        updateStatusBarArtemusActive();
+    }
     if(completion===undefined){
         return undefined;
     }

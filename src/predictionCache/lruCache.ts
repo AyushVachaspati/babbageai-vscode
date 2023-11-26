@@ -5,6 +5,7 @@ type LRUCacheNode = {
     next: number | undefined
 };
 
+// TODO: Need to make this thread safe since multiple calls to InlineCompletions might access simultaneously
 export class LRUCache {
     private map: Map<string, number>;
     private linkedList: Array<LRUCacheNode>;

@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
 import assert = require("assert");
-import { LRUCache } from "../predictionCache/lruCache";
 
 export enum CompletionType {
     inlineSuggestion,
@@ -38,9 +37,11 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
-	let startToken = "<fim_prefix>";
-	let endToken = "<fim_suffix>";
-	let middleToken = "<fim_middle>";
+	
+	// SantaCoder <fim-prefix> | StarCoder <fim_prefix>
+	let startToken = "<fim-prefix>";
+	let endToken = "<fim-suffix>";
+	let middleToken = "<fim-middle>";
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -97,6 +98,8 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
+	
+	// SantaCoder <fim-prefix> | StarCoder <fim_prefix>
 	let startToken = "<fim-prefix>";
 	let endToken = "<fim-suffix>";
 	let middleToken = "<fim-middle>";
