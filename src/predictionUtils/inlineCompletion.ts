@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
 import assert = require("assert");
+import { LRUCache } from "../predictionCache/lruCache";
 
 export enum CompletionType {
     inlineSuggestion,
@@ -54,25 +55,26 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	else{
 		prompt = prefix;
 	}
-	console.log(prompt)
+	console.log(prompt);
 
 	let cacheItem:CachePrompt = {
 		prefix: prompt, 
 		completionType: CompletionType.lookAheadSuggestion
 	};
 
-	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(prompt)));
+	let key = sha1(JSON.stringify(cacheItem));
+	let inlineCompletion:string|undefined = globalCache.get(key);
 
-	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prompt);
 		inlineCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prompt.length) : undefined;
-		inlineCompletion? globalCache.set(sha1(JSON.stringify(prompt)), inlineCompletion) : undefined;
+		inlineCompletion? globalCache.set(key, inlineCompletion) : undefined;
 		
 		// Also cache inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
 		let ifAcceptedLookAheadSuggestion = prediction? prediction.result.slice(prompt.length) : undefined;
 		cacheItem.completionType = CompletionType.inlineSuggestion;
-		ifAcceptedLookAheadSuggestion ? globalCache.set(sha1(JSON.stringify(prompt)),ifAcceptedLookAheadSuggestion) : undefined;
+		let inlineKey = sha1(JSON.stringify(cacheItem));
+		ifAcceptedLookAheadSuggestion ? globalCache.set(inlineKey,ifAcceptedLookAheadSuggestion) : undefined;
 	}
 	
 
@@ -113,13 +115,14 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		completionType: CompletionType.inlineSuggestion
 	};
 	
-	console.log(prompt)
-	let inlineCompletion:string|undefined = globalCache.get(sha1(JSON.stringify(cacheItem)).toString());
+	console.log(prompt);
+	let key = sha1(JSON.stringify(cacheItem));
+	let inlineCompletion:string|undefined = globalCache.get(key);
 	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prompt);
 		inlineCompletion = prediction? prediction.result.slice(prompt.length) : undefined;
-		inlineCompletion? globalCache.set(sha1(JSON.stringify(cacheItem)), inlineCompletion) : undefined;
+		inlineCompletion? globalCache.set(key, inlineCompletion) : undefined;
 	}
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
