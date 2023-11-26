@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
 import assert = require("assert");
+import { modelConfig, currentCompletionModel } from "./modelConfig";
 
 export enum CompletionType {
     inlineSuggestion,
@@ -38,10 +39,9 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
 	
-	// SantaCoder <fim-prefix> | StarCoder <fim_prefix>
-	let startToken = "<fim-prefix>";
-	let endToken = "<fim-suffix>";
-	let middleToken = "<fim-middle>";
+	let startToken = modelConfig[currentCompletionModel].prefixToken;
+	let endToken = modelConfig[currentCompletionModel].suffixToken;
+	let middleToken = modelConfig[currentCompletionModel].middleToken;
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -99,10 +99,9 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
 	
-	// SantaCoder <fim-prefix> | StarCoder <fim_prefix>
-	let startToken = "<fim-prefix>";
-	let endToken = "<fim-suffix>";
-	let middleToken = "<fim-middle>";
+	let startToken = modelConfig[currentCompletionModel].prefixToken;
+	let endToken = modelConfig[currentCompletionModel].suffixToken;
+	let middleToken = modelConfig[currentCompletionModel].middleToken;
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	

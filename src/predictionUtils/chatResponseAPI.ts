@@ -1,3 +1,4 @@
+import { modelConfig, currentChatModel } from "./modelConfig";
 import {getClient, grpcPredictionStream as grpcTritonFetchStream} from "./tritonGrpc/grpcApi";
 
 export function getModelPredictionStream (
@@ -14,7 +15,7 @@ export function getModelPredictionStream (
         const host = "localhost";
         const port = "81";
         // const modelName = "starcoder_chat";
-        const modelName = "santacoder_huggingface_stream";
+        const modelName = modelConfig[currentChatModel].name;
         const modelVersion = "";
         const prompt = userMsg;
         const client = getClient(host,port);
