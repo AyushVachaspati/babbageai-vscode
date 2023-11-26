@@ -17,9 +17,11 @@ export type CachePrompt = {
 export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	async provideInlineCompletionItems(document, position, context, token) {
 		// console.log("Triggered Completion");
-		if(!validMidlinePosition(document,position)){
-			return undefined;
-		}
+
+		// validMidlinePositon is not needed with FIM task for the LLM
+		// if(!validMidlinePosition(document,position)){
+		// 	return undefined;
+		// }
 		if(context.selectedCompletionInfo) {
 			return getLookAheadInlineCompletion(document, position, context, token);
 		};
@@ -93,9 +95,9 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
-	let startToken = "<fim_prefix>";
-	let endToken = "<fim_suffix>";
-	let middleToken = "<fim_middle>";
+	let startToken = "<fim-prefix>";
+	let endToken = "<fim-suffix>";
+	let middleToken = "<fim-middle>";
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -122,10 +124,10 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	if(inlineCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
 			insertText: inlineCompletion,
-			range: fillInMiddle ? 
-						new vscode.Range(position,position):
-						new vscode.Range(position, document.lineAt(position.line).range.end),  //replace everything until EOL. excluding new line char
-			// range: new vscode.Range(position,position),
+			// range: fillInMiddle ? 
+			// 			new vscode.Range(position,position):
+			// 			new vscode.Range(position, document.lineAt(position.line).range.end),  //replace everything until EOL. excluding new line char
+			range: new vscode.Range(position,position),
 			command: {
 				command: 'artemusai-vscode.log',
 				title: 'Log when Completion Accepted'

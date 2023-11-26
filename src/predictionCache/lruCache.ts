@@ -1,22 +1,22 @@
-import assert = require("assert");
-
 type LRUCacheNode = {
     key: string;
-    result: string,
+    value: string,
     prev: number | undefined,
     next: number | undefined
 };
 
 export class LRUCache {
-    map: Map<string, number>;
-    linkedList: Array<LRUCacheNode>;
-    head: number | undefined;  // LRU element is at head
-    tail: number | undefined; //MRU element is at tail
-    readonly size: number;
-    numElements: number;
+    private map: Map<string, number>;
+    private linkedList: Array<LRUCacheNode>;
+    private head: number | undefined;  // LRU element is at head
+    private tail: number | undefined; //MRU element is at tail
+    private readonly size: number;
+    private numElements: number;
 
     constructor (size:number){
-        assert(size>0,"Trying to Initialize cache with 0 size. Min size is 1.");
+        if(size <= 0){
+            throw new Error("Size should be Greater than zero");
+        }
         this.map = new Map<string, number> ();
         this.linkedList = new Array<LRUCacheNode> (size);
         this.head = undefined;
@@ -31,8 +31,8 @@ export class LRUCache {
         let index = this.map.get(key);
         let node =  index !== undefined ? this.linkedList.at(index) : undefined;
         if(node!==undefined){
-            this.set(node.key,node.result);
-            return node.result;
+            this.set(node.key,node.value);
+            return node.value;
         }
         else{
             return undefined;
@@ -71,8 +71,8 @@ export class LRUCache {
     printCache(){
         console.log("MAP");
         console.log("-".repeat(100));
-        this.map.forEach((value:number, key:string) => {
-            console.log(`Key: ${key}, value: ${value}`);
+        this.map.forEach((index:number, key:string) => {
+            console.log(`Key: ${key}, index: ${index}`);
         });
         console.log();
 
@@ -81,8 +81,10 @@ export class LRUCache {
         let temp = this.head;
         while(temp!==undefined){
             let elem = this.linkedList.at(temp);
-            assert(elem!==undefined, "Accessed Out of bound element in Array");
-            console.log(`Key: ${elem.key}`,`Result: ${elem.result}, Next: ${elem.next}, Prev: ${elem.prev}`);
+            if(elem===undefined){
+                throw new Error(`Trying to access index $temp, size of array ${this.linkedList.length}`)
+            }
+            console.log(`Key: ${elem.key}`,`Result: ${elem.value}, Next: ${elem.next}, Prev: ${elem.prev}`);
             temp = elem.next;
        }
        console.log();
@@ -100,12 +102,14 @@ export class LRUCache {
 /************************************************************************************************************************************************************************************************/
 
     private moveElementToMRU(key: string, value: string){
-        let index = this.map.get(key);
-        assert(index!==undefined, "Supposed to be called when Index already present.");
-        let currentNode = this.linkedList.at(index);
-        assert(currentNode!==undefined, "Expected a LRUCacheNode here.");
+        let index = this.map.get(key)!;
+        let currentNode = this.linkedList.at(index)!;
         
-        if(index === this.tail){return;} //already MRU, i.e. the tail.
+        if(index === this.tail){    
+            currentNode.key = key;
+            currentNode.value = value;
+            return;
+        } //already MRU, i.e. the tail.
         
         if(index === this.head){
             //key at head
@@ -115,11 +119,10 @@ export class LRUCache {
         }
         else{
             //key in the middle of list
-            let nextNode = currentNode.next ? this.linkedList.at(currentNode.next) : undefined;
-            let prevNode = currentNode.prev ? this.linkedList.at(currentNode.prev) : undefined;
-            assert(nextNode!==undefined && prevNode!==undefined, "Expected Current Node to be Middle Node");
-            prevNode.next = currentNode.next;
-            nextNode.prev = currentNode.prev;
+            let nextNode = currentNode.next!==undefined ? this.linkedList.at(currentNode.next) : undefined;
+            let prevNode = currentNode.prev!==undefined ? this.linkedList.at(currentNode.prev) : undefined;
+            prevNode!.next = currentNode.next;
+            nextNode!.prev = currentNode.prev;
         }
         
         let currentMRUNode = this.tail!== undefined ? this.linkedList.at(this.tail) : undefined;
@@ -127,7 +130,7 @@ export class LRUCache {
         currentNode.prev = this.tail;
         currentNode.next = undefined;
         currentNode.key = key;
-        currentNode.result = value;
+        currentNode.value = value;
         this.tail = index;
     }
 
@@ -141,7 +144,7 @@ export class LRUCache {
         }
         this.linkedList[newIndex] = {
             key: key,
-            result: value,
+            value: value,
             prev: this.tail,  // prev is the last MRU
             next: undefined
         };
@@ -154,50 +157,47 @@ export class LRUCache {
 /************************************************************************************************************************************************************************************************/
 
     private replaceLRUElement(key:string, value: string){
-        let currentLRUIndex = this.head;
-        let currentMRUIndex = this.tail;
+        let currentLRUIndex = this.head!;
+        let currentMRUIndex = this.tail!;
         let currentLRUNode = currentLRUIndex!==undefined ? this.linkedList.at(currentLRUIndex) : undefined;
         let currentMRUNode = currentMRUIndex!==undefined ? this.linkedList.at(currentMRUIndex) : undefined;
-        assert((currentLRUNode!==undefined && currentMRUNode!==undefined 
-                && currentLRUIndex!==undefined && currentMRUIndex!==undefined), "No Element even though cache is full.");
         
         //case when cache size is 1
         if(currentLRUIndex===currentMRUIndex){
-            this.map.delete(currentLRUNode.key);
+            this.map.delete(currentLRUNode!.key);
             this.map.set(key,currentLRUIndex);
-            currentLRUNode.result = value;
-            currentLRUNode.key = key;
+            currentLRUNode!.value = value;
+            currentLRUNode!.key = key;
             return;
         }
 
-        this.head = currentLRUNode.next!==undefined ? currentLRUNode.next : undefined;
-        assert(this.head!==undefined, "No Head Element for Linked List");
-        let nextLRUNode = this.linkedList.at(this.head);
+        this.head = currentLRUNode!.next!==undefined ? currentLRUNode!.next : undefined;
+        let nextLRUNode = this.linkedList.at(this.head!);
         nextLRUNode !== undefined ? nextLRUNode.prev = undefined : undefined;
         
         let newMRUIndex = currentLRUIndex;
         let newMRUNode = currentLRUNode;
-        this.map.delete(currentLRUNode.key);
+        this.map.delete(currentLRUNode!.key);
         this.map.set(key,newMRUIndex);
-        currentMRUNode.next  = newMRUIndex;
-        newMRUNode.next = undefined;
+        currentMRUNode!.next  = newMRUIndex;
+        newMRUNode!.next = undefined;
         this.tail = newMRUIndex;
-        newMRUNode.prev = currentMRUIndex;
-        newMRUNode.result = value;
-        newMRUNode.key = key;
+        newMRUNode!.prev = currentMRUIndex;
+        newMRUNode!.value = value;
+        newMRUNode!.key = key;
     }
 
 
 /************************************************************************************************************************************************************************************************/
 
     private getLRUElement(){
-        return  this.head!==undefined? this.linkedList.at(this.head)?.result : undefined;
+        return  this.head!==undefined? this.linkedList.at(this.head)?.value : undefined;
     }
 
 /************************************************************************************************************************************************************************************************/
 
     private getMRUElement(){
-        return  this.tail!==undefined? this.linkedList.at(this.tail)?.result : undefined;
+        return  this.tail!==undefined? this.linkedList.at(this.tail)?.value : undefined;
     }
 
 /************************************************************************************************************************************************************************************************/       
@@ -216,18 +216,4 @@ export class LRUCache {
 
 }
 
-// async function test1213(){
-// let test  = new LRUCache(10);
-//     for (let index = 0; index < 20; index++) {
-//         test.set(`Key${index}`,`Value${index}`);
-//         test.printCache()
-//         await new Promise(f => setTimeout(f,1000));
-    
-//     }
-//     test.get("Key10");
-//     test.printCache();
-//     await new Promise(f => setTimeout(f,1000));
-//     test.set("Key12","ASDF");
-//     test.printCache();
-// }
-// test1213();
+// Tested using https://leetcode.com/problems/lru-cache
