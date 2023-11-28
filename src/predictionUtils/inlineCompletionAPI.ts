@@ -1,5 +1,5 @@
 import {updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from '../statusBar/statusBar';
-import { modelConfig, currentCompletionModel } from './modelConfig';
+import { InlineModelConfig } from './inlineModelConfig';
 import {getClient, grpcPrediction as grpcTritonFetch} from "./tritonGrpc/grpcApi";
 
 export type ModelPrediction = {
@@ -16,7 +16,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     try{
         const host = "localhost";
         const port = "81";
-        const modelName = modelConfig[currentCompletionModel].name;
+        const modelName = InlineModelConfig.getInstance().getName();
         const modelVersion = "";
         const prompt = prefix;
 

@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { globalCache } from "../predictionCache/predictionCache";
 import sha1 = require('sha1');
 import assert = require("assert");
-import { modelConfig, currentCompletionModel } from "./modelConfig";
+import { InlineModelConfig } from './inlineModelConfig';
 
 export enum CompletionType {
     inlineSuggestion,
@@ -39,9 +39,9 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
 	
-	let startToken = modelConfig[currentCompletionModel].prefixToken;
-	let endToken = modelConfig[currentCompletionModel].suffixToken;
-	let middleToken = modelConfig[currentCompletionModel].middleToken;
+	let startToken = InlineModelConfig.getInstance().getPrefixToken();
+	let endToken = InlineModelConfig.getInstance().getSuffixToken();
+	let middleToken = InlineModelConfig.getInstance().getMiddleToken();
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
@@ -99,9 +99,10 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
 	
-	let startToken = modelConfig[currentCompletionModel].prefixToken;
-	let endToken = modelConfig[currentCompletionModel].suffixToken;
-	let middleToken = modelConfig[currentCompletionModel].middleToken;
+	let startToken = InlineModelConfig.getInstance().getPrefixToken();
+	let endToken = InlineModelConfig.getInstance().getSuffixToken();
+	let middleToken = InlineModelConfig.getInstance().getMiddleToken();
+	console.log(startToken)
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	

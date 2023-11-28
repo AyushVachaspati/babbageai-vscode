@@ -85,7 +85,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 							return;
 						}
 
-						this.view?.webview.postMessage({type:"addEmptyBotMsg"});
+						this.view?.webview.postMessage({type:"addEmptyBotMsg"});  //equivalent to window.postMessage().. this can be used in jsquery.inject javascirpt( window.postMessage( 'sdfkljsd;lfkjsdf;lkdsj fsd' )) 
 						// console.log(prompt);
 						const responseCallback = (response:string)=>{		
 							this.view?.webview.postMessage({ type: 'BotMsgChunk' ,data:response});
