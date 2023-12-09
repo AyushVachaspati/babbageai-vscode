@@ -5,14 +5,13 @@ enum InlineModelName {
 
 export class InlineModelConfig {
     private static instance: InlineModelConfig;
-    private static currentModel = InlineModelName.santaCoder;
+    private static currentModel = InlineModelName.starCoder;
     
     private constructor() {
         // Private constructor to prevent direct instantiation
     }
 
     public static getInstance(): InlineModelConfig {
-        console.log("getting new instnac")
         if (!InlineModelConfig.instance) {
             InlineModelConfig.instance = new InlineModelConfig();
         }

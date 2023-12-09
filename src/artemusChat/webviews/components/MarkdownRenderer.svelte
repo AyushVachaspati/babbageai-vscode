@@ -86,6 +86,7 @@
   }
   :global(.outer-code){
     font-weight: inherit;
+    padding: 0;
   }
 
   :global(.line){

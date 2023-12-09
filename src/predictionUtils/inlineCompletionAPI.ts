@@ -14,7 +14,7 @@ async function getModelPrediction(prefix:string): Promise<ModelPrediction|undefi
     // console.time("API Fetch");
     let completion: string|undefined;
     try{
-        const host = "localhost";
+        const host = "127.0.0.1";
         const port = "81";
         const modelName = InlineModelConfig.getInstance().getName();
         const modelVersion = "";

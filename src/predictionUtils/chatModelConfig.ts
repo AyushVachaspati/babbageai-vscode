@@ -5,7 +5,7 @@ enum ChatModelName {
 
 export class ChatModelConfig {
     private static instance: ChatModelConfig;
-    private static currentModel = ChatModelName.santaCoder;
+    private static currentModel = ChatModelName.starCoder;
 
     private constructor() {
         // Private constructor to prevent direct instantiation
@@ -24,7 +24,7 @@ export class ChatModelConfig {
                 return "santacoder_huggingface_stream";
             }
             case(ChatModelName.starCoder): {
-                return "starcoder_huggingface_stream";
+                return "starcoder_chat";
             }
         }
     }

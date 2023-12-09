@@ -35,7 +35,7 @@
   }
 
   .message_error {
-    background-color: rgba(255, 0, 0, 0.125);
+    background-color: rgb(100, 40, 40);
     padding: 10px;
     position: relative;
     margin-bottom: 10px;
