@@ -66,11 +66,9 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						let code = data.code;
 						let editor = vscode.window.activeTextEditor;
 						if(!editor){ break; }
-						let selections = editor.selections;
+						let selection = editor.selection;
 						editor.edit((editBuilder) => {
-							selections.forEach((selection) => {
-								editBuilder.replace(selection, code);
-							});
+							editBuilder.replace(selection, code);
 						});
 						break;
 					}
@@ -431,4 +429,4 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					</body>
 				</html>`;
 	}
-}
+}5

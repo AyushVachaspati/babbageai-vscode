@@ -32,3 +32,6 @@ img {
 pre{
   --vscode-textPreformat-background: none;
 }
+code{
+  --vscode-textPreformat-foreground: none;
+}
