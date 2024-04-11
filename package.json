@@ -56,6 +56,10 @@
         {
           "command": "artemusai-vscode.documentCommand",
           "group": "artemusCommands@2"
+        },
+        {
+          "command": "artemusai-vscode.testCommand",
+          "group": "artemusCommands@3"
         }
       ],
     "view/title": [
@@ -115,6 +119,12 @@
       {
         "command": "artemusai-vscode.documentCommand",
         "title": "Document Code",
+        "category": "ArtemusAI",
+        "enablement": "artemus-vscode.enableArtemusCommands"
+      },
+      {
+        "command": "artemusai-vscode.testCommand",
+        "title": "Test Code",
         "category": "ArtemusAI",
         "enablement": "artemus-vscode.enableArtemusCommands"
       }

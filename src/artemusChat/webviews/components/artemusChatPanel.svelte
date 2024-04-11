@@ -32,7 +32,7 @@
 	let scrollLock = true;
 	$: disabled = (!fetching && inputValue.trim())? false: true;
 
-	let commandsList:string[] = ["/explain","/document"]
+	let commandsList:string[] = ["/explain","/document","/test"]
 	$: commands = commandsList.filter((value) => {
 			highlightIndex=0;
 			return value.startsWith(inputValue.trimStart()) &&

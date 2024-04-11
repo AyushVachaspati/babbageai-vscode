@@ -92,15 +92,21 @@ export async function activate(context: vscode.ExtensionContext) {
 			artemusChatWebview.executeCommand('/document');
 		})
 	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.testCommand', ()=>{
+			vscode.commands.executeCommand('setContext','artemus-vscode.historyPanel',false);
+			vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
+			artemusChatWebview.showCurrentChat();
+			artemusChatWebview.executeCommand('/test');
+		})
+	);
 
 	// Enable Right Click Menu Commands
 	vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",true);
-					
 	
-	// Fake wait time of 1 second to show loading Item. 
-	// Wait time will be usefull when we validate extension
-	// api and need time to do it.
-	await new Promise(resolve => setTimeout(resolve, 1000)); 
+	//Hacky way to make sure that the resolveWebview method is called to make all the Artemus commands available on start.
+	vscode.commands.executeCommand("artemusai-vscode.chatpanel.focus");
+	vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
 
 	console.log('Artemus AI is active!');
 	updateStatusBarArtemusActive();

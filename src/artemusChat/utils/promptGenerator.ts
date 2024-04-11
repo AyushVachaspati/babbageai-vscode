@@ -27,7 +27,17 @@ export async function constructPrompt(chat: Message[]): Promise<string> {
                 let codeSnippet = preview.preview;
                 let language = preview.language;
                 let promptPrefix = `Generate a comment to document the parameters and functionality of the following ${language} code\n`;
-                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nPut everythin in markdown code blocks using \`\`\``;
+                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nPut everything in markdown code blocks using \`\`\``;
+                prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
+                prompt = `<|user|>${prompt}<|end|>\n`;
+                break;
+            }
+            case "/test":{
+                let preview = await getCodePreview(filePath);
+                let codeSnippet = preview.preview;
+                let language = preview.language;
+                let promptPrefix = `Generate unit tests for the following ${language} code\n`;
+                let promptSuffix  = `Only generate tests and take care of all edge cases.\nPut everything in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 prompt = `<|user|>${prompt}<|end|>\n`;
                 break;

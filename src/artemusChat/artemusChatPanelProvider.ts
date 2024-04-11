@@ -221,7 +221,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
-	public handleUserInput(inputText:string) {
+	public async handleUserInput(inputText:string) {
 		inputText = inputText.trim();
 						
 		if(inputText.charAt(0) === '/') {
@@ -230,7 +230,8 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			switch (command) {
 				// all suppored commands go here. 
 				case '/explain':
-				case '/document': {
+				case '/document':
+				case '/test': {
 					this.handlePredefinedCommand(inputText,command);
 					break;
 				}
@@ -242,9 +243,32 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			}
 		}
 		else{
-		// Normal user conversation input
-			this.adduserMessage(inputText);
-			this.generateResponse();
+			// if there is code selection, bring it into the prompt.
+			let editor = vscode.window.activeTextEditor;
+			if(!editor){
+				// Normal user conversation input
+				this.adduserMessage(inputText);
+				this.generateResponse();
+				return;
+			}
+			let fileUri = editor!.document.uri.path;
+			try{
+				let startLine:number|undefined = editor.selection.start.line + 1;
+				let endLine:number|undefined = editor.selection.end.line + 1;
+				// if there's no selection then it's just a direct user prompt without editor selection
+				if(!(startLine===endLine && editor.selection.isEmpty))
+				{
+					let filePath =  (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}`;
+					let previewText = (await getCodePreview(filePath)).preview;
+					inputText = inputText + '\n' + filePath.trim() + '\n' + previewText;					
+				}
+				this.adduserMessage(inputText);
+				this.generateResponse();
+			}
+			catch (error){
+				this.adduserMessage(inputText);
+				this.commandError((error as Error).message);
+			}
 		}		
 	}
 	
@@ -281,11 +305,11 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			try{
 				let startLine:number|undefined = editor.selection.start.line + 1;
 				let endLine:number|undefined = editor.selection.end.line + 1;
-				//if there's no selection then use the whole file
-				// if(startLine===endLine && editor?.selection.isEmpty){
-				// 	startLine=undefined;
-				// 	endLine = undefined;
-				// }
+				// if there's no selection then use the whole file
+				if(startLine===endLine && editor?.selection.isEmpty){
+					startLine = undefined;
+					endLine = undefined;
+				}
 
 				filePath =  (startLine && endLine) ? `File: ${fileUri}#${startLine}-${endLine}` : `File: ${fileUri}`;
 				let previewText = (await getCodePreview(filePath)).preview;
@@ -384,6 +408,10 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				this.handleUserInput('/document');
 				break;
 			}
+			case '/test': {
+				this.handleUserInput('/test');
+				break;
+			}
 			default: {
 				console.error(`Error: Invalid Command ${command}`);
 			}
@@ -429,4 +457,4 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					</body>
 				</html>`;
 	}
-}5
+}
