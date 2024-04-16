@@ -19,7 +19,7 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
 	async provideInlineCompletionItems(document, position, context, token) {
 		// console.log("Triggered Completion");
 
-		// validMidlinePositon is not needed with FIM task for the LLM
+		// INFO: validMidlinePositon is not needed with FIM task for the LLM
 		// if(!validMidlinePosition(document,position)){
 		// 	return undefined;
 		// }
@@ -64,14 +64,14 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	};
 
 	let key = sha1(JSON.stringify(cacheItem));
-	let inlineCompletion:string|undefined = globalCache.get(key);
+	let lookaheadCompletion:string|undefined = globalCache.get(key);
 
-	if(!inlineCompletion){
+	if(!lookaheadCompletion){
 		let prediction = await debounceCompletions(prompt);
-		inlineCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prompt.length) : undefined;
-		inlineCompletion? globalCache.set(key, inlineCompletion) : undefined;
+		lookaheadCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prompt.length) : undefined;
+		lookaheadCompletion? globalCache.set(key, lookaheadCompletion) : undefined;
 		
-		// Also cache inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
+		// Also cache implied inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
 		let ifAcceptedLookAheadSuggestion = prediction? prediction.result.slice(prompt.length) : undefined;
 		cacheItem.completionType = CompletionType.inlineSuggestion;
 		let inlineKey = sha1(JSON.stringify(cacheItem));
@@ -79,9 +79,9 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	}
 	
 
-	if(inlineCompletion){
+	if(lookaheadCompletion){
 		let completionItem :vscode.InlineCompletionItem = {
-			insertText: inlineCompletion,
+			insertText: lookaheadCompletion,
 			range: popupRange,
 			command: {
 				command: 'artemusai-vscode.log',
@@ -102,7 +102,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	let startToken = InlineModelConfig.getInstance().getPrefixToken();
 	let endToken = InlineModelConfig.getInstance().getSuffixToken();
 	let middleToken = InlineModelConfig.getInstance().getMiddleToken();
-	console.log(startToken)
+	
 	let prompt:string;
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	

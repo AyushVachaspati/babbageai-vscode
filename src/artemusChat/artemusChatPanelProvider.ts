@@ -53,11 +53,13 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 			switch (data.type) {
 				case 'disableArtemusCommands':
 					{
+						// disable commands when chat is busy fetching
 						vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",false);
 						break;
 					}
 				case 'enableArtemusCommands':
 					{
+						// enable commands when chat has completed fetching
 						vscode.commands.executeCommand("setContext","artemus-vscode.enableArtemusCommands",true);
 						break;
 					}
@@ -83,7 +85,8 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 							return;
 						}
 
-						this.view?.webview.postMessage({type:"addEmptyBotMsg"});  //equivalent to window.postMessage().. this can be used in jsquery.inject javascirpt( window.postMessage( 'sdfkljsd;lfkjsdf;lkdsj fsd' )) 
+						//USEFUL FOR INTELLIJ: equivalent to window.postMessage().. this can be used in jsquery.inject javascirpt( window.postMessage( 'Data' )) 
+						this.view?.webview.postMessage({type:"addEmptyBotMsg"});
 						// console.log(prompt);
 						const responseCallback = (response:string)=>{		
 							this.view?.webview.postMessage({ type: 'BotMsgChunk' ,data:response});
@@ -123,14 +126,14 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						break;
 					}
 				case 'saveCurrentChat':
-						{
-							let chatHistory = await this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
-							let currentChatContext = data.context as ChatContext;
-							let newChatHistory = this.updateChatHistory(chatHistory, currentChatContext);
-							await this.context.globalState.update("Artemus-Chat-State", newChatHistory);
-							this.view?.webview.postMessage({type: "stateSaved"});
-							break;
-						}
+					{
+						let chatHistory = await this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
+						let currentChatContext = data.context as ChatContext;
+						let newChatHistory = this.updateChatHistory(chatHistory, currentChatContext);
+						await this.context.globalState.update("Artemus-Chat-State", newChatHistory);
+						this.view?.webview.postMessage({type: "stateSaved"});
+						break;
+					}
 				case 'restoreChatById':
 					{
 						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
