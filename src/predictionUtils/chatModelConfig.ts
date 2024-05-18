@@ -24,7 +24,7 @@ export class ChatModelConfig {
                 return "santacoder_huggingface_stream";
             }
             case(ChatModelName.starCoder): {
-                return "starcoder_chat";
+                return "starchat";
             }
         }
     }

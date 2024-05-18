@@ -8,7 +8,7 @@ import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/
 import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
 import { ClientDuplexStream } from "@grpc/grpc-js";
 import type {ChatContext, ChatHistory, ChatHistoryItem}  from "./webviews/types/chatState";
-import { constructPrompt } from "./utils/promptGenerator";
+import { constructChatPrompt } from "./utils/promptGenerator";
 import { getCodePreview } from "./utils/getCodePreview";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
@@ -78,7 +78,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					{
 						let prompt: string;
 						try{
-							prompt = await constructPrompt(data.chat);
+							prompt = await constructChatPrompt(data.chat);
 						}
 						catch (error){
 							this.commandError((error as Error).message);
