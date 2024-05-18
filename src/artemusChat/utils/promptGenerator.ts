@@ -2,18 +2,13 @@ import { readFile } from "fs";
 import { Identity, type Message } from "../webviews/types/message";
 import { getCodePreview } from "./getCodePreview";
 import { readFileSync } from "fs";
+import { systemPrompt } from "./system_prompt";
+import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources";
 
-type OpenAIItem = {
-    role: string;
-    content: string;
-};
-
-
-export async function constructChatPrompt(chat: Message[]): Promise<OpenAIItem[]> {
+export async function constructChatPrompt(chat: Message[]): Promise<ChatCompletionMessageParam[]> {
     let lastUserMsg = chat[chat.length-1];
-    const systemPrompt = readFileSync("./system_prompt.txt", 'utf-8');
     let prompt = "";
-    let output: OpenAIItem[] = [];
+    let output: ChatCompletionMessageParam[] = [{"role":"system", "content": systemPrompt}];
     let lastMsgInputText = lastUserMsg.message.trim();
 	if(lastMsgInputText.charAt(0) === '/') {
         // if the last user message is a command, only use that message as context
@@ -28,8 +23,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<OpenAIItem[]
                 let promptPrefix = `Explain the following ${language} code. Indicate when it is not clear to you what is going on. Format your response as an ordered list. Finally summarize your explanations at the end.\n`;
                 let promptSuffix  = "Put all code in markdown code blocks using ```";
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
-                output = [{"role":"system", "content": systemPrompt},
-                          {"role":"user", "content": prompt}];
+                output.push({"role":"user", "content": prompt});
                 break;
             }
             case "/document":{
@@ -39,8 +33,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<OpenAIItem[]
                 let promptPrefix = `Generate a comment to document the parameters and functionality of the following ${language} code\n`;
                 let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nPut everything in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
-                output = [{"role":"system", "content": systemPrompt},
-                          {"role":"user", "content": prompt}];
+                output.push({"role":"user", "content": prompt});
                 break;
             }
             case "/test":{
@@ -50,8 +43,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<OpenAIItem[]
                 let promptPrefix = `Generate unit tests for the following ${language} code\n`;
                 let promptSuffix  = `Only generate tests and take care of all edge cases.\nPut everything in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
-                output = [{"role":"system", "content": systemPrompt},
-                          {"role":"user", "content": prompt}];
+                output.push({"role":"user", "content": prompt});
                 break;
             }
             default:{

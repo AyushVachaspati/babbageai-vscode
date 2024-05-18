@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { getNonce } from "./utils/nonce";
 import assert = require("assert");
 import { debounceCompletions } from "../predictionUtils/inlineCompletionAPI";
-import { getModelPredictionStream } from "../predictionUtils/chatResponseAPI";
+import { getModelPredictionStream, getModelPredictionStreamSimplismart, startOutputStreaming } from "../predictionUtils/chatResponseAPI";
 import { updateStatusBarArtemusActive, updateStatusBarFetchingPrediction } from "../statusBar/statusBar";
 import { ModelStreamInferResponse__Output } from "../predictionUtils/tritonGrpc/generated/inference/ModelStreamInferResponse";
 import { ModelInferRequest } from "../predictionUtils/tritonGrpc/generated/inference/ModelInferRequest";
@@ -10,6 +10,9 @@ import { ClientDuplexStream } from "@grpc/grpc-js";
 import type {ChatContext, ChatHistory, ChatHistoryItem}  from "./webviews/types/chatState";
 import { constructChatPrompt } from "./utils/promptGenerator";
 import { getCodePreview } from "./utils/getCodePreview";
+import { ChatCompletionMessageParam } from "openai/resources";
+import OpenAI from "openai";
+import { Stream } from "openai/streaming";
 
 export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
@@ -17,7 +20,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 
 	public view?: vscode.WebviewView;
     private doc?: vscode.TextDocument;
-	private streamClient: ClientDuplexStream<ModelInferRequest, ModelStreamInferResponse__Output> | undefined;
+	private streamClient: Stream<OpenAI.Chat.Completions.ChatCompletionChunk> | undefined;
 
 	constructor(private readonly _extensionUri: vscode.Uri, private context: vscode.ExtensionContext) {}
 
@@ -76,7 +79,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'startGeneration':
 					{
-						let prompt: string;
+						let prompt: ChatCompletionMessageParam[];
 						try{
 							prompt = await constructChatPrompt(data.chat);
 						}
@@ -101,7 +104,8 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 							this.streamClient=undefined; 
 							this.view?.webview.postMessage({ type: 'BotMsgError', error: error });
 						};
-						this.streamClient = getModelPredictionStream(prompt,responseCallback,endCallback,errorCallback);
+						this.streamClient = await getModelPredictionStreamSimplismart(prompt,errorCallback);
+						startOutputStreaming(this.streamClient!!, responseCallback,endCallback,errorCallback);
 						break;
 					}
 				case 'userInput':
@@ -121,8 +125,9 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'cancelRequest':
 					{
-						this.streamClient?.cancel();
+						this.streamClient?.controller.abort();
 						this.streamClient = undefined;
+
 						break;
 					}
 				case 'saveCurrentChat':

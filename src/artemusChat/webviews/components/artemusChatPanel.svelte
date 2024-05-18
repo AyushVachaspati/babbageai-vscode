@@ -25,7 +25,10 @@
 	let inputTextArea:any;
 	let outputArea:any;
 	let currentChatId = uuidv4();
-	let chat:Message[] = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];
+	let initalMessage = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];
+	let chat:Message[] = [];
+	let chatDisplay:Message[];
+	$: chatDisplay = initalMessage.concat(chat);
 	let loading = true;
 	let inputValue = '';
 	let disabled = true;
@@ -158,7 +161,7 @@
 					break;
 				}
 				case 'createNewChatHelper':{
-					chat = [{identity:Identity.botMessage, message:"Hi, I'm Artemus. How can I Help you today?"}];;
+					chat = [];
 					currentChatId = uuidv4();
 					shouldSaveCurrentChat = false;
 					vscodeApi.postMessage({type:'showChatView'});
@@ -382,7 +385,7 @@
 {:else if currentView=='ChatView'}
 	<div class="flex-container">
 		<div bind:this={outputArea} class='output-area'>
-		<MessageBox {chat} on:click = {regenerateResponse} ></MessageBox>
+		<MessageBox chat = {chatDisplay} on:click = {regenerateResponse} ></MessageBox>
 		</div>
 		<div class="chat-container">
 			<div class="textarea-container">
