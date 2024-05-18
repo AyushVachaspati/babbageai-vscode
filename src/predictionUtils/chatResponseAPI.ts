@@ -62,6 +62,7 @@ export async function getModelPredictionStreamSimplismart (
             max_tokens: 512,
             top_p: 1
           });
+        
         return streamClient;
     }
     catch (error){
@@ -76,13 +77,13 @@ export async function startOutputStreaming(
     endCallback: ()=>void,
     errorCallback: (error:string)=>void){
     try{
+        console.log("Fetching Data");
         for await (const chunk of streamClient) {
             responseCallback(chunk.choices[0]?.delta?.content || "");
         }
         endCallback();
     }
     catch(error){
-        console.error(error)
         errorCallback((error as Error).message);
     }
 }
