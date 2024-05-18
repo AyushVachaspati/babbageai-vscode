@@ -8,7 +8,12 @@ In IDE code autocomplete and chat interface to answer all your coding related qu
 
 ## Release Notes
 
-Private Release
+Private Release for Trial
+
+## Contact
+
+> Email: ayush.vachaspati@artemusai.com\
+> Phone: +91-8447025259
 
 ### 0.0.1
 

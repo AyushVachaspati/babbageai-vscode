@@ -42,7 +42,7 @@
         "id": "artemusai.submenu"
       }
     ],
-    "menus": { 
+    "menus": {
       "editor/context": [
         {
           "submenu": "artemusai.submenu",
@@ -63,23 +63,23 @@
           "group": "artemusCommands@3"
         }
       ],
-    "view/title": [
-      {
-        "command": "artemusai-vscode.newChat",
-        "when": "view == artemusai-vscode.chatpanel",
-        "group": "navigation"
-      },
-      {
-        "command": "artemusai-vscode.historyView",
-        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == false",
-        "group": "navigation@2"
-      },
-      {
-        "command": "artemusai-vscode.currentChat",
-        "when": "view == artemusai-vscode.chatpanel && artemus-vscode.currentChatPanel == false",
-        "group": "navigation@2"
-      }
-    ]
+      "view/title": [
+        {
+          "command": "artemusai-vscode.newChat",
+          "when": "view == artemusai-vscode.chatpanel",
+          "group": "navigation"
+        },
+        {
+          "command": "artemusai-vscode.historyView",
+          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.historyPanel == false",
+          "group": "navigation@2"
+        },
+        {
+          "command": "artemusai-vscode.currentChat",
+          "when": "view == artemusai-vscode.chatpanel && artemus-vscode.currentChatPanel == false",
+          "group": "navigation@2"
+        }
+      ]
     },
     "commands": [
       {
@@ -197,6 +197,7 @@
     "highlight.js": "^11.8.0",
     "markdown-it": "^13.0.1",
     "node-fetch": "^3.3.2",
+    "openai": "^4.47.1",
     "sha1": "^1.1.1",
     "uuid": "^9.0.0"
   }
