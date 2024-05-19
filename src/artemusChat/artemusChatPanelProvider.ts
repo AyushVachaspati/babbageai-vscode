@@ -101,12 +101,10 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						};
 						
 						const errorCallback = (error: string)=>{
-							console.log("error callback invoked")
 							this.streamClient=undefined; 
 							this.view?.webview.postMessage({ type: 'BotMsgError', error: error });
 						};
 						this.streamClient = await getModelPredictionStreamSimplismart(prompt,errorCallback);
-						this.streamClient?.controller.signal.addEventListener("abort",(ev:Event) => {errorCallback("Request Cancelled")});
 						startOutputStreaming(this.streamClient!!, responseCallback,endCallback,errorCallback);
 						break;
 					}
@@ -127,10 +125,8 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 					}
 				case 'cancelRequest':
 					{
-						console.log("Requested cancellation")
 						this.streamClient?.controller.abort();
 						this.streamClient = undefined;
-
 						break;
 					}
 				case 'saveCurrentChat':
@@ -277,6 +273,7 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				this.generateResponse();
 			}
 			catch (error){
+				console.log("Error is here")
 				this.adduserMessage(inputText);
 				this.commandError((error as Error).message);
 			}

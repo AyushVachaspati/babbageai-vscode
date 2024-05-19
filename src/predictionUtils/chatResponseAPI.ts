@@ -59,7 +59,7 @@ export async function getModelPredictionStreamSimplismart (
             messages: prompt,
             stream: true,
             temperature: 1,
-            max_tokens: 512,
+            max_tokens: 1024,
             top_p: 1
           });
         
@@ -77,11 +77,15 @@ export async function startOutputStreaming(
     endCallback: ()=>void,
     errorCallback: (error:string)=>void){
     try{
-        console.log("Fetching Data");
         for await (const chunk of streamClient) {
             responseCallback(chunk.choices[0]?.delta?.content || "");
         }
-        endCallback();
+        if(streamClient.controller.signal.aborted){
+            errorCallback("1 - Request Cancelled By Client."); // 1 is the error code and is used later in the webview
+        }
+        else{
+            endCallback();
+        }
     }
     catch(error){
         errorCallback((error as Error).message);

@@ -30,8 +30,8 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                 let preview = await getCodePreview(filePath);
                 let codeSnippet = preview.preview;
                 let language = preview.language;
-                let promptPrefix = `Generate a comment to document the parameters and functionality of the following ${language} code\n`;
-                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} comment. Only generate documentation, do not generate code.\nPut everything in markdown code blocks using \`\`\``;
+                let promptPrefix = `Generate a docstring comment to document the parameters and functionality of the following ${language} code\n`;
+                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} docstring. Only generate documentation, do not generate code.\nPut all output in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 output.push({"role":"user", "content": prompt});
                 break;
@@ -47,7 +47,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                 break;
             }
             default:{
-                throw Error(`**${lastMsgInputText}** is not a valid command.`);
+                throw Error(`**${lastMsgInputText}** is not a recognized command.`);
                 break;
             }
         }
