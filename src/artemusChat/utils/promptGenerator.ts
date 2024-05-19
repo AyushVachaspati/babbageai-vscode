@@ -20,8 +20,8 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                 let preview = await getCodePreview(filePath);
                 let codeSnippet = preview.preview;
                 let language = preview.language;
-                let promptPrefix = `Explain the following ${language} code. Indicate when it is not clear to you what is going on. Format your response as an ordered list. Finally summarize your explanations at the end.\n`;
-                let promptSuffix  = "Put all code in markdown code blocks using ```";
+                let promptPrefix = `Explain the following ${language} codeBe clear and concise in your explanation. Format your response as an ordered list. Finally summarize your explanations at the end.\n`;
+                let promptSuffix  = "Format all code in markdown code blocks using ```";
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 output.push({"role":"user", "content": prompt});
                 break;
@@ -30,8 +30,8 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                 let preview = await getCodePreview(filePath);
                 let codeSnippet = preview.preview;
                 let language = preview.language;
-                let promptPrefix = `Generate a docstring comment to document the parameters and functionality of the following ${language} code\n`;
-                let promptSuffix  = `Use the ${language} documentation style to generate a ${language} docstring. Only generate documentation, do not generate code.\nPut all output in markdown code blocks using \`\`\``;
+                let promptPrefix = `Re-write the ${language} code with a docstring included to document the code.\nUse the ${language} documentation style. Format the output in markdown code block.`;
+                let promptSuffix  = `Format all code in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 output.push({"role":"user", "content": prompt});
                 break;
@@ -40,8 +40,8 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                 let preview = await getCodePreview(filePath);
                 let codeSnippet = preview.preview;
                 let language = preview.language;
-                let promptPrefix = `Generate unit tests for the following ${language} code\n`;
-                let promptSuffix  = `Only generate tests and take care of all edge cases.\nPut everything in markdown code blocks using \`\`\``;
+                let promptPrefix = `Generate unit tests for the following ${language} code.\nOnly write tests and take care of all edge cases.\nFormat the output in markdown code block.`;
+                let promptSuffix  = `Format all code in markdown code blocks using \`\`\``;
                 prompt += `${promptPrefix}${codeSnippet}\n${promptSuffix}`;
                 output.push({"role":"user", "content": prompt});
                 break;
@@ -66,7 +66,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                         });
                     }
                     else{
-                        let promptSuffix  = "Put all code in markdown code blocks using ```";
+                        let promptSuffix  = "Format all code in markdown code blocks using ```";
                         output.push({
                             "role":"user",
                             "content": `${message.message}\n${promptSuffix}`
