@@ -115,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
 
 
-	vscode.window.onDidChangeTextEditorSelection((e)=>{
+	vscode.window.onDidChangeTextEditorSelection(()=>{
 		vscode.commands.executeCommand('artemusai-vscode.editorSelectionChanged');
 	});
 

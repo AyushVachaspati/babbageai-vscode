@@ -96,7 +96,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	
 }
 
-async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
+async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, _context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
 	// TODO: the prompt construction logic is completely model dependent. To make models switchable, this logic should be extracted out seperately for each model
 	// and then a switch statement or something else should direct the prompt construction based on the model.assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
