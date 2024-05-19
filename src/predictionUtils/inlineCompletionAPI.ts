@@ -61,7 +61,7 @@ async function getModelPredictionSimplismart(prefix:string): Promise<ModelPredic
             model: modelName,
             prompt: prompt,
             max_tokens: 128,
-            temperature: 0.1,
+            temperature: 0.6,
             stop: "<EOT>",
             stream: false
         });

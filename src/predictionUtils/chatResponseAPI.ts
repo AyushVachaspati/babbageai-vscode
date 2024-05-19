@@ -58,7 +58,7 @@ export async function getModelPredictionStreamSimplismart (
             model: "starchat",
             messages: prompt,
             stream: true,
-            temperature: 0.1,
+            temperature: 0.6,
             max_tokens: 1024,
             top_p: 1
           });

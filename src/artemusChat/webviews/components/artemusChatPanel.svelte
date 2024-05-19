@@ -12,6 +12,7 @@
     import ClearHistoryButton from "./clearHistoryButton.svelte";
     import HistoryCard from "./historyCard.svelte";
     import CommandPalette from "./commandPalette.svelte";
+	import SelectionInfo from "./selectionInfo.svelte";	
 	
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -21,6 +22,8 @@
 	let saveLock = false;
 	autoSave();
 
+	let hasSelection = false;
+	let selection = "";
 	let fetching=false;
 	let inputTextArea:any;
 	let outputArea:any;
@@ -183,6 +186,12 @@
 					resizeInputArea();
 					break;
 				}
+				case 'selectionInfo':{
+					hasSelection = data.hasSelection;
+					selection = data.selection;
+					break;
+				}
+				
 			}
 		})
 	});
@@ -397,6 +406,7 @@
 							commands={commands}
 							commandHandler={commandHandler}
 							highlightIndex={highlightIndex}></CommandPalette>
+				<SelectionInfo {hasSelection} {selection}></SelectionInfo>
 				<textarea bind:this={inputTextArea} class='input-area' placeholder="Ask something or '/' for commands" 
 						  bind:value={inputValue} on:input={resizeInputArea} on:keypress={inputAreaKeypress} 
 						  on:keydown={switchCommand}/>

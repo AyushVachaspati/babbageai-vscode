@@ -5,6 +5,7 @@ import { readFileSync } from "fs";
 import { systemPrompt } from "./system_prompt";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources";
 
+
 export async function constructChatPrompt(chat: Message[]): Promise<ChatCompletionMessageParam[]> {
     let lastUserMsg = chat[chat.length-1];
     let prompt = "";
@@ -66,7 +67,7 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
                         });
                     }
                     else{
-                        let promptSuffix  = "Format all code in markdown code blocks using ```";
+                        let promptSuffix  = "It is absolutely imperitive that you format all code in markdown code blocks using ```";
                         output.push({
                             "role":"user",
                             "content": `${message.message}\n${promptSuffix}`

@@ -406,6 +406,31 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		this.view?.webview.postMessage({ type: 'showCurrentChat'});
 	}
 
+	public editorSelectionChanged(){
+		let editor = vscode.window.activeTextEditor;
+		if(!editor){
+			this.view?.webview.postMessage({ type: 'selectionInfo', hasSelection: false, selection: ""});
+			return;
+		}
+		let fileUri = editor.document.uri.path;
+		try{
+			let startLine:number|undefined = editor.selection.start.line + 1;
+			let endLine:number|undefined = editor.selection.end.line + 1;
+			// if there's no selection then use the whole file
+			if(startLine===endLine && editor?.selection.isEmpty){
+				this.view?.webview.postMessage({ type: 'selectionInfo', hasSelection: false, selection: ""});
+				return;
+			}
+			let filePath =  `Selected File: ${fileUri}#${startLine}-${endLine}`;
+			
+			this.view?.webview.postMessage({ type: 'selectionInfo', hasSelection: true, selection: filePath});
+		}
+		catch (error){
+			this.view?.webview.postMessage({ type: 'selectionInfo', hasSelection: false, selection: ""});
+		}
+	}
+	
+
 	public executeCommand(command:string) {
 		switch(command){
 			case '/explain': {

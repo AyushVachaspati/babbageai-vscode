@@ -53,6 +53,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 	
+	context.subscriptions.push(
+		vscode.commands.registerCommand('artemusai-vscode.editorSelectionChanged', ()=>{
+			artemusChatWebview.editorSelectionChanged();
+		})
+	);
+
 	// setting current panel to Chat panel
 	vscode.commands.executeCommand('setContext', 'artemus-vscode.historyPanel',false);
 	vscode.commands.executeCommand('setContext','artemus-vscode.currentChatPanel',true);
@@ -107,6 +113,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	//Hacky way to make sure that the resolveWebview method is called to make all the Artemus commands available on start.
 	vscode.commands.executeCommand("artemusai-vscode.chatpanel.focus");
 	vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
+
+
+	vscode.window.onDidChangeTextEditorSelection((e)=>{
+		vscode.commands.executeCommand('artemusai-vscode.editorSelectionChanged');
+	});
 
 	console.log('Artemus AI is active!');
 	updateStatusBarArtemusActive();
