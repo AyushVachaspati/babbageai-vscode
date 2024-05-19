@@ -35,6 +35,8 @@ export const inlineCompletionProvider: vscode.InlineCompletionItemProvider = {
  *	context.SelectedCompletionInfo corresponds to lookAheadSuggestion	
  */
 async function getLookAheadInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
+	// TODO: the prompt construction logic is completely model dependent. To make models switchable, this logic should be extracted out seperately for each model
+	// and then a switch statement or something else should direct the prompt construction based on the model.
 	assert(context.selectedCompletionInfo,"LookAheadCompletion Called with InlineCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
@@ -51,7 +53,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	prefix = prefix.slice(0, currentCompletion.length===0?undefined:-currentCompletion.length); 
 	prefix = prefix + context.selectedCompletionInfo.text; //get prefix as if popup suggestion was accepted
 	if(fillInMiddle){
-		prompt = `${startToken}${prefix}${endToken}${postfix}${middleToken}`;
+		prompt = `${prefix}${middleToken}${postfix}`;
 	}
 	else{
 		prompt = prefix;
@@ -68,7 +70,7 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 
 	if(!lookaheadCompletion){
 		let prediction = await debounceCompletions(prompt);
-		lookaheadCompletion = prediction? context.selectedCompletionInfo.text + prediction.result.slice(prompt.length) : undefined;
+		lookaheadCompletion = prediction? context.selectedCompletionInfo.text + prediction.result : undefined;
 		lookaheadCompletion? globalCache.set(key, lookaheadCompletion) : undefined;
 		
 		// Also cache implied inlineSuggestion, this will be shown when user accepts LookAheadSuggestion in order to maintain a seamless experience.		
@@ -95,7 +97,8 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 }
 
 async function getInlineCompletion(document:vscode.TextDocument, position:vscode.Position, context: vscode.InlineCompletionContext, _token:vscode.CancellationToken) {
-	assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
+	// TODO: the prompt construction logic is completely model dependent. To make models switchable, this logic should be extracted out seperately for each model
+	// and then a switch statement or something else should direct the prompt construction based on the model.assert(context.selectedCompletionInfo===undefined,"InlineCompletion Called with LookAheadCompletion context.");
 	let prefix = document.getText().slice(0,document.offsetAt(position));
 	let postfix = document.getText().substring(document.offsetAt(position));
 	
@@ -107,7 +110,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	let fillInMiddle:boolean = postfix.trim()?true:false;
 	
 	if(fillInMiddle){
-		prompt = `${startToken}${prefix}${endToken}${postfix}${middleToken}`;
+		prompt = `${prefix}${middleToken}${postfix}`;
 	}
 	else{
 		prompt = prefix;
@@ -124,7 +127,7 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 	
 	if(!inlineCompletion){
 		let prediction = await debounceCompletions(prompt);
-		inlineCompletion = prediction? prediction.result.slice(prompt.length) : undefined;
+		inlineCompletion = prediction? prediction.result : undefined;
 		inlineCompletion? globalCache.set(key, inlineCompletion) : undefined;
 	}
 	if(inlineCompletion){

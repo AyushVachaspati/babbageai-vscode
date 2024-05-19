@@ -43,9 +43,9 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 		
 		webviewView.onDidChangeVisibility(() => {
 			if(webviewView.visible!==true){
-				// this.streamClient?.cancel();
+				// this.streamClient?.controller.abort();
 				// this.streamClient = undefined;
-			}	
+			}
 		});
 
 		webviewView.onDidDispose(()=>{

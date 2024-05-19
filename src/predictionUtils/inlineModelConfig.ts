@@ -1,11 +1,12 @@
 enum InlineModelName {
     santaCoder,
     starCoder,
+    codeLlama
 }
 
 export class InlineModelConfig {
     private static instance: InlineModelConfig;
-    private static currentModel = InlineModelName.starCoder;
+    private static currentModel = InlineModelName.codeLlama;
     
     private constructor() {
         // Private constructor to prevent direct instantiation
@@ -18,13 +19,16 @@ export class InlineModelConfig {
         return InlineModelConfig.instance;
       }
 
-    getPrefixToken(): String{
+    getPrefixToken(): string{
         switch(InlineModelConfig.currentModel){
             case InlineModelName.santaCoder: {
                 return "<fim-prefix>";
             }
             case(InlineModelName.starCoder): {
                 return "<fim_prefix>";
+            }
+            case(InlineModelName.codeLlama): {
+                return "";
             }
         }
     }
@@ -37,6 +41,9 @@ export class InlineModelConfig {
             case(InlineModelName.starCoder): {
                 return "<fim_suffix>";
             }
+            case(InlineModelName.codeLlama): {
+                return "";
+            }
         }
     }
 
@@ -48,6 +55,9 @@ export class InlineModelConfig {
             case(InlineModelName.starCoder): {
                 return "<fim_middle>";
             }
+            case(InlineModelName.codeLlama): {
+                return "<FILL_ME>";
+            }
         }
     }
 
@@ -58,6 +68,9 @@ export class InlineModelConfig {
             }
             case(InlineModelName.starCoder): {
                 return "starcoder_huggingface";
+            }
+            case(InlineModelName.codeLlama): {
+                return "codellama";
             }
         }
     }
