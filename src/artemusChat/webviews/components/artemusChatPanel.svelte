@@ -91,6 +91,7 @@
 		loading = false;
 		await tick();
 		inputTextArea?.focus();
+		vscodeApi.postMessage({type:'updateEditorSelection'});
 
 		window.addEventListener("message",async (event) => {
 			const data = event.data;
@@ -172,6 +173,7 @@
 					vscodeApi.postMessage({type:'showChatView'});
 					await tick();
 					inputTextArea?.focus();
+					vscodeApi.postMessage({type:'updateEditorSelection'});
 					break;
 				}
 				case 'showChatHistory':{
@@ -203,7 +205,6 @@
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){
-			console.log("entered here")
 			chat = chat.concat(temp);
 		}
 		setFetching(false);

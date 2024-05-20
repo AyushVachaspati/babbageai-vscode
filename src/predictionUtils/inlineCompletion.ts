@@ -58,7 +58,6 @@ async function getLookAheadInlineCompletion(document:vscode.TextDocument, positi
 	else{
 		prompt = prefix;
 	}
-	console.log(prompt);
 
 	let cacheItem:CachePrompt = {
 		prefix: prompt, 
@@ -121,7 +120,6 @@ async function getInlineCompletion(document:vscode.TextDocument, position:vscode
 		completionType: CompletionType.inlineSuggestion
 	};
 	
-	console.log(prompt);
 	let key = sha1(JSON.stringify(cacheItem));
 	let inlineCompletion:string|undefined = globalCache.get(key);
 	

@@ -185,6 +185,11 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 						this.view?.webview.postMessage({type: "createNewChatHelper"});
 						break;
 					}
+				case 'updateEditorSelection': 
+					{
+						this.editorSelectionChanged();
+						break;
+					}
 				case 'deleteChatHistory':
 					{
 						let chatHistory = this.context.globalState.get("Artemus-Chat-State") as ChatHistory|undefined;
@@ -273,7 +278,6 @@ export class ArtemusChatPanelProvider implements vscode.WebviewViewProvider {
 				this.generateResponse();
 			}
 			catch (error){
-				console.log("Error is here")
 				this.adduserMessage(inputText);
 				this.commandError((error as Error).message);
 			}
