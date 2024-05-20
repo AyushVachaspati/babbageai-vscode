@@ -6,6 +6,27 @@ import { systemPrompt } from "./system_prompt";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources";
 
 
+function validatePromptLength(messages:ChatCompletionMessageParam[]):ChatCompletionMessageParam[] {
+    let output:ChatCompletionMessageParam[] = [];
+    const sysPrompt = messages[0];
+    let totalChars = messages[0].content!.length;
+    const maxChars = 1000*10;
+
+    messages = messages.slice(1);
+    // loop through the array in reverse
+    for (let i = messages.length - 1; i >= 0 && totalChars<=maxChars; --i) {
+        output.push(messages[i]);
+        totalChars += messages[i].content!.length;
+    }
+    if(output[output.length - 1].role === "assistant"){
+        output.push({"role":"user", "content":""});  // prompt has to be user/assistant/user/assistant
+    }
+    output.push(sysPrompt);
+    output = output.reverse();
+    return output;
+}
+
+
 export async function constructChatPrompt(chat: Message[]): Promise<ChatCompletionMessageParam[]> {
     let lastUserMsg = chat[chat.length-1];
     let prompt = "";
@@ -89,5 +110,6 @@ export async function constructChatPrompt(chat: Message[]): Promise<ChatCompleti
             }
         });
     }
+    output = validatePromptLength(output);
     return output;
 }

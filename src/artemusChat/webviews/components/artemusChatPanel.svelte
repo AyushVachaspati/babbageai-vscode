@@ -203,6 +203,7 @@
 		let error_code = (message.error as string).split(" ")[0];
 		let temp = chat.pop();
 		if(temp && temp.message!==""){
+			console.log("entered here")
 			chat = chat.concat(temp);
 		}
 		setFetching(false);

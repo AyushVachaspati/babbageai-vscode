@@ -47,7 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider(ArtemusChatPanelProvider.viewType, artemusChatWebview,
 			{
 			webviewOptions: {
-			  retainContextWhenHidden: false, // keeps/saves the state of the webview even when it's not visible
+			  retainContextWhenHidden: true, // keeps/saves the state of the webview even when it's not visible
 			},
 		  }
 		)

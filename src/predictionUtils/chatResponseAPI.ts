@@ -66,6 +66,7 @@ export async function getModelPredictionStreamSimplismart (
         return streamClient;
     }
     catch (error){
+        console.error(error);
         errorCallback((error as Error).message);
     }
     return undefined;
@@ -76,6 +77,9 @@ export async function startOutputStreaming(
     responseCallback: (output:string)=>void,
     endCallback: ()=>void,
     errorCallback: (error:string)=>void){
+    if(streamClient===undefined){
+        return;
+    }
     try{
         for await (const chunk of streamClient) {
             responseCallback(chunk.choices[0]?.delta?.content || "");
@@ -88,6 +92,7 @@ export async function startOutputStreaming(
         }
     }
     catch(error){
+        console.error(error);
         errorCallback((error as Error).message);
     }
 }
