@@ -13,6 +13,7 @@
     import HistoryCard from "./historyCard.svelte";
     import CommandPalette from "./commandPalette.svelte";
 	import SelectionInfo from "./selectionInfo.svelte";	
+	import DeleteConfirmDialog from "./deleteConfirmDialog.svelte";
 	
 	let currentView = 'ChatView';
 	let chatContext: ChatContext|undefined;
@@ -22,6 +23,7 @@
 	let saveLock = false;
 	autoSave();
 
+	let confirmDialogDisplay=false;
 	let hasSelection = false;
 	let selection = "";
 	let fetching=false;
@@ -310,6 +312,7 @@
 	}
 	function deleteChatHistory(chatIdRetain:string) {
 		vscodeApi.postMessage({type:'deleteChatHistory',chatIdRetain:chatIdRetain});
+		confirmDialogDisplay = false;
 	}
 
 	function restoreChatById(chatIdToRestore:string) {
@@ -381,6 +384,14 @@
 		}
 	}
 
+	function showConfirmDeleteDialog(){
+		confirmDialogDisplay = !confirmDialogDisplay;
+	}
+
+	function cancelDelete(){
+		confirmDialogDisplay = false;
+	}
+
 </script>
 
 
@@ -417,7 +428,10 @@
 	</div>
 {:else if currentView=='HistoryView'}
 	{#if chatHistory!==undefined}
-		<ClearHistoryButton on:click={()=>{deleteChatHistory(currentChatId)}}/>
+		<ClearHistoryButton on:click={showConfirmDeleteDialog}/>
+		<DeleteConfirmDialog display={confirmDialogDisplay}
+							on:cancel={cancelDelete}
+							on:delete={()=>{deleteChatHistory(currentChatId)}}></DeleteConfirmDialog>
 		{#each chatHistory.chatItems.sort(sortChatDescending) as chatHistoryItem}
 			<HistoryCard title={getLastUserMessage(chatHistoryItem.chatContext.chat).slice(0,100)} 
 						date={new Date(chatHistoryItem.dateTime).toLocaleDateString()}

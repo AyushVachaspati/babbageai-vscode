@@ -22,11 +22,6 @@
     background-color: rgba(255, 255, 255,0.05);
     cursor: pointer;
   }
-  .stop-generate-button:hover {
-    background-color: rgba(255, 255, 255,0.05);
-    cursor: pointer;
-  }
-  
   .stop-generate-button:active {
     background-color: rgba(255, 255, 255, 0.25);
     cursor: pointer;
